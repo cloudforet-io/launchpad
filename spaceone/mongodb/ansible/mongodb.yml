@@ -1,0 +1,31 @@
+---
+- name: Initialize for MongoDB cluster
+  hosts: tag_server_type_mongodb
+  roles:
+    - base
+
+- name: Build Config Replicaset
+  hosts: tag_rs_type_config
+  roles:
+    - config_replicaset
+
+- name: Build Data node Replicaset 1
+  hosts: tag_replica_set_1
+  roles:
+    - data_node_replicaset
+  vars:
+    host_group: "tag_replica_set_1"
+
+- name: Build Data node Replicaset 2
+  hosts: tag_replica_set_2
+  roles:
+    - data_node_replicaset
+  vars:
+    host_group: "tag_replica_set_2"
+
+- name: Build Data node Replicaset 3
+  hosts: tag_replica_set_3
+  roles:
+    - data_node_replicaset
+  vars:
+    host_group: "tag_replica_set_3"

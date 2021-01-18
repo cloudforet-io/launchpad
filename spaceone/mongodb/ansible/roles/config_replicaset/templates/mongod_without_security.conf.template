@@ -1,0 +1,16 @@
+sharding:
+  clusterRole: configsvr
+replication:
+  replSetName: rs-cfg
+net:
+  bindIpAll: true
+  port: {{ shard_port }}
+storage:
+   dbPath: {{ mongo_data_path }}
+   journal:
+      enabled: true
+systemLog:
+   destination: file
+   path: {{ mongo_log_path }}
+   logAppend: true
+
