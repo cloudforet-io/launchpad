@@ -1,0 +1,57 @@
+---
+- name: Create config server config file from template
+  template:
+    src: mongod_without_security.conf.template
+    dest: /etc/mongod.conf
+  notify:
+    - restart mongod
+  register: mongod_conf
+
+- name: Restart mongod service
+  service:
+    name: mongod
+    state: restarted
+  when: mongod_conf.changed
+
+- name: Pause for 3 seconds for mongod process
+  pause:
+    seconds: 3
+
+- name: Config server replicaset
+  community.mongodb.mongodb_replicaset:
+    login_host: localhost:{{ shard_port }}
+    login_database: admin
+    replica_set: rs-cfg
+    members: "{{ config_members }}"
+  when: ansible_facts.ansible_local.custom.mongodb.rs_primary == "true"
+
+- name: Pause for 20 seconds for replicaset
+  pause:
+    seconds: 20
+
+- name: Create admin user
+  community.mongodb.mongodb_user:
+    login_host: localhost
+    login_port: "{{ shard_port }}"
+    database: admin
+    replica_set: rs-cfg
+    name: "{{ admin_user }}"
+    password: "{{ admin_password }}"
+    roles:
+      - db: admin
+        role: root
+    state: present
+
+- name: Change config server(with security) config from template
+  template:
+    src: mongod.conf.template
+    dest: /etc/mongod.conf
+  notify:
+    - restart mongod
+  register: mongod_conf_with_security
+
+- name: Restart mongod service
+  service:
+    name: mongod
+    state: restarted
+  when: mongod_conf_with_security.changed

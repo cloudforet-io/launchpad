@@ -1,0 +1,24 @@
+stream {
+    upstream mongo {
+        server  {{ mongodb_endpoint }}:{{ mongodb_port }};
+    }
+    server {
+        listen      {{ mongodb_port }};
+        proxy_pass  mongo;
+    }
+    upstream mongo-inventory {
+        server 172.16.16.18:31999;
+    }
+    server {
+        listen      27027;
+        proxy_pass  mongo-inventory;
+    }
+# 요게 우리가 바라봐야 하는 DB
+    upstream mongo-shard-cluster {
+        server 172.16.16.18:32000; <= nodeport로 오픈된 서비스이고, 172.16.16.18 은 임의의 workernode ip
+    }
+    server {
+        listen      27028;
+        proxy_pass  mongo-shard-cluster;
+    }
+}

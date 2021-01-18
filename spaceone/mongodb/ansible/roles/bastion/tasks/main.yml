@@ -1,0 +1,38 @@
+---
+- name: Update apt repository cache
+  apt:
+    update_cache: yes
+
+- name: Convert Timezone to KST
+  timezone:
+    name: Asia/Seoul
+
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Creates nginx conf directory
+  file:
+    path: /etc/nginx/stream.d
+    state: directory
+
+- name: Create nginx config file from template
+  template:
+    src: nginx.conf.template
+    dest: /etc/nginx/nginx.conf
+  notify:
+    - restart nginx
+
+- name: Create proxy config file from template
+  template:
+    src: proxy.conf.template
+    dest: /etc/nginx/stream.d/proxy.conf
+  notify:
+    - restart nginx
+
+- name: Start service nginx if not started and enabled
+  service:
+    name: nginx
+    state: started
+    enabled: yes

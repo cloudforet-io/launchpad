@@ -1,0 +1,10 @@
+---
+config_members:
+  - host: "mongodb-cfg1-dev.db.jhsong-mongodb-test:27028"
+    priority: 1
+  - host: "mongodb-cfg2-dev.db.jhsong-mongodb-test:27028"
+    priority: 0.5
+  - host: "mongodb-cfg3-dev.db.jhsong-mongodb-test:27028"
+    priority: 0.5
+admin_user: admin
+admin_password: spaceonedbuser
