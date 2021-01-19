@@ -1,10 +1,29 @@
 ---
-- name: Shard Cluster
+- name: Pause for 20 seconds for shard cluster
+  pause:
+    seconds: 20
+
+- name: Add replicaset to Shard
   community.mongodb.mongodb_shard:
     login_host: localhost:{{ shard_port }}
     login_user: "{{ admin_user }}"
     login_password: "{{ admin_password }}"
     login_database: admin
-    shard: {{ item.shard}}/{{ item.members | join(',') }}
+    shard: "{{ item.shard}}/{{ item.members | join(',') }}"
+    sharded_databases: "{{ item.databases }}"
     state: present
   loop: "{{ shard_info }}"
+
+- name: Create admin database user for shard cluster.
+  community.mongodb.mongodb_user:
+    login_host: localhost:{{ shard_port }}
+    login_user: "{{ admin_user }}"
+    login_password: "{{ admin_password }}"
+    login_database: admin
+    database: admin
+    name: "{{ shard_admin_user }}"
+    password: "{{ shard_admin_password }}"
+    state: present
+    roles:
+      - db: admin
+        role: root
