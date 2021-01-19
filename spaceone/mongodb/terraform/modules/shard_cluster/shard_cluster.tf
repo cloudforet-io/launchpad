@@ -1,5 +1,13 @@
+resource "aws_eip" "bastion_eip" {
+  vpc             =   true
+
+  tags = {
+    Name          =   "mongodb-bastion-${var.environment}-eip"
+    Managed_by    =   "terraform"
+  }
+}
+
 resource "aws_instance" "mongodb_bastion" {
-  associate_public_ip_address   =   true
   ami                           =   var.mongodb_ami_id
   subnet_id                     =   var.mongodb_bastion_subnet_id
   instance_type                 =   var.mongodb_bastion_instance_type
@@ -11,6 +19,11 @@ resource "aws_instance" "mongodb_bastion" {
     mongodb_type  =   "bastion"
     Managed_by    =   "terraform"
   }
+}
+
+resource "aws_eip_association" "bastion_eip_assoc" {
+  instance_id     =   aws_instance.mongodb_bastion.id
+  allocation_id   =   aws_eip.bastion_eip.id
 }
 
 data "template_file" "mongodb_config_init" {
