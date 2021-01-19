@@ -1,4 +1,8 @@
 ---
+- name: Update apt repository cache
+  apt:
+    update_cache: yes
+
 - name: Convert Timezone to KST
   timezone:
     name: Asia/Seoul
