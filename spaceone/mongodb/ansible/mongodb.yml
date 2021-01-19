@@ -36,6 +36,6 @@
   hosts: tag_mongodb_type_bastion
   roles:
     - ubuntu_base
-    - bastion
+    # - bastion
     - mongodb_base
     - mongos
