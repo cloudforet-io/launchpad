@@ -1,0 +1,43 @@
+---
+- name: Create xfs filesystem on data disk blocks
+  filesystem:
+    fstype: xfs
+    dev: /dev/{{ data_disk_device_name }}
+  when: data_disk_device_name in ansible_devices
+
+- name: Creates data volume directory
+  file:
+    path: "{{ mongo_data_path }}"
+    state: directory
+
+- name: Check that the data directory exists
+  stat:
+    path: "{{ mongo_data_path }}"
+  register: data_directory
+
+- name: Mount and bind a volume
+  mount:
+    path: "{{ mongo_data_path }}"
+    src: /dev/{{ data_disk_device_name }}
+    fstype: xfs
+    state: mounted
+  when: data_disk_device_name in ansible_devices
+
+- name: Swappiness for MongoDB
+  sysctl:
+    name: vm.swappiness
+    value: 1
+    state: present
+
+- name: Change owner for mongodb directory
+  file:
+    path: "{{ mongo_data_path }}"
+    owner: mongodb
+    group: mongodb
+  when: data_directory.stat.exists
+
+- name: Start service mongod if not started and enabled
+  service:
+    name: mongod
+    state: started
+    enabled: yes

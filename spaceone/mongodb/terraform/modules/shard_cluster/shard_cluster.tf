@@ -18,6 +18,7 @@ resource "aws_instance" "mongodb_bastion" {
     Name          =   "mongodb-bastion-${var.environment}"
     mongodb_type  =   "bastion"
     Managed_by    =   "terraform"
+    rs_type       =   "mongos"
   }
 }
 

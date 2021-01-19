@@ -1,0 +1,31 @@
+---
+shard_info:
+  - shard: rs-shard1
+    members:
+      - "mongodb-s1d1-dev.db.jhsong-mongodb-test:27028"
+      - "mongodb-s1d2-dev.db.jhsong-mongodb-test:27028"
+      - "mongodb-s1d3-dev.db.jhsong-mongodb-test:27028"
+    databases:
+      - identity
+      - inventory
+  - shard: rs-shard2
+    members:
+      - "mongodb-s2d1-dev.db.jhsong-mongodb-test:27028"
+      - "mongodb-s2d2-dev.db.jhsong-mongodb-test:27028"
+      - "mongodb-s2d3-dev.db.jhsong-mongodb-test:27028"
+    databases:
+      - identity
+      - inventory
+  - shard: rs-shard3
+    members:
+      - "mongodb-s3d1-dev.db.jhsong-mongodb-test:27028"
+      - "mongodb-s3d2-dev.db.jhsong-mongodb-test:27028"
+      - "mongodb-s3d3-dev.db.jhsong-mongodb-test:27028"
+    databases:
+      - identity
+      - inventory
+
+admin_user: admin
+admin_password: spaceonedbuser
+shard_admin_user: cloudonedocdbuser
+shard_admin_password: cloudonedbuser
