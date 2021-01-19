@@ -1,6 +1,4 @@
 ---
 ntp_server: 169.254.169.123
-data_disk_device_name: nvme1n1
-mongo_data_path: /data/mongo
 private_key_path: /home/ubuntu/mongoconfig
 private_key: mongo-shard.pem

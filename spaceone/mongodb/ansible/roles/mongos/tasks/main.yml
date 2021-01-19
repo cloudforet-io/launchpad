@@ -1,0 +1,26 @@
+---
+- name: Install MongoDB
+  apt:
+    name: mongodb-org
+    state: present
+
+- name: Create mongos service systemd template
+  template:
+    src: mongos.service.template
+    dest: /lib/systemd/system/mongos.service
+
+- name: Create mongos config file from template
+  template:
+    src: mongos.conf.template
+    dest: "{{ mongos_conf_path }}"
+    owner: mongodb
+    group: mongodb
+  register: mongos_conf
+  notify:
+    - restart mongos
+
+- name: Start service mongos if not started and enabled
+  service:
+    name: mongos
+    state: started
+    enabled: yes

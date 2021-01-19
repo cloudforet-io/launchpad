@@ -3,6 +3,7 @@
   hosts: tag_server_type_mongodb
   roles:
     - base
+    - mongod
 
 - name: Build Config Replicaset
   hosts: tag_rs_type_config
@@ -29,3 +30,10 @@
     - data_node_replicaset
   vars:
     host_group: "tag_replica_set_3"
+
+- name: Build MongoDB Mongos on bastion
+  hosts: tag_mongodb_type_bastion
+  roles:
+    - base
+    - bastion
+    - mongos

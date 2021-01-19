@@ -1,0 +1,10 @@
+sharding:
+  configDB: {{ shard_id }}/{%- config_member in config_members %}{{ config_member }},{% endfor %}
+net:
+  port: {{ shard_port }}
+security:
+  keyFile: {{ private_key_path }}
+systemLog:
+   destination: file
+   path: {{ system_log_path }}
+   logAppend: true
