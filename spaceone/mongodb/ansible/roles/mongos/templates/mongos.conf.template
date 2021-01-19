@@ -1,5 +1,5 @@
 sharding:
-  configDB: {{ shard_id }}/{%- config_member in config_members %}{{ config_member }},{% endfor %}
+  configDB: {{ shard_id }}/{{ config_members|join(',') }}
 net:
   port: {{ shard_port }}
 security:
