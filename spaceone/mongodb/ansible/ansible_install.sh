@@ -30,6 +30,11 @@ ansible_ssh_user: ubuntu
 ansible_ssh_private_key_file: /root/key/mongodb.pem
 EOF
 
+sudo cat > /opt/ansible/inventory/group_vars/tag_rs_type_mongos << EOF
+ansible_ssh_user: ubuntu
+ansible_ssh_private_key_file: /root/key/mongodb.pem
+EOF
+
 sudo mkdir -p /etc/ansible
 sudo cat > /etc/ansible/ansible.cfg << EOF
 [defaults]

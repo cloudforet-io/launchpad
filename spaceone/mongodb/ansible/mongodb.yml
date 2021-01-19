@@ -37,5 +37,15 @@
   roles:
     - ubuntu_base
     # - bastion (not developed yet)
+
+- name: Build MongoDB Mongos
+  hosts: tag_rs_type_mongos
+  roles:
+    - ubuntu_base
     - mongodb_base
     - mongos
+
+- name: Build Shard Cluster through Mongos
+  hosts: tag_rs_type_mongos
+  roles:
+    - shard_cluster
