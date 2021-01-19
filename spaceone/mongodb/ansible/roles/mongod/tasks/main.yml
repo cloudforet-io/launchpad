@@ -29,22 +29,12 @@
     value: 1
     state: present
 
-- name: Install MongoDB
-  apt:
-    name: mongodb-org
-    state: present
-
 - name: Change owner for mongodb directory
   file:
     path: "{{ mongo_data_path }}"
     owner: mongodb
     group: mongodb
   when: data_directory.stat.exists
-
-- name: Install python package (pymongo)
-  pip:
-    name:
-      - pymongo
 
 - name: Start service mongod if not started and enabled
   service:

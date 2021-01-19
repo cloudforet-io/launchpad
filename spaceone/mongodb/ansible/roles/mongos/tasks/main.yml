@@ -1,9 +1,4 @@
 ---
-- name: Install MongoDB
-  apt:
-    name: mongodb-org
-    state: present
-
 - name: Create mongos service systemd template
   template:
     src: mongos.service.template

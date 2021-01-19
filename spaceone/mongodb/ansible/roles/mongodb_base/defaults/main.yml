@@ -1,4 +1,3 @@
 ---
-ntp_server: 169.254.169.123
 private_key_path: /home/ubuntu/mongoconfig
 private_key: mongo-shard.pem
