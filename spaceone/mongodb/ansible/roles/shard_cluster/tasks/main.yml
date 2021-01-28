@@ -1,7 +1,7 @@
 ---
-- name: Pause for 20 seconds for shard cluster
+- name: Pause for 30 seconds for shard cluster
   pause:
-    seconds: 20
+    seconds: 30
 
 - name: Add replicaset to Shard
   community.mongodb.mongodb_shard:
