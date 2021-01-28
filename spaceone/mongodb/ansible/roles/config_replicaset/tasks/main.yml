@@ -64,5 +64,7 @@
   copy:
     dest: /etc/ansible/facts.d/mongodb_replica_is_set.fact
     mode: 0755
-    content: '"true"'
+    content: |
+      [general]
+      is_set=true
   when: '"mongodb_replica_is_set" not in ansible_facts.ansible_local'
