@@ -8,7 +8,7 @@
   register: mongod_conf
   notify:
     - restart mongod
-  when: '"mongodb_replica_is_set" not in ansible_facts.ansible_local'
+  when: ansible_facts.ansible_local.custom.is_set != "true"
 
 - name: Restart mongod service
   service:
@@ -27,12 +27,12 @@
     replica_set: "{{ replica_info[host_group].shard }}"
     members: "{{ replica_info[host_group].members }}"
     arbiter_at_index: "{{ replica_info[host_group].arbiter_index }}"
-  when: ansible_facts.ansible_local.custom.mongodb.rs_primary == "true" and "mongodb_replica_is_set" not in ansible_facts.ansible_local
+  when: ansible_facts.ansible_local.custom.mongodb.rs_primary == "true" and ansible_facts.ansible_local.custom.is_set != "true"
 
 - name: Pause for 30 seconds for replicaset
   pause:
     seconds: 30
-  when: '"mongodb_replica_is_set" not in ansible_facts.ansible_local'
+  when: ansible_facts.ansible_local.custom.is_set != "true"
 
 - name: Create admin user
   community.mongodb.mongodb_user:
@@ -46,7 +46,7 @@
       - db: admin
         role: root
     state: present
-  when: '"mongodb_replica_is_set" not in ansible_facts.ansible_local'
+  when: ansible_facts.ansible_local.custom.is_set != "true"
 
 - name: Change config server(with security) config from template
   template:
@@ -57,7 +57,7 @@
   notify:
     - restart mongod
   register: mongod_conf_with_security
-  when: '"mongodb_replica_is_set" not in ansible_facts.ansible_local'
+  when: ansible_facts.ansible_local.custom.is_set != "true"
 
 - name: Restart mongod service
   service:
@@ -66,11 +66,9 @@
   when: mongod_conf_with_security.changed
 
 - name: Create custom facts (is_set)
-  copy:
-    dest: /etc/ansible/facts.d/mongodb_replica_is_set.fact
-    mode: 0755
-    content: |
-      {
-        "is_set": "true"
-      }
-  when: '"mongodb_replica_is_set" not in ansible_facts.ansible_local'
+  lineinfile:
+    path: /etc/ansible/facts.d/custom.fact
+    regexp: '^is_set'
+    line: "is_set = true"
+    insertafter: EOF
+  when: ansible_facts.ansible_local.custom.is_set != "true"
