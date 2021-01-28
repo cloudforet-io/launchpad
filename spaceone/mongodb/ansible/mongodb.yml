@@ -33,7 +33,7 @@
     host_group: "tag_replica_set_3"
 
 - name: Build MongoDB Mongos on bastion
-  hosts: tag_mongodb_type_bastion
+  hosts: tag_server_type_mongodb_bastion
   roles:
     - ubuntu_base
     # - bastion (not developed yet)
