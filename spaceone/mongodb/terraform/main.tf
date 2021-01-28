@@ -20,6 +20,22 @@ module "mongodb_security_group" {
   mongodb_app_ingress_rule_mongodb_access_security_group_id   = var.mongodb_app_ingress_rule_mongodb_access_security_group_id
 }
 
+// MongoDB Bastion
+module "bastion" {
+  source                              =   "./modules/bastion"
+
+  environment                         =   var.environment
+  region                              =   var.region
+
+  mongodb_ami_id                      =   var.mongodb_ami_id
+  mongodb_bastion_subnet_id           =   var.mongodb_bastion_subnet_id
+  mongodb_bastion_instance_type       =   var.mongodb_bastion_instance_type
+  mongodb_bastion_keypair_name        =   var.mongodb_bastion_keypair_name
+  mongodb_bastion_security_group_ids =    [module.mongodb_security_group.mongodb_bastion_sg_id]
+
+  depends_on                          =   [module.mongodb_security_group]
+}
+
 // MongoDB Shard Cluster
 module "shard_cluster" {
   source                              =   "./modules/shard_cluster"
@@ -29,10 +45,6 @@ module "shard_cluster" {
 
   // MongoDB Bastion
   mongodb_ami_id                      =   var.mongodb_ami_id
-  mongodb_bastion_subnet_id           =   var.mongodb_bastion_subnet_id
-  mongodb_bastion_instance_type       =   var.mongodb_bastion_instance_type
-  mongodb_bastion_keypair_name        =   var.mongodb_bastion_keypair_name
-
 
   // MongoDB Config Server
   mongodb_keypair_name                =   var.mongodb_keypair_name
@@ -43,11 +55,9 @@ module "shard_cluster" {
   mongodb_replica_set_members         =   var.mongodb_replica_set_members
 
   // Security Group
-  mongodb_bastion_security_group_ids  =   [module.mongodb_security_group.mongodb_bastion_sg_id]
   mongodb_security_group_ids          =   [module.mongodb_security_group.mongodb_internal_sg_id, module.mongodb_security_group.mongodb_app_sg_id]
 
   depends_on                          =   [module.mongodb_security_group]
-
 }
 
 // MongoDB Route53 Records

@@ -1,10 +1,6 @@
 variable "environment" {}
 
-// MongoDB Bastion
 variable "mongodb_ami_id" {}
-variable "mongodb_bastion_subnet_id" {}
-variable "mongodb_bastion_instance_type" {}
-variable "mongodb_bastion_keypair_name" {}
 variable "mongodb_host_zone_name" {}
 
 // MongoDB Config Server
@@ -48,9 +44,6 @@ variable "mongodb_replica_set_members" {
 }
 
 // Security Group
-variable "mongodb_bastion_security_group_ids" {
-    type = list(string)
-}
 variable "mongodb_security_group_ids" {
     type = list(string)
 }

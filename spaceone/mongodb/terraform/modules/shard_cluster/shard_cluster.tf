@@ -1,32 +1,3 @@
-resource "aws_eip" "bastion_eip" {
-  vpc             =   true
-
-  tags = {
-    Name          =   "mongodb-bastion-${var.environment}-eip"
-    Managed_by    =   "terraform"
-  }
-}
-
-resource "aws_instance" "mongodb_bastion" {
-  ami                           =   var.mongodb_ami_id
-  subnet_id                     =   var.mongodb_bastion_subnet_id
-  instance_type                 =   var.mongodb_bastion_instance_type
-  key_name                      =   var.mongodb_bastion_keypair_name
-  vpc_security_group_ids        =   var.mongodb_bastion_security_group_ids
-
-  tags = {
-    Name          =   "mongodb-bastion-${var.environment}"
-    mongodb_type  =   "bastion"
-    Managed_by    =   "terraform"
-    rs_type       =   "mongos"
-  }
-}
-
-resource "aws_eip_association" "bastion_eip_assoc" {
-  instance_id     =   aws_instance.mongodb_bastion.id
-  allocation_id   =   aws_eip.bastion_eip.id
-}
-
 data "template_file" "mongodb_config_init" {
   template                =   file("${path.module}/template/init_script.sh")
   count                   =   length(var.mongodb_config_server)
@@ -46,7 +17,7 @@ resource "aws_instance" "mongodb_config" {
   vpc_security_group_ids        =   var.mongodb_security_group_ids
   count                         =   length(var.mongodb_config_server)
   monitoring                    =   true
-  disable_api_termination       =   true
+  disable_api_termination       =   false
   user_data                     =   data.template_file.mongodb_config_init[count.index].rendered
 
   root_block_device {
@@ -82,7 +53,7 @@ resource "aws_instance" "mongodb_rs_member" {
   vpc_security_group_ids        =   var.mongodb_security_group_ids
   count                         =   length(var.mongodb_replica_set_members)
   monitoring                    =   true
-  disable_api_termination       =   true
+  disable_api_termination       =   false
   user_data                     =   data.template_file.mongodb_rs_member_init[count.index].rendered
 
   root_block_device {
