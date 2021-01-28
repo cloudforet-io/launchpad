@@ -42,6 +42,8 @@ resource "aws_instance" "mongodb_bastion" {
   instance_type                 =   var.mongodb_bastion_instance_type
   key_name                      =   var.mongodb_bastion_keypair_name
   vpc_security_group_ids        =   var.mongodb_bastion_security_group_ids
+  iam_instance_profile          =   aws_iam_instance_profile.ec2_read_only_profile.name
+  user_data                     =   data.template_file.ansible_init.rendered
 
   tags = {
     Name          =   "mongodb-bastion-${var.environment}"

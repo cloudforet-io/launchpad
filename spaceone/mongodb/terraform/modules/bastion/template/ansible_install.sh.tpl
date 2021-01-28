@@ -1,8 +1,11 @@
 #! /bin/bash
-sudo yum update
-sudo yum install -y python3 git
-sudo pip3 install ansible
-sudo pip3 install boto3
+sudo apt update
+sudo apt install -y python3
+sudo apt install -y python3-pip
+
+pip3 install --no-input ansible
+pip3 install --no-input boto3
+
 sudo mkdir -p /opt/ansible/inventory
 sudo mkdir -p /opt/ansible/inventory/group_vars
 
@@ -53,3 +56,8 @@ EOF
 sudo chmod 0400 /root/key/mongodb.pem
 
 sudo ansible-galaxy collection install community.mongodb
+
+sudo git clone https://github.com/spaceone-dev/launchpad.git /root/launchpad
+
+sudo openssl rand -base64 756 > /root/launchpad/spaceone/mongodb/ansible/roles/mongodb_base/files/mongo-shard.pem
+sudo chmod 400 /root/launchpad/spaceone/mongodb/ansible/roles/mongodb_base/files/mongo-shard.pem
