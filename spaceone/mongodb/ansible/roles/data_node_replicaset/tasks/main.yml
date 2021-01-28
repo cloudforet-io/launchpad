@@ -16,9 +16,9 @@
     state: restarted
   when: mongod_conf.changed
 
-- name: Pause for 3 seconds for mongod process
+- name: Pause for 10 seconds for mongod process
   pause:
-    seconds: 3
+    seconds: 10
 
 - name: Shard node replicaset
   community.mongodb.mongodb_replicaset:
