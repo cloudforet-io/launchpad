@@ -8,6 +8,7 @@
   register: mongod_conf
   notify:
     - restart mongod
+  when: ansible_facts.ansible_local.mongodb.replicaset.is_set != "true"
 
 - name: Restart mongod service
   service:
@@ -26,11 +27,12 @@
     replica_set: "{{ replica_info[host_group].shard }}"
     members: "{{ replica_info[host_group].members }}"
     arbiter_at_index: "{{ replica_info[host_group].arbiter_index }}"
-  when: ansible_facts.ansible_local.custom.mongodb.rs_primary == "true"
+  when: ansible_facts.ansible_local.custom.mongodb.rs_primary == "true" and ansible_facts.ansible_local.mongodb.replicaset.is_set != "true"
 
-- name: Pause for 20 seconds for replicaset
+- name: Pause for 30 seconds for replicaset
   pause:
-    seconds: 20
+    seconds: 30
+  when: ansible_facts.ansible_local.custom.mongodb.is_set != "true"
 
 - name: Create admin user
   community.mongodb.mongodb_user:
@@ -44,6 +46,7 @@
       - db: admin
         role: root
     state: present
+    when: ansible_facts.ansible_local.mongodb.replicaset.is_set != "true"
 
 - name: Change config server(with security) config from template
   template:
@@ -54,9 +57,19 @@
   notify:
     - restart mongod
   register: mongod_conf_with_security
+  when: ansible_facts.ansible_local.mongodb.replicaset.is_set != "true"
 
 - name: Restart mongod service
   service:
     name: mongod
     state: restarted
   when: mongod_conf_with_security.changed
+
+- name: Create custom facts (is_set)
+  copy:
+    dest: /etc/ansible/facts.d/mongodb.fact
+    mode: 0755
+    content: |
+      [replicaset]
+      is_set = true
+  when: ansible_facts.ansible_local.mongodb.replicaset.is_set != "true"
