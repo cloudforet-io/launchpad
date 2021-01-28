@@ -6,7 +6,7 @@
   notify:
     - restart mongod
   register: mongod_conf
-  when: "mongodb_replica_is_set" in ansible_facts.ansible_local and ansible_facts.ansible_local.mongodb_replica_is_set != "true"
+  when: '"mongodb_replica_is_set" in ansible_facts.ansible_local and ansible_facts.ansible_local.mongodb_replica_is_set != "true"'
 
 - name: Restart mongod service
   service:
@@ -29,7 +29,7 @@
 - name: Pause for 30 seconds for replicaset
   pause:
     seconds: 30
-  when: "mongodb_replica_is_set" in ansible_facts.ansible_local and ansible_facts.ansible_local.mongodb_replica_is_set != "true"
+  when: '"mongodb_replica_is_set" in ansible_facts.ansible_local and ansible_facts.ansible_local.mongodb_replica_is_set != "true"'
 
 - name: Create admin user
   community.mongodb.mongodb_user:
@@ -43,7 +43,7 @@
       - db: admin
         role: root
     state: present
-    when: "mongodb_replica_is_set" in ansible_facts.ansible_local and ansible_facts.ansible_local.mongodb_replica_is_set != "true"
+    when: '"mongodb_replica_is_set" in ansible_facts.ansible_local and ansible_facts.ansible_local.mongodb_replica_is_set != "true"'
 
 - name: Change config server(with security) config from template
   template:
@@ -52,7 +52,7 @@
   notify:
     - restart mongod
   register: mongod_conf_with_security
-  when: "mongodb_replica_is_set" in ansible_facts.ansible_local and ansible_facts.ansible_local.mongodb_replica_is_set != "true"
+  when: '"mongodb_replica_is_set" in ansible_facts.ansible_local and ansible_facts.ansible_local.mongodb_replica_is_set != "true"'
 
 - name: Restart mongod service
   service:
@@ -65,4 +65,4 @@
     dest: /etc/ansible/facts.d/mongodb_replica_is_set.fact
     mode: 0755
     content: '"true"'
-  when: "mongodb_replica_is_set" in ansible_facts.ansible_local and ansible_facts.ansible_local.mongodb_replica_is_set != "true"
+  when: '"mongodb_replica_is_set" in ansible_facts.ansible_local and ansible_facts.ansible_local.mongodb_replica_is_set != "true"'
