@@ -1,6 +1,0 @@
----
-shard_id: rs0
-config_members:
-  - "mongodb-cfg1-dev.db.jhsong-mongodb-test:27028"
-  - "mongodb-cfg2-dev.db.jhsong-mongodb-test:27028"
-  - "mongodb-cfg3-dev.db.jhsong-mongodb-test:27028"
