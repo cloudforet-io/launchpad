@@ -3,33 +3,33 @@ replica_info:
   tag_replica_set_1:
     shard: rs-shard1
     members:
-      - host: "mongodb-s1d1-dev.db.jhsong-mongodb-test:27028"
+      - host: ""
         priority: 1
-      - host: "mongodb-s1d2-dev.db.jhsong-mongodb-test:27028"
+      - host: ""
         priority: 0.5
-      - host: "mongodb-s1d3-dev.db.jhsong-mongodb-test:27028"   # Arbiter
+      - host: ""   # Arbiter
         priority: 0
     arbiter_index: 2
   tag_replica_set_2:
     shard: rs-shard2
     members:
-      - host: "mongodb-s2d1-dev.db.jhsong-mongodb-test:27028"
+      - host: ""
         priority: 1
-      - host: "mongodb-s2d2-dev.db.jhsong-mongodb-test:27028"
+      - host: ""
         priority: 0.5
-      - host: "mongodb-s2d3-dev.db.jhsong-mongodb-test:27028"   # Arbiter
+      - host: ""   # Arbiter
         priority: 0
     arbiter_index: 2
   tag_replica_set_3:
     shard: rs-shard3
     members:
-      - host: "mongodb-s3d1-dev.db.jhsong-mongodb-test:27028"
+      - host: ""
         priority: 1
-      - host: "mongodb-s3d2-dev.db.jhsong-mongodb-test:27028"
+      - host: ""
         priority: 0.5
-      - host: "mongodb-s3d3-dev.db.jhsong-mongodb-test:27028"   # Arbiter
+      - host: ""   # Arbiter
         priority: 0
     arbiter_index: 2
 
 admin_user: admin
-admin_password: spaceonedbuser
+admin_password: ""
