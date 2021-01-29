@@ -115,6 +115,15 @@
         databases:
           - identity
           - inventory
+          - billing
+          - config
+          - cost-saving
+          - monitoring
+          - plugin
+          - power-scheduler
+          - repository
+          - secret
+          - statistics
       - shard: rs-shard2
         members:
           - ""      # mongodb-s2d1
@@ -123,6 +132,15 @@
         databases:
           - identity
           - inventory
+          - billing
+          - config
+          - cost-saving
+          - monitoring
+          - plugin
+          - power-scheduler
+          - repository
+          - secret
+          - statistics
       - shard: rs-shard3
         members:
           - ""      # mongodb-s3d1
@@ -131,6 +149,15 @@
         databases:
           - identity
           - inventory
+          - billing
+          - config
+          - cost-saving
+          - monitoring
+          - plugin
+          - power-scheduler
+          - repository
+          - secret
+          - statistics
     admin_user: ""
     admin_password: ""
     shard_admin_user: ""
