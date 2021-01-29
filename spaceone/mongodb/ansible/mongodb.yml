@@ -47,16 +47,17 @@
     - data_node_replicaset
   vars:
     host_group: "tag_replica_set_2"
-    tag_replica_set_2:
-      shard: rs-shard2
-      members:
-        - host: ""        # mongodb-s2d1
-          priority: 1
-        - host: ""        # mongodb-s2d2
-          priority: 0.5
-        - host: ""        # mongodb-s2d3 (Arbiter)
-          priority: 0
-      arbiter_index: 2
+    replica_info:
+      tag_replica_set_2:
+        shard: rs-shard2
+        members:
+          - host: ""        # mongodb-s2d1
+            priority: 1
+          - host: ""        # mongodb-s2d2
+            priority: 0.5
+          - host: ""        # mongodb-s2d3 (Arbiter)
+            priority: 0
+        arbiter_index: 2
     admin_user: ""
     admin_password: ""
 
@@ -66,16 +67,17 @@
     - data_node_replicaset
   vars:
     host_group: "tag_replica_set_3"
-    tag_replica_set_3:
-      shard: rs-shard3
-      members:
-        - host: ""        # mongodb-s3d1
-          priority: 1
-        - host: ""        # mongodb-s3d2
-          priority: 0.5
-        - host: ""        # mongodb-s3d3 (Arbiter)
-          priority: 0
-      arbiter_index: 2
+    replica_info:
+      tag_replica_set_3:
+        shard: rs-shard3
+        members:
+          - host: ""        # mongodb-s3d1
+            priority: 1
+          - host: ""        # mongodb-s3d2
+            priority: 0.5
+          - host: ""        # mongodb-s3d3 (Arbiter)
+            priority: 0
+        arbiter_index: 2
     admin_user: ""
     admin_password: ""
 
