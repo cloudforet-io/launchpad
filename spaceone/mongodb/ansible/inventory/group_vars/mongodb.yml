@@ -1,0 +1,22 @@
+# Global Configuration
+ansible_port: <몽고DB 머신들의 ssh 포트>
+ansible_ssh_user: ubuntu
+ansible_python_interpreter: <파이썬 경로>
+ansible_ssh_private_key_file: <pem키 경로>
+
+#backup variable
+region_of_S3: <버킷 리전>
+bucket_name: <버킷 이름>
+
+access_key_S3: <your-access-key-id-here>
+secret-access-key_S3: <your-secret-key-here>
+
+backup_or_not: # True | False
+mongod_port: <몽고DB 포트>
+pbmuser_password: <생성할 pbmuser 비밀번호>
+mongo_root_password: <몽고DB 루트 비밀번호>
+dns_mongo_cfg1: <configure server 1 machine의 dns>
+dns_mongo_cfg2: <configure server 2 machine의 dns>
+dns_mongo_cfg3: <configure server 3 machine의 dns>
+mongo_config_replset_name: <config server의 replica set 이름>
+MONGODB_CONFIG_SERVER_URI: "{{ dns_mongo_cfg1 }}:{{ mongod_port }},{{ dns_mongo_cfg2 }}:{{ mongod_port }},{{ dns_mongo_cfg3 }}:{{ mongod_port }}/?replicaSet={{ mongo_config_replset_name }}"
