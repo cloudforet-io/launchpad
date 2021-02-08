@@ -7,6 +7,12 @@ SpaceONE infrastructure automation provisioning code
 
 <hr/>
 
+
+## Architecture
+ 
+![MongoDB](./mongodb_arch_img.jpg)
+
+
 ## Terraform
 
 * Guaranteed Terraform Version 0.14.2
@@ -16,7 +22,11 @@ SpaceONE infrastructure automation provisioning code
 ### Supported Part list
 * mongodb
 
-
+### Modules
+* bastion
+* route53
+* security_group
+* shard_cluster
 
 <br/>
 
@@ -71,6 +81,25 @@ mongodb_app_ingress_rule_mongodb_access_security_group_id   = ""    # From Sourc
 
 You can fill out all of `.auto.tfvars` in each parts.
 
+#### 2-1. Fill out SSH PEM String to access ec2 instances through SSH for Ansible if you want
+
+Configure for Ansible in bastion instance automatically.
+Fill out SSH PEM Key string to access each nodes through bastion Ansible if you want.
+PEM Key string must be the same when deploy instances selected key pairs.
+
+`spaceone/terraform/modules/ssh_pem/mongodb.pem`
+
+<pre> # mongodb.pem
+<code>
+-----BEGIN RSA PRIVATE KEY-----
+ENTER_YOUR_PRIVATE_KEY_STRING
+-----END RSA PRIVATE KEY-----
+</code>
+</pre>
+
+
+if you don't set SSH Key, you must set PEM key in bastion manually for Ansible after deployment.
+
 #### 3. Terraform plan
 
 And then, make file for your environment.
@@ -101,4 +130,49 @@ Go to build your spaceONE using launchpad !
 <code>> terraform apply </code>
 </pre>
 
+<br>
+<hr/>
 
+
+## Ansible
+
+
+### Roles
+* ubuntu_base
+* mongodb_base
+* mongod
+* mongos
+* config_replicaset
+* data_node_replicaset
+* shard_cluster
+* bastion
+
+### How to use
+
+#### 1. Access Bastion Instance
+
+#### 2. Access Test for 
+
+We will use Ansible dynamic inventory. 
+Configure for using Ansible dynamic inventory automatically. You don't need to anything to configure for it.
+Please check do `ansible-inventory` command.
+
+<pre>
+<code>> ansible-inventory --graph </code>
+</pre>
+
+#### 3. Fill out Variables in mongodb playbook
+
+`spaceone/ansible/roles/mongodb.yml`
+
+We will run ansible playbook `mongodb.yml` only. This playbook is included variety roles for configuration MongoDB.
+You must set variables in this playbook for use.
+
+#### 4. Run playbook!
+
+Ready to Run. 
+It's simple! Run playbook now.
+
+<pre>
+<code>> ansible-playbook mongodb.yml </code>
+</pre>
