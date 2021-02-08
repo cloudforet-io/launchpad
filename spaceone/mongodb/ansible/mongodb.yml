@@ -162,3 +162,6 @@
     admin_password: ""
     shard_admin_user: ""
     shard_admin_password: ""
+
+- import_playbook: backup.yml
+  when: backup_or_not|bool
