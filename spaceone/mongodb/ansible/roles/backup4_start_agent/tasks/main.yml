@@ -1,0 +1,7 @@
+- 
+  name: start pbm_agent service
+  when: backup_or_not|bool
+  ansible.builtin.service:
+    name: pbm-agent
+    state: started
+    enabled: true

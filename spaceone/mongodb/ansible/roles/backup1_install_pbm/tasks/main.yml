@@ -1,0 +1,41 @@
+- 
+  name: Install Percona-release
+  when: backup_or_not|bool
+  apt:
+    deb: https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+    state: present
+- 
+  name: add pbm repository to apt
+  when: backup_or_not|bool
+  command: percona-release enable pbm release
+  become: yes
+  changed_when: False
+- 
+  name: install pbm
+  when: backup_or_not|bool
+  apt:
+    name: percona-backup-mongodb
+    update_cache: yes
+    state: present
+- 
+  name: configure PBM_MONGODB_URI for pbm-agent
+  when: backup_or_not|bool
+  ansible.builtin.lineinfile:
+    path: /etc/default/pbm-agent
+    regexp: '^PBM_MONGODB_URI='
+    line: PBM_MONGODB_URI="mongodb://pbmuser:{{ pbmuser_password }}@localhost:{{ mongod_port }}"
+    create: yes
+- 
+  name: configure permanent environment variable
+  when: backup_or_not|bool
+  ansible.builtin.lineinfile:
+    path: /home/ubuntu/.bashrc
+    regexp: '^export PBM_MONGODB_URI='
+    line: export PBM_MONGODB_URI=mongodb://pbmuser:{{ pbmuser_password }}@{{ MONGODB_CONFIG_SERVER_URI }}
+- 
+  name: configure permanent environment variable - root
+  when: backup_or_not|bool
+  ansible.builtin.lineinfile:
+    path: /root/.bashrc
+    regexp: '^export PBM_MONGODB_URI='
+    line: export PBM_MONGODB_URI=mongodb://pbmuser:{{ pbmuser_password }}@{{ MONGODB_CONFIG_SERVER_URI }}

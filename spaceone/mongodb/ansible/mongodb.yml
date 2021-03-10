@@ -10,16 +10,6 @@
   hosts: tag_rs_type_config
   roles:
     - config_replicaset
-  vars:
-    config_members:
-      - host: ""          # mongodb-cfg1
-        priority: 1
-      - host: ""          # mongodb-cfg2
-        priority: 0.5
-      - host: ""          # mongodb-cfg3
-        priority: 0.5
-    admin_user: ""
-    admin_password: ""
 
 - name: Build Data node Replicaset 1
   hosts: tag_replica_set_1
@@ -27,19 +17,6 @@
     - data_node_replicaset
   vars:
     host_group: "tag_replica_set_1"
-    replica_info:
-      tag_replica_set_1:
-        shard: rs-shard1
-        members:
-          - host: ""      # mongodb-s1d1
-            priority: 1
-          - host: ""      # mongodb-s1d1
-            priority: 0.5
-          - host: ""      # mongodb-s1d3 (Arbiter)
-            priority: 0
-        arbiter_index: 2
-    admin_user: ""
-    admin_password: ""
 
 - name: Build Data node Replicaset 2
   hosts: tag_replica_set_2
@@ -47,19 +24,6 @@
     - data_node_replicaset
   vars:
     host_group: "tag_replica_set_2"
-    replica_info:
-      tag_replica_set_2:
-        shard: rs-shard2
-        members:
-          - host: ""        # mongodb-s2d1
-            priority: 1
-          - host: ""        # mongodb-s2d2
-            priority: 0.5
-          - host: ""        # mongodb-s2d3 (Arbiter)
-            priority: 0
-        arbiter_index: 2
-    admin_user: ""
-    admin_password: ""
 
 - name: Build Data node Replicaset 3
   hosts: tag_replica_set_3
@@ -67,19 +31,6 @@
     - data_node_replicaset
   vars:
     host_group: "tag_replica_set_3"
-    replica_info:
-      tag_replica_set_3:
-        shard: rs-shard3
-        members:
-          - host: ""        # mongodb-s3d1
-            priority: 1
-          - host: ""        # mongodb-s3d2
-            priority: 0.5
-          - host: ""        # mongodb-s3d3 (Arbiter)
-            priority: 0
-        arbiter_index: 2
-    admin_user: ""
-    admin_password: ""
 
 - name: Build MongoDB Mongos on bastion
   hosts: tag_server_type_mongodb_bastion
@@ -163,5 +114,31 @@
     shard_admin_user: ""
     shard_admin_password: ""
 
-- import_playbook: backup.yml
+- name: install pbm program
   when: backup_or_not|bool
+  gather_facts: yes
+  hosts: mongodb
+  roles:
+    - backup1_install_pbm
+
+- name: add role/user to all shard(config+data)
+  when: backup_or_not|bool
+  gather_facts: yes
+  hosts: mongodb:!tags_arbiter:!tags_mongodb_bastion
+  roles:
+    - backup2_db_backup_role
+
+- name: shard-wide setting for backup through bastion mongos
+  when: backup_or_not|bool
+  gather_facts: yes
+  hosts: tags_mongodb_bastion
+  roles:
+    - backup3_shardwide_setting
+
+- name: start pbm_agent service
+  when: backup_or_not|bool
+  gather_facts: yes
+  hosts: mongodb:!tags_mongodb_bastion
+  roles:
+    - backup4_start_agent
+    
