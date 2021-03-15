@@ -13,11 +13,8 @@ strict_permissions: False
 hostnames:
   - tag:Name
 keyed_groups:
-  - key: tags['rs_type']
-    prefix: tags
-    parent_group: "mongodb"
-  - key: tags['server_type']
-    prefix: tags
+  - key: tags
+    prefix: tag
     parent_group: "mongodb"
 compose:
   ansible_host: private_ip_address

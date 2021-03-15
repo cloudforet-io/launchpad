@@ -1,0 +1,49 @@
+-
+  name: configure balancer window
+  community.mongodb.mongodb_balancer:
+    login_port: "{{ mongod_port }}"
+    login_user: "{{ shard_admin_user }}"
+    login_password: "{{ shard_admin_password }}"
+    autosplit: yes
+    window:
+      start: "01:00"
+      stop: "23:30"
+      state: "present"
+-
+  name: Create pbm config file from template
+  changed_when: False
+  template:
+    src: pbm_config.yaml.template
+    dest: /home/ubuntu/pbm_config.yaml
+-
+  name: configure remote backup storage
+  changed_when: False
+  command: pbm config --file /home/ubuntu/pbm_config.yaml
+  environment:
+    PBM_MONGODB_URI: mongodb://pbmuser:{{ pbmuser_password }}@{{ MONGODB_CONFIG_SERVER_URI }}
+-
+  name: delete pbm_config.yaml
+  changed_when: False
+  ansible.builtin.file:
+    path: /home/ubuntu/pbm_config.yaml
+    state: absent
+-
+  name: set mongodb URI for cron
+  ansible.builtin.cron:
+    name: PBM_MONGODB_URI
+    env: yes
+    value: mongodb://pbmuser:{{ pbmuser_password }}@{{ MONGODB_CONFIG_SERVER_URI }}
+-
+  name: schedule backup cronjob in bastion
+  ansible.builtin.cron:
+    name: pbm packup
+    minute: 0
+    hour: 0
+    job: "pbm backup --compression=s2"
+-
+  name: schedule delete stale backup cronjob in bastion
+  ansible.builtin.cron:
+    name: pbm delete stale backup
+    minute: 0
+    hour: 0
+    job: "pbm delete-backup --older-than=$(date -d '{{ stale_criteria|int }} day ago' +%Y-%m-%d)"

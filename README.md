@@ -38,8 +38,7 @@ we recommended to use S3 Backend for state management and state locking.
 
 `backend.tfvars` file looks like
 
-<pre>
-<code>
+```yaml
 # AWS S3 bucket name for backend
 bucket = ""
 
@@ -50,14 +49,13 @@ region = ""
 
 # support locking via DynamoDB
 dynamodb_table = ""
-
-</code></pre>
+```
 
 Fill out `backend.tfvars` values and `terraform init` run
 
-<pre>
-<code>> terraform init --var-file=backend.tfvars</code>
-</pre>
+```sh
+> terraform init --var-file=backend.tfvars
+```
 
 <br/>
 
@@ -68,16 +66,16 @@ Each parts included `.auto.tfvars` files for your environment properly.
 For example, mongodb parts included `security_group.auto.tfvars` and `shard_cluster.auto.tfvars`.
 
 Let's see a `security_group.auto.tfvars` for instance.
-<pre> # security_group.tfvars
-<code>
+```yaml
+# security_group.tfvars
+
 region                        =   ""
 vpc_id                        =   ""
 
 mongodb_bastion_ingress_rule_admin_access_security_group_id = ""    # From Source security group ID for Administrator access
 mongodb_bastion_ingress_rule_admin_access_port              = 0
 mongodb_app_ingress_rule_mongodb_access_security_group_id   = ""    # From Source security group ID for Worker Nodes
-</code>
-</pre>
+```
 
 You can fill out all of `.auto.tfvars` in each parts.
 
@@ -89,14 +87,12 @@ PEM Key string must be the same when deploy instances selected key pairs.
 
 `spaceone/terraform/modules/ssh_pem/mongodb.pem`
 
-<pre> # mongodb.pem
-<code>
+```pem
+# mongodb.pem
 -----BEGIN RSA PRIVATE KEY-----
 ENTER_YOUR_PRIVATE_KEY_STRING
 -----END RSA PRIVATE KEY-----
-</code>
-</pre>
-
+```
 
 if you don't set SSH Key, you must set PEM key in bastion manually for Ansible after deployment.
 
@@ -108,27 +104,26 @@ We already add `default.auto.tfvars` for example.
 
 `default.auto.tfvars` is simple. It looks like
 
-<pre>
-<code>environment   = "dev"
-region        = ""</code>
-</pre>
+```yaml
+environment   = "dev"
+region        = ""
+```
 
 Fill out the values in `default.auto.tfvars`.
 
 It's time to run the `Terraform plan` !
 
-If you run the mongodb with all of `tfvars` in mongodb parts,  
-<pre>
-<code>> terraform plan </code>
-</pre>
-
+If you run the mongodb with all of `tfvars` in mongodb parts,
+```sh
+> terraform plan
+```
 
 #### 4. Terraform apply
 
 Go to build your spaceONE using launchpad !
-<pre>
-<code>> terraform apply </code>
-</pre>
+```sh
+> terraform apply
+```
 
 <br>
 <hr/>
@@ -157,13 +152,13 @@ We will use Ansible dynamic inventory.
 Configure for using Ansible dynamic inventory automatically. You don't need to anything to configure for it.
 Please check do `ansible-inventory` command.
 
-<pre>
-<code>> ansible-inventory --graph </code>
-</pre>
+```sh
+> ansible-inventory --graph -i inventory/
+```
 
-#### 3. Fill out Variables in mongodb playbook
+#### 3. Fill out Variables in group variable file - mongodb.yml
 
-`spaceone/ansible/roles/mongodb.yml`
+`spaceone/ansible/inventory/group_vars/mongodb.yml`
 
 We will run ansible playbook `mongodb.yml` only. This playbook is included variety roles for configuration MongoDB.
 You must set variables in this playbook for use.
@@ -173,6 +168,6 @@ You must set variables in this playbook for use.
 Ready to Run. 
 It's simple! Run playbook now.
 
-<pre>
-<code>> ansible-playbook mongodb.yml </code>
-</pre>
+```sh
+> ansible-playbook -i inventory/ mongodb.yml
+```

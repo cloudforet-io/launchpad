@@ -1,151 +1,35 @@
----
-- name: install pbm-agent
-  when: ({{ backup_or_not }} | bool)
+- name: install pbm program
+  gather_facts: yes
   hosts: mongodb
-  gather_facts: yes
-  tasks:
-    - name: Install Percona-release
-      apt:
-        deb: https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-        state: present
-    - name: add pbm repository to apt
-      command: percona-release enable pbm release
-      become: yes
-      changed_when: False
-    - name: install pbm
-      apt:
-        name: percona-backup-mongodb
-        update_cache: yes
-        state: present
-    - name: configure PBM_MONGODB_URI
-      ansible.builtin.lineinfile:
-        path: /etc/default/pbm-agent
-        regexp: '^PBM_MONGODB_URI='
-        line: PBM_MONGODB_URI="mongodb://pbmuser:{{ pbmuser_password }}@localhost:{{ mongod_port }}"
-        create: yes
-    - name: configure permanent environment variable
-      ansible.builtin.lineinfile:
-        path: /home/ubuntu/.bashrc
-        regexp: '^export PBM_MONGODB_URI='
-        line: export PBM_MONGODB_URI=mongodb://pbmuser:{{ pbmuser_password }}@{{ MONGODB_CONFIG_SERVER_URI }}
-    - name: configure permanent environment variable - root
-      ansible.builtin.lineinfile:
-        path: /root/.bashrc
-        regexp: '^export PBM_MONGODB_URI='
-        line: export PBM_MONGODB_URI=mongodb://pbmuser:{{ pbmuser_password }}@{{ MONGODB_CONFIG_SERVER_URI }}
+  roles:
+    - backup1_install_pbm
+  vars:
+    pbmuser_password: "{{ pbmuser_password }}"
+    mongod_port: "{{ mongod_port }}"
 
-- name: add role/user to config server
-  when: ({{ backup_or_not }} | bool)
+- name: add role/user to all shard(config+data)
+  gather_facts: yes
   hosts: mongodb:!tags_arbiter:!tags_mongodb_bastion
-  gather_facts: yes
-  tasks:
-    - name: check primary
-      community.mongodb.mongodb_shell:
-        login_port: "{{ mongod_port }}"
-        login_user: admin
-        login_password: "{{ mongo_root_password }}"
-        db: admin
-        eval: "rs.isMaster()"
-        transform: raw
-      register: primary_check
-      changed_when: False
-    - name: create privilege role
-      when: "'\"ismaster\" : true' in primary_check.transformed_output"
-      ignore_errors: true
-      community.mongodb.mongodb_shell:
-        login_port: "{{ mongod_port }}"
-        login_user: admin
-        login_password: "{{ mongo_root_password }}"
-        db: admin
-        eval:
-          "db.getSiblingDB('admin').createRole({ 'role': 'pbmAnyAction',
-                  'privileges': [
-                    { 'resource': { 'anyResource': true },
-                      'actions': [ 'anyAction' ]
-                    }
-                  ],
-                  'roles': []
-              })"
-      register: create_role_result
-      failed_when:
-        - '"skipped" not in create_role_result'
-        - '"already exists" not in create_role_result.msg'
-        - '"\"changed\": true" not in create_role_result.msg'
-      changed_when:
-        - '"\"changed\": true" in create_role_result.msg'
-    - name: add a user for pbm - pbmuser
-      when: "'\"ismaster\" : true' in primary_check.transformed_output"
-      community.mongodb.mongodb_user:
-        login_port: "{{ mongod_port }}"
-        login_user: admin
-        login_password: "{{ mongo_root_password }}"
-        database: admin
-        user: pbmuser
-        password: "{{ pbmuser_password }}"
-        state: present
-        roles:
-          - db: admin
-            role: readWrite
-          - db: admin
-            role: backup
-          - db: admin
-            role: clusterMonitor
-          - db: admin
-            role: restore
-          - db: admin
-            role: pbmAnyAction
-      register: add_user_result
-      changed_when: False
+  roles:
+    - backup2_db_backup_role
+  vars:
+    pbmuser_password: "{{ pbmuser_password }}"
+    mongod_port: "{{ mongod_port }}"
+    mongo_root_password: "{{ mongo_root_password }}"
 
-- name: setting for backup
-  when: ({{ backup_or_not }} | bool)
-  hosts: tags_mongodb_bastion
+- name: shard-wide setting for backup through bastion mongos
   gather_facts: yes
-  tasks:
-    - name: configure balancer window
-      community.mongodb.mongodb_balancer:
-        login_port: "{{ mongod_port }}"
-        login_user: admin
-        login_password: "{{ mongo_root_password }}"
-        autosplit: yes
-        window:
-          start: "01:00"
-          stop: "23:30"
-          state: "present"
-    - name: Create pbm config file from template
-      changed_when: False
-      template:
-        src: pbm_config.yaml.template
-        dest: /home/ubuntu/pbm_config.yaml
-    - name: configure remote backup storage
-      changed_when: False
-      command: pbm config --file /home/ubuntu/pbm_config.yaml
-      environment:
-        PBM_MONGODB_URI: mongodb://pbmuser:{{ pbmuser_password }}@{{ MONGODB_CONFIG_SERVER_URI }}
-    - name: delete pbm_config.yaml
-      changed_when: False
-      ansible.builtin.file:
-        path: /home/ubuntu/pbm_config.yaml
-        state: absent
-    - name: set mongodb URI for cron
-      ansible.builtin.cron:
-        name: PBM_MONGODB_URI
-        env: yes
-        value: mongodb://pbmuser:{{ pbmuser_password }}@{{ MONGODB_CONFIG_SERVER_URI }}
-    - name: schedule backup cronjob in bastion
-      ansible.builtin.cron:
-        name: pbm packup
-        minute: 0
-        hour: 0
-        job: "pbm backup --compression=s2"
+  hosts: tags_mongodb_bastion
+  roles:
+    - backup3_shardwide_setting
+  vars:
+    pbmuser_password: "{{ pbmuser_password }}"
+    mongod_port: "{{ mongod_port }}"
+    mongo_root_password: "{{ mongo_root_password }}"
+    MONGODB_CONFIG_SERVER_URI: "{{ MONGODB_CONFIG_SERVER_URI }}"
 
 - name: start pbm_agent service
-  when: ({{ backup_or_not }} | bool)
-  hosts: mongodb:!tags_mongodb_bastion
   gather_facts: yes
-  tasks:
-    - name: start pbm_agent service
-      ansible.builtin.service:
-        name: pbm-agent
-        state: started
-        enabled: true
+  hosts: mongodb:!tags_mongodb_bastion
+  roles:
+    - backup4_start_agent
