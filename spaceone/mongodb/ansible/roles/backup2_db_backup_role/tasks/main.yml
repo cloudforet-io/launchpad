@@ -1,10 +1,9 @@
 -
   name: check primary
-  when: backup_or_not|bool
   community.mongodb.mongodb_shell:
     login_port: "{{ mongod_port }}"
-    login_user: admin
-    login_password: "{{ mongo_root_password }}"
+    login_user: "{{ admin_user }}"
+    login_password: "{{ admin_password }}"
     db: admin
     eval: "rs.isMaster()"
     transform: raw
@@ -12,14 +11,12 @@
   changed_when: False
 -
   name: create privilege role
-  when:
-    - (backup_or_not|bool)
-    - "'\"ismaster\" : true' in primary_check.transformed_output"
+  when: "'\"ismaster\" : true' in primary_check.transformed_output"
   ignore_errors: true
   community.mongodb.mongodb_shell:
     login_port: "{{ mongod_port }}"
-    login_user: admin
-    login_password: "{{ mongo_root_password }}"
+    login_user: "{{ admin_user }}"
+    login_password: "{{ admin_password }}"
     db: admin
     eval:
       "db.getSiblingDB('admin').createRole({ 'role': 'pbmAnyAction',
@@ -39,13 +36,11 @@
     - '"\"changed\": true" in create_role_result.msg'
 -
   name: add a user for pbm - pbmuser
-  when:
-    - (backup_or_not|bool)
-    - "'\"ismaster\" : true' in primary_check.transformed_output"
+  when: "'\"ismaster\" : true' in primary_check.transformed_output"
   community.mongodb.mongodb_user:
     login_port: "{{ mongod_port }}"
-    login_user: admin
-    login_password: "{{ mongo_root_password }}"
+    login_user: "{{ admin_user }}"
+    login_password: "{{ admin_password }}"
     database: admin
     user: pbmuser
     password: "{{ pbmuser_password }}"

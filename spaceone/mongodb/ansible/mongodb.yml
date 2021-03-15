@@ -41,104 +41,42 @@
 - name: Build MongoDB Mongos
   hosts: tag_rs_type_mongos
   roles:
-    - ubuntu_base
-    - mongodb_base
+    # - ubuntu_base
+    # - mongodb_base
     - mongos
   vars:
     shard_id: rs0
-    config_members:
-      - ""          # mongodb-cfg1
-      - ""          # mongodb-cfg2
-      - ""          # mongodb-cfg3
-
 
 - name: Build Shard Cluster through Mongos
   hosts: tag_rs_type_mongos
   roles:
     - shard_cluster
-  vars:
-    shard_info:
-      - shard: rs-shard1
-        members:
-          - ""      # mongodb-s1d1
-          - ""      # mongodb-s1d2
-          - ""      # mongodb-s1d3 (Arbiter)
-        databases:
-          - identity
-          - inventory
-          - billing
-          - config
-          - cost-saving
-          - monitoring
-          - plugin
-          - power-scheduler
-          - repository
-          - secret
-          - statistics
-      - shard: rs-shard2
-        members:
-          - ""      # mongodb-s2d1
-          - ""      # mongodb-s2d2
-          - ""      # mongodb-s2d3 (Arbiter)
-        databases:
-          - identity
-          - inventory
-          - billing
-          - config
-          - cost-saving
-          - monitoring
-          - plugin
-          - power-scheduler
-          - repository
-          - secret
-          - statistics
-      - shard: rs-shard3
-        members:
-          - ""      # mongodb-s3d1
-          - ""      # mongodb-s3d2
-          - ""      # mongodb-s3d3 (Arbiter)
-        databases:
-          - identity
-          - inventory
-          - billing
-          - config
-          - cost-saving
-          - monitoring
-          - plugin
-          - power-scheduler
-          - repository
-          - secret
-          - statistics
-    admin_user: ""
-    admin_password: ""
-    shard_admin_user: ""
-    shard_admin_password: ""
 
 - name: install pbm program
-  when: backup_or_not|bool
-  gather_facts: yes
   hosts: mongodb
+  gather_facts: yes
   roles:
-    - backup1_install_pbm
+    - role: backup1_install_pbm
+      when: backup_or_not|bool
 
 - name: add role/user to all shard(config+data)
-  when: backup_or_not|bool
+  hosts: mongodb:!tag_rs_type_arbiter:!tag_server_type_mongodb_bastion
   gather_facts: yes
-  hosts: mongodb:!tags_arbiter:!tags_mongodb_bastion
   roles:
-    - backup2_db_backup_role
+    - role: backup2_db_backup_role
+      when: backup_or_not|bool
 
 - name: shard-wide setting for backup through bastion mongos
-  when: backup_or_not|bool
+  hosts: tag_server_type_mongodb_bastion
   gather_facts: yes
-  hosts: tags_mongodb_bastion
   roles:
-    - backup3_shardwide_setting
+    - role: backup3_shardwide_setting
+      when: backup_or_not|bool
 
 - name: start pbm_agent service
-  when: backup_or_not|bool
+  hosts: mongodb:!tag_server_type_mongodb_bastion
   gather_facts: yes
-  hosts: mongodb:!tags_mongodb_bastion
   roles:
-    - backup4_start_agent
+    - role: backup4_start_agent
+      when: backup_or_not|bool
     
