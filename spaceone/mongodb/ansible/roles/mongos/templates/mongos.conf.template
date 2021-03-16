@@ -1,5 +1,5 @@
 sharding:
-  configDB: {{ shard_id }}/{{ config_members|join(',') }}
+  configDB: {{ shard_id }}/{{ config_members | map(attribute='host') | join(',') }}
 net:
   port: {{ shard_port }}
 security:
