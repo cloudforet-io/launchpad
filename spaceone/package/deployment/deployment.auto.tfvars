@@ -1,0 +1,5 @@
+region           = "us-west-1"
+spaceone-version = "1.7.3"
+#database_user_name = ""
+#database_user_password = ""
+#database_cluster_host_name = ""
