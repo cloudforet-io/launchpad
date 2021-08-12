@@ -1,5 +1,6 @@
 .terraform*
+*.tfstate*
 .idea
 .DS_Store
-terraform.tfstate*
 __pycache__
+config

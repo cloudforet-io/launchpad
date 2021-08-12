@@ -3,6 +3,8 @@ This is a guide to installing SpaceONE on AWS EKS.
 
 ## Prerequisite
 To install SpaceONE in this guide, the following is required.
+- jq(command-line JSON processor)
+    - https://stedolan.github.io/jq/download/
 - AWS credential settings
     - https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
 - terraform (>= 0.13.1)
