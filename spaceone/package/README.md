@@ -27,13 +27,15 @@ git clone https://github.com/spaceone-dev/launchpad.git
 ### 2. Configure values
 Edit Each auto.tfvars
 - certificate
-    - `launchpad/spaceone/package/certificate/certificate.auto.tfvars`
+    - `launchpad/spaceone/package/conf/certificate.conf`
 - eks
-    - `launchpad/spaceone/package/eks/eks.auto.tfvars`
+    - `launchpad/spaceone/package/conf/eks.conf`
+- controllers
+    - `launchpad/spaceone/package/conf/controllers.conf`
 - deployment
-    - `launchpad/spaceone/package/deployment/deployment.auto.tfvars`
+    - `launchpad/spaceone/package/conf/deployment.conf`
 - initialization
-    - `launchpad/spaceone/package/initialization/domain.auto.tfvars`
+    - `launchpad/spaceone/package/conf/initialization.conf`
 
 ### 3. Execute installation script
 ```
