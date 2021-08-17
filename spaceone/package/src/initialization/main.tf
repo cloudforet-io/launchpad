@@ -3,21 +3,20 @@ resource "local_file" "generate_root" {
     {
      root_domain_owner          = "${var.root_domain_owner}"
      root_domain_owner_password = "${var.root_domain_owner_password}"
-     username                   = "${var.username}"
-     password                   = "${var.password}"
+     root_domain_username       = "${var.root_domain_username}"
+     root_domain_password       = "${var.root_domain_password}"
     })
-  filename = "${path.module}/../../outputs/helm/root.yaml"
+  filename = "${path.module}/../../outputs/helm/spaceone-initializer/root.yaml"
 }
 
-resource "helm_release" "spaceone-initializer" {
-  name              = "root-domain"
-  repository        = "https://spaceone-dev.github.io/charts"
-  chart             = "spaceone-initializer"
-  namespace         = "spaceone"
-
-  values = [
-    local_file.generate_root.content
-  ]
+resource "null_resource" "install_spaceone_with_helm" {
+  provisioner "local-exec" {
+    command = <<EOT
+      helm install root-domain \
+      -f ${path.module}/../../outputs/helm/spaceone-initializer/root.yaml \
+      spaceone/spaceone-initializer
+    EOT
+  }
 }
 
 resource "local_file" "generate_user" {
@@ -45,5 +44,5 @@ resource "local_file" "generate_user" {
      aws_hyperbilling_plugin_id               = "${var.aws_hyperbilling_plugin_id}"
      aws_hyperbilling_version                 = "${var.aws_hyperbilling_version}"
     })
-  filename = "${path.module}/../../outputs/helm/user.yaml"
+  filename = "${path.module}/../../outputs/helm/spaceone-initializer/user.yaml"
 }

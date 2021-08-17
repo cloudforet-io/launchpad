@@ -1,78 +1,98 @@
-# Install SpaceONE
-This is a guide to installing SpaceONE on AWS EKS.
+# Install Guide
+This guide introduces how to quickly build an EKS cluster and spaceone.
+
+The guide will install the resource set below.
+- Certificate managed by ACM
+- VPC & EKS
+- Kubernetes controllers
+    - [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller)
+    - [External DNS](https://github.com/kubernetes-sigs/external-dns)
+- SpaceONE
 
 ## Prerequisite
-To install SpaceONE in this guide, the following is required.
-- jq(command-line JSON processor)
-    - https://stedolan.github.io/jq/download/
-- AWS credential settings
-    - https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
 - terraform (>= 0.13.1)
-    - https://learn.hashicorp.com/tutorials/terraform/install-cli
+    - https://learn.hashicorp.com/tutorials/terraform/install-cli#install-terraform
+- kubectl
+    - on linux
+        - https://v1-18.docs.kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-with-curl-on-linux
+    - on mac
+        - https://v1-18.docs.kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-with-curl-on-macos
+- helm
+    - https://helm.sh/docs/intro/install/#from-script
 - Public domain Managed by Route53
 
-To manage spaecone, the following is required.
-- kubectl
-    - https://v1-18.docs.kubernetes.io/docs/tasks/tools/install-kubectl/
-- helm
-    - https://helm.sh/docs/intro/install/
+## Installation
+The spaceone/launchpad repository contains scripts that create EKS and install spaceone.
 
-
-## Install
-
-### 1. Clone the repo
+### git clone
 ```
 git clone https://github.com/spaceone-dev/launchpad.git
 ```
-### 2. Configure values
-Edit Each auto.tfvars
-- certificate
-    - `launchpad/spaceone/package/conf/certificate.conf`
-- eks
-    - `launchpad/spaceone/package/conf/eks.conf`
-- controllers
-    - `launchpad/spaceone/package/conf/controllers.conf`
-- deployment
-    - `launchpad/spaceone/package/conf/deployment.conf`
-- initialization
-    - `launchpad/spaceone/package/conf/initialization.conf`
 
-### 3. Execute installation script
+### set aws credential file
+To access aws resource, you have to credential
+
+```
+vim launchpad/spaceone/package/conf/aws_credential
+---
+[spaceone_dev]
+aws_access_key_id = [aws_access_key_id]
+aws_secret_access_key = [aws_secret_access_key]
+region = [default region]
+
+```
+
+### Setting up the configuration file
+
+Setting up the configuration file.
+
+the part that do not need to be installed, set enable to false.
+
+ex) If you just need to install spaceone, set false of all infrastructure part and set true of all application part
+
+- infrastructure part
+    1. certificate
+        - `launchpad/spaceone/package/infrastructure/conf/certificate.conf`
+    2. eks
+        - `launchpad/spaceone/package/infrastructure/conf/eks.conf`
+    3. controllers
+        - `launchpad/spaceone/package/application/conf/controllers.conf`
+- application part
+    1. deployment
+        - `launchpad/spaceone/package/application/conf/deployment.conf`
+    2. initialization
+        - `launchpad/spaceone/package/application/conf/initialization.conf`
+
+### Start the install
 ```
 cd launchpad/spaceone/package/
-sh install.sh build
 ```
+```
+chmod +x install.sh
+```
+```
+./install.sh
+```
+
+### Login
+After installation is complete, you can access spaceone console<br>
+Open browser(http://root.your-domain.com) and log in with the information below
+- ID : user1@example.com
+- PASSWORD : User123!@#
+
+### SpaceONE Initial Stup
+https://youtu.be/zSoEg2v_JrE
 
 ## Destroy
-To destroy SpaceONE and EKS clusters, you can use a script.
 ```
 cd launchpad/spaceone/package/
-sh install.sh destroy
+```
+```
+. destroy.sh 
 ``` 
 
-## Upgrade
-```
-cd `launchpad/spaceone/package/deployment/yaml`
-kubectl config set-context $(kubectl config current-context) --namespace spaceone
-helm repo update
+<hr>
 
-helm upgrade spaceone -f values.yaml -f frontend.yaml spaceone/spaceone
-```
+Please contact us for any problems during the installation process.
 
-## Basic Stup
-https://docs.spaceone.org/docs/guides/user_guide/gettingstart/setup/
-
-## ect
-### domain
-- To access the console, access the address below
-    - `root.console.<your root domain>`
-
-### Management EKS cluster
-- You can use kubectl to access your EKS Cluster.
-    - When the installation is Complete, the config file of EKS Cluster is created in `$HOME/.kube/`
-```
-kubectl get pod
-kubectl get nodes
-...
-```
-
+https://discuss.spaceone.org/

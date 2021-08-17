@@ -17,7 +17,3 @@ output "console_domain" {
 output "console_api_domain" {
     value = aws_acm_certificate.console_api.domain_name
 }
-
-output "test" {
-    value = 1
-}

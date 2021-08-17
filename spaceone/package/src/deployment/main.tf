@@ -1,19 +1,15 @@
-resource "kubernetes_namespace" "spaceone_namespace" {
-  metadata {
-    name = "spaceone"
-  }
-}
-
-resource "kubernetes_namespace" "root_supervisor_namespace" {
-  metadata {
-    name = "root-supervisor"
+resource "null_resource" "create_k8s_namespace" {
+  provisioner "local-exec" {
+    command = <<EOT
+        kubectl create ns spaceone
+        kubectl create ns root-supervisor
+    EOT
   }
 }
 
 resource "time_sleep" "wait_for_destroy" {
   depends_on = [
-  kubernetes_namespace.spaceone_namespace,
-  kubernetes_namespace.root_supervisor_namespace
+  null_resource.create_k8s_namespace
   ]
 
   destroy_duration = "120s"
@@ -26,17 +22,16 @@ resource "local_file" "generate_frontend" {
       console-api-domain-certificate-arn = "${var.console_api_certificate_arn}"
       console-domain                     = "${var.console_domain}"
       console-domain-certificate-arn     = "${var.console_certificate_arn}"
-      spaceone-version                   = "${var.spaceone-version}"
     })
-  filename = "${path.module}/../../outputs/helm/frontend.yaml"
+  filename = "${path.module}/../../outputs/helm/spaceone/frontend.yaml"
 }
 
 resource "local_file" "generate_value" {
   content  =  templatefile("${path.module}/tmpl/values.tpl",
     {
-      spaceone-version                   = "${var.spaceone-version}"
+      MARKETPLACE_TOKEN                   = "___CHANGE_INVENTORY_MARKETPLACE_TOKEN___"
     })
-  filename = "${path.module}/../../outputs/helm/values.yaml"
+  filename = "${path.module}/../../outputs/helm/spaceone/values.yaml"
 }
 
 #resource "local_file" "generate_database" {
@@ -49,22 +44,26 @@ resource "local_file" "generate_value" {
 #  filename = "${path.module}/yaml/database.yaml"
 #}
 
-resource "helm_release" "spaceone" {
-  depends_on = [
-    kubernetes_namespace.spaceone_namespace,
-    kubernetes_namespace.root_supervisor_namespace,
-    local_file.generate_frontend,
-    local_file.generate_value,
-    time_sleep.wait_for_destroy
-    ]
-  name       = "spaceone"
-  repository = "https://spaceone-dev.github.io/charts"
-  chart      = "spaceone"
-  namespace  = "spaceone"
+resource "null_resource" "add_helm_repo" {
+  provisioner "local-exec" {
+    command = <<EOT
+        helm repo add spaceone https://spaceone-dev.github.io/charts
+        helm repo update
+        helm search repo
+    EOT
+  }
+}
 
-  values = [
-    #local_file.generate_database.content,
-    local_file.generate_frontend.content,
-    local_file.generate_value.content
-  ]
+resource "null_resource" "install_spaceone_with_helm" {
+  provisioner "local-exec" {
+    command = "kubectl config set-context $(kubectl config current-context) --namespace spaceone"
+  }
+  provisioner "local-exec" {
+    command = <<EOT
+      helm install spaceone \
+        -f ${path.module}/../../outputs/helm/spaceone/frontend.yaml \
+        -f ${path.module}/../../outputs/helm/spaceone/values.yaml \
+        spaceone/spaceone
+    EOT
+  }
 }

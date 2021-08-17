@@ -12,7 +12,7 @@ identity:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 0
@@ -34,7 +34,7 @@ secret:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 4
@@ -58,7 +58,7 @@ repository:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 3
@@ -82,7 +82,7 @@ plugin:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 2
@@ -105,7 +105,7 @@ config:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 0
@@ -129,7 +129,7 @@ inventory:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 1
@@ -153,7 +153,7 @@ monitoring:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 5
@@ -177,7 +177,7 @@ statistics:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 5
@@ -201,7 +201,7 @@ billing:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 5
@@ -209,6 +209,27 @@ billing:
               socket_timeout: 10
               socket_connect_timeout: 10
 
+notification:
+    database:
+        DATABASES:
+            default:
+              username: ${database_user_name}
+              password: ${database_user_password}
+              db: notification
+              host: ${database_cluster_host_name}
+              port: 27017
+              ssl: False
+              read_preference: PRIMARY
+              maxPoolSize: 200
+        CACHES:
+            default:
+              backend: ${cache_host}
+              host: redis
+              port: 6379
+              db: 5
+              encoding: utf-8
+              socket_timeout: 10
+              socket_connect_timeout: 10
 
 power-scheduler:
     database:
@@ -224,7 +245,7 @@ power-scheduler:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 12
@@ -246,7 +267,7 @@ cost-saving:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 13
@@ -268,7 +289,7 @@ spot-automation:
               maxPoolSize: 200
         CACHES:
             default:
-              backend: spaceone.core.cache.redis_cache.RedisCache
+              backend: ${cache_host}
               host: redis
               port: 6379
               db: 14

@@ -10,7 +10,15 @@ variable "root_domain_owner_password" {
   default = ""
 }
 
-variable "additional_domain_count" {
+variable "root_domain_username" {
+  default = ""
+}
+
+variable "root_domain_password" {
+  default = ""
+}
+
+variable "user_domain_count" {
   default = ""
 }
 

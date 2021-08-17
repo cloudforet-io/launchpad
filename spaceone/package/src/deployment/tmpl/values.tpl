@@ -23,14 +23,14 @@ identity:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/identity
-      version: ${spaceone-version}
+      version: 1.8.1
 
 secret:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/secret
-      version: ${spaceone-version}
+      version: 1.8.1
     application_grpc:
         BACKEND: ConsulConnector
         CONNECTORS:
@@ -47,7 +47,7 @@ repository:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/repository
-      version: ${spaceone-version}
+      version: 1.8.1
     application_grpc:
         ROOT_TOKEN_INFO:
             protocol: consul
@@ -60,7 +60,7 @@ plugin:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/plugin
-      version: ${spaceone-version}
+      version: 1.8.1
  
     scheduler: true
     worker: true
@@ -76,7 +76,7 @@ config:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/config
-      version: ${spaceone-version}
+      version: 1.8.1
 
 inventory:
     enabled: true
@@ -84,7 +84,7 @@ inventory:
     replicas_worker: 2
     image:
       name: public.ecr.aws/megazone/spaceone/inventory
-      version: ${spaceone-version}
+      version: 1.8.1
     scheduler: true
     worker: true
     application_grpc:
@@ -136,14 +136,14 @@ monitoring:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/monitoring
-      version: ${spaceone-version}
+      version: 1.8.1
 
 statistics:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/statistics
-      version: ${spaceone-version}
+      version: 1.8.1
  
     scheduler: true
     worker: true
@@ -159,14 +159,21 @@ billing:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/billing
-      version: ${spaceone-version}
+      version: 1.8.1
+
+notification:
+    enabled: false
+    replicas: 1
+    image:
+      name: public.ecr.aws/megazone/spaceone/notification
+      version: 1.8.1
 
 power-scheduler:
     enabled: false
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/power-scheduler
-      version: ${spaceone-version}
+      version: 1.8.1
  
     scheduler: true
     worker: true
@@ -184,12 +191,12 @@ cost-saving:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/cost-saving
-      version: ${spaceone-version}
+      version: 1.8.1
 
     application_grpc:
         CONNECTORS:
             ProductConnector:
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
+                token: ${MARKETPLACE_TOKEN}
                 endpoint:
                     v1: grpc://inventory.portal.dev.spaceone.dev:50051
 
@@ -202,7 +209,7 @@ cost-saving:
                 interval: 3600
             CONNECTORS:
                 ProductConnector:
-                    token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
+                    token: ${MARKETPLACE_TOKEN}
                     endpoint:
                         v1: grpc://inventory.portal.dev.spaceone.dev:50051
 
@@ -211,7 +218,7 @@ cost-saving:
     application_worker:
         CONNECTORS:
             ProductConnector:
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
+                token: ${MARKETPLACE_TOKEN}
                 endpoint:
                     v1: grpc://inventory.portal.dev.spaceone.dev:50051
 
@@ -229,7 +236,7 @@ spot-automation:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/spot-automation
-      version: ${spaceone-version}
+      version: 1.8.1
 
 # Overwrite application config
     application_grpc:
@@ -237,7 +244,7 @@ spot-automation:
             ProductConnector:
                 endpoint:
                     v1: grpc://inventory.portal.dev.spaceone.dev:50051 
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
+                token: ${MARKETPLACE_TOKEN}
         INTERRUPT:
             salt: ___CHANGE_SALT___
             endpoint: http://spot-automation-proxy.dev.spaceone.dev
@@ -266,7 +273,7 @@ spot-automation:
             ProductConnector:
                 endpoint:
                     v1: grpc://inventory.portal.dev.spaceone.dev:50051 
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
+                token: ${MARKETPLACE_TOKEN}
         INTERRUPT:
             salt: ___CHANGE_SALT___
             endpoint: http://spot-automation-proxy.dev.spaceone.dev
@@ -293,7 +300,7 @@ supervisor:
     enabled: true
     image:
       name: public.ecr.aws/megazone/spaceone/supervisor
-      version: ${spaceone-version}
+      version: 1.8.1
     application: {}
     application_scheduler:
         NAME: root

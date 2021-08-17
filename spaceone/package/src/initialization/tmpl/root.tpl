@@ -22,8 +22,8 @@ main:
       password: ${root_domain_owner_password}
     user:
       id: root_api_key
-    username: ${username}
-    password: ${password}
+    username: ${root_domain_username}
+    password: ${root_domain_password}
     consul_server: spaceone-consul-server
     plugin_repo : pyengine
   tasks: []
