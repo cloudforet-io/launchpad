@@ -44,22 +44,15 @@ resource "local_file" "generate_value" {
 #  filename = "${path.module}/yaml/database.yaml"
 #}
 
-resource "null_resource" "add_helm_repo" {
-  provisioner "local-exec" {
-    command = <<EOT
-        helm repo add spaceone https://spaceone-dev.github.io/charts
-        helm repo update
-        helm search repo
-    EOT
-  }
-}
-
 resource "null_resource" "install_spaceone_with_helm" {
   provisioner "local-exec" {
     command = "kubectl config set-context $(kubectl config current-context) --namespace spaceone"
   }
   provisioner "local-exec" {
     command = <<EOT
+      helm repo add spaceone https://spaceone-dev.github.io/charts
+      helm repo update
+      sleep 5
       helm install spaceone \
         -f ${path.module}/../../outputs/helm/spaceone/frontend.yaml \
         -f ${path.module}/../../outputs/helm/spaceone/values.yaml \

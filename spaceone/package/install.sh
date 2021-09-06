@@ -8,7 +8,7 @@ function add_aws_credentais () {
         mkdir $HOME/.aws
     fi
 
-    if [ -f "$HOME/.aws/credentials" ]; then
+    if [ ! -f "$HOME/.aws/credentials" ]; then
         touch $HOME/.aws/credentials
     fi
 
@@ -29,10 +29,10 @@ function check_os_type () {
     esac
 }
 
-function check_prerequisite () {
+function check_os_tools () {
     local OS_TYPE=$( check_os_type )
 
-    echo "$(date "+%Y-%m-%d %H:%M:%S") [INFO] check prerequisite"
+    echo "$(date "+%Y-%m-%d %H:%M:%S") [INFO] check os tools"
 
     is_jq=$( command -v jq )
     if [ ! $is_jq ]; then
@@ -230,7 +230,7 @@ function build() {
 function main() {
     local components=( "certificate" "eks" "controllers" "deployment" "initialization" )
 
-    check_prerequisite
+    check_os_tools
     build "${components[@]}"
 }
 
