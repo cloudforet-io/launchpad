@@ -65,7 +65,7 @@ function check_prerequisite () {
             brew install awscli
         elif [[ "$OS_TYPE" =~ LINUX ]]; then
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
-            unzip awscliv2.zip -d /tmp
+            unzip /tmp/awscliv2.zip -d /tmp
             sudo /tmp/aws/install
         fi
     fi
