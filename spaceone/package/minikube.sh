@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "$(date "+%Y-%m-%d %H:%M:%S") [INFO] Start SpaceONE with minikube installation"
 

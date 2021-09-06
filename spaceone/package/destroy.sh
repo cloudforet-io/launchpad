@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # function delete_route53_record() {
 #     local base_working_dir=$1

@@ -12,8 +12,11 @@ function add_aws_credentais () {
         touch $HOME/.aws/credentials
     fi
 
-    echo  " " >> $HOME/.aws/credentials
-    cat $BASE_WORKING_DIR/conf/aws_credential >> $HOME/.aws/credentials
+    is_added=$( grep spaceone_dev $HOME/.aws/credentials )
+    if [ ! $is_added ]; then
+        echo  " " >> $HOME/.aws/credentials
+        cat $BASE_WORKING_DIR/conf/aws_credential >> $HOME/.aws/credentials
+    fi
 
     export AWS_PROFILE=spaceone_dev
 }
@@ -99,24 +102,28 @@ function set_configure() {
 
     case $component in
         controllers) 
-                    domain_name=$(cat $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate | jq '.outputs.domain_name.value')
-                    eks_cluster_name=$(cat $BASE_WORKING_DIR/outputs/terraform_states/eks.tfstate | jq '.outputs.cluster_id.value')
-                    cluster_oidc_issuer_url=$(cat $BASE_WORKING_DIR/outputs/terraform_states/eks.tfstate | jq '.outputs.cluster_oidc_issuer_url.value' | sed 's/\//\\\//g')
-                    
-                    sed 's/domain_name = ""/domain_name = '$domain_name'/g' $BASE_WORKING_DIR/conf/$part/$component.conf > $BASE_WORKING_DIR/conf/$part/tmp.$component.auto.tfvars
-                    sed 's/eks_cluster_name = ""/eks_cluster_name = '$eks_cluster_name'/g' $BASE_WORKING_DIR/conf/$part/tmp.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/tmp1.$component.auto.tfvars
-                    sed 's/cluster_oidc_issuer_url = ""/cluster_oidc_issuer_url = '$cluster_oidc_issuer_url'/g' $BASE_WORKING_DIR/conf/$part/tmp1.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/$component.auto.tfvars
+                    if [ -f $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate ] && [ -f $BASE_WORKING_DIR/outputs/terraform_states/eks.tfstate ]; then
+                        domain_name=$(cat $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate | jq '.outputs.domain_name.value')
+                        eks_cluster_name=$(cat $BASE_WORKING_DIR/outputs/terraform_states/eks.tfstate | jq '.outputs.cluster_id.value')
+                        cluster_oidc_issuer_url=$(cat $BASE_WORKING_DIR/outputs/terraform_states/eks.tfstate | jq '.outputs.cluster_oidc_issuer_url.value' | sed 's/\//\\\//g')
+                        
+                        sed 's/domain_name = ""/domain_name = '$domain_name'/g' $BASE_WORKING_DIR/conf/$part/$component.conf > $BASE_WORKING_DIR/conf/$part/tmp.$component.auto.tfvars
+                        sed 's/eks_cluster_name = ""/eks_cluster_name = '$eks_cluster_name'/g' $BASE_WORKING_DIR/conf/$part/tmp.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/tmp1.$component.auto.tfvars
+                        sed 's/cluster_oidc_issuer_url = ""/cluster_oidc_issuer_url = '$cluster_oidc_issuer_url'/g' $BASE_WORKING_DIR/conf/$part/tmp1.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/$component.auto.tfvars
+                    fi
                     ;;
         deployment)
-                    console_api_domain=$(cat $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate | jq '.outputs.console_api_domain.value')
-                    console_api_certificate_arn=$(cat $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate | jq '.outputs.console_api_certificate_arn.value' | sed 's/\//\\\//g')
-                    console_domain=$(cat $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate | jq '.outputs.console_domain.value')
-                    console_certificate_arn=$(cat $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate | jq '.outputs.console_certificate_arn.value' | sed 's/\//\\\//g')
+                    if [ -f $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate ]; then
+                        console_api_domain=$(cat $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate | jq '.outputs.console_api_domain.value')
+                        console_api_certificate_arn=$(cat $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate | jq '.outputs.console_api_certificate_arn.value' | sed 's/\//\\\//g')
+                        console_domain=$(cat $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate | jq '.outputs.console_domain.value')
+                        console_certificate_arn=$(cat $BASE_WORKING_DIR/outputs/terraform_states/certificate.tfstate | jq '.outputs.console_certificate_arn.value' | sed 's/\//\\\//g')
 
-                    sed 's/console_api_domain = ""/console_api_domain = '$console_api_domain'/g' $BASE_WORKING_DIR/conf/$part/$component.conf > $BASE_WORKING_DIR/conf/$part/tmp1.$component.auto.tfvars
-                    sed 's/console_api_certificate_arn = ""/console_api_certificate_arn = '$console_api_certificate_arn'/g' $BASE_WORKING_DIR/conf/$part/tmp1.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/tmp2.$component.auto.tfvars
-                    sed 's/console_domain = ""/console_domain = '$console_domain'/g' $BASE_WORKING_DIR/conf/$part/tmp2.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/tmp3.$component.auto.tfvars
-                    sed 's/console_certificate_arn = ""/console_certificate_arn = '$console_certificate_arn'/g' $BASE_WORKING_DIR/conf/$part/tmp3.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/$component.auto.tfvars
+                        sed 's/console_api_domain = ""/console_api_domain = '$console_api_domain'/g' $BASE_WORKING_DIR/conf/$part/$component.conf > $BASE_WORKING_DIR/conf/$part/tmp1.$component.auto.tfvars
+                        sed 's/console_api_certificate_arn = ""/console_api_certificate_arn = '$console_api_certificate_arn'/g' $BASE_WORKING_DIR/conf/$part/tmp1.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/tmp2.$component.auto.tfvars
+                        sed 's/console_domain = ""/console_domain = '$console_domain'/g' $BASE_WORKING_DIR/conf/$part/tmp2.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/tmp3.$component.auto.tfvars
+                        sed 's/console_certificate_arn = ""/console_certificate_arn = '$console_certificate_arn'/g' $BASE_WORKING_DIR/conf/$part/tmp3.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/$component.auto.tfvars
+                    fi
                     ;;
         *)
                     cp $BASE_WORKING_DIR/conf/$part/$component.conf $BASE_WORKING_DIR/conf/$part/$component.auto.tfvars
@@ -171,8 +178,6 @@ function terraform_execute() {
     if [ $? -eq 1 ];then
         echo "$(date "+%Y-%m-%d %H:%M:%S") [ERROR] Failed terraform $cmd in $component"
         exit 1
-    else
-        echo "$(date "+%Y-%m-%d %H:%M:%S") [INFO] Completed terraform $cmd in $component"
     fi
 }
 
@@ -193,6 +198,8 @@ function is_enable() {
         echo 1
     elif [ $is_enable == "true" ]; then
         echo 0
+    else
+        echo 128
     fi
 }
 
@@ -202,7 +209,7 @@ function build() {
     for component in "${components[@]}";
     do
         ret=$( is_enable $component )
-        if [ $ret -ne 1 ];then
+        if [ $ret -eq 0 ];then
             set_configure $component 
             terraform_execute $component "init" 
             terraform_execute $component "plan" 
@@ -211,8 +218,11 @@ function build() {
             if [ $component == "initialization" ];then
                 create_additional_user_domain_with_helm
             fi
-        else
+        elif [ $ret -eq 1 ];then
             echo "$(date "+%Y-%m-%d %H:%M:%S") [INFO] Skip build "$component
+        elif [ $ret -eq 128 ];then
+            echo "$(date "+%Y-%m-%d %H:%M:%S") [ERROR] Invalid enable config!"
+            exit 128
         fi
     done
 }

@@ -1,7 +1,7 @@
-# Install Guide
-This guide introduces how to quickly build an EKS cluster and spaceone.
+# Onestop Install Guide
+This guide introduces to onestop create EKS cluster and install spaceone.
 
-The guide will install the resource set below.
+As a result, the following resources are created.
 - Certificate managed by ACM
 - VPC & EKS
 - Kubernetes controllers
@@ -22,7 +22,7 @@ The guide will install the resource set below.
 - Public domain Managed by Route53
 
 ## Installation
-The spaceone/launchpad repository contains scripts that create EKS and install spaceone.
+The spaceone/launchpad repository contains scripts that create EKS cluster and install spaceone.
 
 ### git clone
 ```
@@ -46,9 +46,13 @@ region = [default region]
 
 Setting up the configuration file.
 
-the part that do not need to be installed, set enable to false.
+The part that do not need to be created, set enable to false.
 
-ex) If you just need to install spaceone, set false of all infrastructure part and set true of all application part
+:memo: If you just need to install spaceone, set false of all infrastructure part and set true of all application part
+
+:information_source: If you want to check the details about installing spaceone, please refer to the address below
+
+https://github.com/spaceone-dev/charts
 
 - infrastructure part
     1. certificate
@@ -64,6 +68,7 @@ ex) If you just need to install spaceone, set false of all infrastructure part a
         - `launchpad/spaceone/package/application/conf/initialization.conf`
 
 ### Start the install
+It takes about 20 minutes to complete.
 ```
 cd launchpad/spaceone/package/
 ```
@@ -88,7 +93,10 @@ https://youtu.be/zSoEg2v_JrE
 cd launchpad/spaceone/package/
 ```
 ```
-. destroy.sh 
+chmod +x install.sh
+```
+```
+./destroy.sh 
 ``` 
 
 <hr>
