@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 BASE_WORKING_DIR=$(pwd)
 
 function add_aws_credentais () {
@@ -22,7 +22,7 @@ function check_os_type () {
     case "$OSTYPE" in
         darwin*)  echo "OSX" ;; 
         linux*)   echo "LINUX" ;;
-        *)        echo "unknown: $OSTYPE" ;;
+        *)        echo "unknown: $OSTYPE"; exit 1 ;;
     esac
 }
 
@@ -31,8 +31,8 @@ function check_prerequisite () {
 
     echo "$(date "+%Y-%m-%d %H:%M:%S") [INFO] check prerequisite"
 
-    is_jq=$( which jq > /dev/null 2>&1 | echo $? )
-    if [ $is_jq -ne 0 ]; then
+    is_jq=$( command -v jq )
+    if [ ! $is_jq ]; then
         if [[ "$OS_TYPE" =~ OSX ]]; then
             brew install jq
         elif [[ "$OS_TYPE" =~ LINUX ]]; then
@@ -45,8 +45,8 @@ function check_prerequisite () {
         fi
     fi
 
-    is_unzip=$( which unzip > /dev/null 2>&1 | echo $? )
-    if [ $is_unzip -ne 0 ]; then
+    is_unzip=$( command -v unzip )
+    if [ ! $is_unzip ]; then
         if [[ "$OS_TYPE" =~ OSX ]]; then
             brew install unzip
         elif [[ "$OS_TYPE" =~ LINUX ]]; then
@@ -59,8 +59,8 @@ function check_prerequisite () {
         fi
     fi
 
-    is_aws_cli=$( which aws > /dev/null 2>&1 | echo $? )
-    if [ $is_aws_cli -ne 0 ]; then
+    is_aws_cli=$( command -v aws )
+    if [ ! $is_aws_cli ]; then
         if [[ "$OS_TYPE" =~ OSX ]]; then
             brew install awscli
         elif [[ "$OS_TYPE" =~ LINUX ]]; then
@@ -70,8 +70,8 @@ function check_prerequisite () {
         fi
     fi
 
-    is_aws_iam_authenticator=$( which aws-iam-authenticator > /dev/null 2>&1 | echo $? )
-    if [ $is_aws_iam_authenticator -ne 0 ]; then
+    is_aws_iam_authenticator=$( command -v aws-iam-authenticator )
+    if [ ! $is_aws_iam_authenticator ]; then
         if [[ "$OS_TYPE" =~ OSX ]]; then
             brew install aws-iam-authenticator
         elif [[ "$OS_TYPE" =~ LINUX ]]; then
@@ -103,7 +103,7 @@ function set_configure() {
                     eks_cluster_name=$(cat $BASE_WORKING_DIR/outputs/terraform_states/eks.tfstate | jq '.outputs.cluster_id.value')
                     cluster_oidc_issuer_url=$(cat $BASE_WORKING_DIR/outputs/terraform_states/eks.tfstate | jq '.outputs.cluster_oidc_issuer_url.value' | sed 's/\//\\\//g')
                     
-                    sed 's/domain_name = ""/domain_nam = '$domain_name'/g' $BASE_WORKING_DIR/conf/$part/$component.conf > $BASE_WORKING_DIR/conf/$part/tmp.$component.auto.tfvars
+                    sed 's/domain_name = ""/domain_name = '$domain_name'/g' $BASE_WORKING_DIR/conf/$part/$component.conf > $BASE_WORKING_DIR/conf/$part/tmp.$component.auto.tfvars
                     sed 's/eks_cluster_name = ""/eks_cluster_name = '$eks_cluster_name'/g' $BASE_WORKING_DIR/conf/$part/tmp.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/tmp1.$component.auto.tfvars
                     sed 's/cluster_oidc_issuer_url = ""/cluster_oidc_issuer_url = '$cluster_oidc_issuer_url'/g' $BASE_WORKING_DIR/conf/$part/tmp1.$component.auto.tfvars > $BASE_WORKING_DIR/conf/$part/$component.auto.tfvars
                     ;;
