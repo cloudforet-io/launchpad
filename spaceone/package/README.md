@@ -30,29 +30,27 @@ git clone https://github.com/spaceone-dev/launchpad.git
 ```
 
 ### set aws credential file
-To access aws resource, you have to credential
+
+You need aws credentials to access aws resources and create EKS.
 
 ```
 vim launchpad/spaceone/package/conf/aws_credential
----
+```
+```
 [spaceone_dev]
 aws_access_key_id = [aws_access_key_id]
 aws_secret_access_key = [aws_secret_access_key]
 region = [default region]
-
 ```
 
 ### Setting up the configuration file
 
-Setting up the configuration file.
+Configuration file settings for infrastructure resources and spaceone
 
 The part that do not need to be created, set enable to false.
 
-:memo: If you just need to install spaceone, set false of all infrastructure part and set true of all application part
+:information_source: If you just need to install spaceone, set false of all infrastructure part and set true of all application part
 
-:information_source: If you want to check the details about installing spaceone, please refer to the address below
-
-https://github.com/spaceone-dev/charts
 
 - infrastructure part
     1. certificate
@@ -68,7 +66,7 @@ https://github.com/spaceone-dev/charts
         - `launchpad/spaceone/package/application/conf/initialization.conf`
 
 ### Start the install
-It takes about 20 minutes to complete.
+It takes about 2~30 minutes to complete.
 ```
 cd launchpad/spaceone/package/
 ```
@@ -81,9 +79,14 @@ chmod +x install.sh
 
 ### Login
 After installation is complete, you can access spaceone console<br>
-Open browser(http://root.your-domain.com) and log in with the information below
-- ID : user1@example.com
-- PASSWORD : User123!@#
+Open browser(http://root.your-domain.com or http://domain-1.you-domain.comn) and-log in with the information below
+
+- admin
+    - ID : admin
+    - PASSWORD : Admin123!@#
+- user
+    - ID : user1@example.com
+    - PASSWORD : User123!@#
 
 ### SpaceONE Initial Stup
 https://youtu.be/zSoEg2v_JrE
