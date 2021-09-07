@@ -1,43 +1,42 @@
-# Onestop Install Guide
-This guide introduces to onestop create EKS cluster and install spaceone.
+# SpaceONE launchpad
+This launchpad provides Spaceone in the standard configuration.
 
 As a result, the following resources are created.
 - Certificate managed by ACM
 - VPC & EKS
+- EKS controller for ingress and management dns records.
+- DocumentDB
+- IAM for Secret manager
 - Kubernetes controllers
     - [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller)
     - [External DNS](https://github.com/kubernetes-sigs/external-dns)
 - SpaceONE
+    - root domain
+    - user domain
+
+
+![spaceone](https://user-images.githubusercontent.com/19552819/133223528-43291a11-8f47-4a51-9527-38c9f4297fee.png)
 
 ## Prerequisite
-- terraform (>= 0.13.1)
-    - https://learn.hashicorp.com/tutorials/terraform/install-cli#install-terraform
-- kubectl
-    - on linux
-        - https://v1-18.docs.kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-with-curl-on-linux
-    - on mac
-        - https://v1-18.docs.kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-with-curl-on-macos
-- helm
-    - https://helm.sh/docs/intro/install/#from-script
-- Public domain Managed by Route53
+- docker ([document](https://docs.docker.com/engine/install/))
+- public domain Managed by Route53
 
 ## Installation
-The spaceone/launchpad repository contains scripts that create EKS cluster and install spaceone.
+Spaceone launchpad contains scripts to create an EKS cluster and install spaceone.
 
 ### git clone
 ```
 git clone https://github.com/spaceone-dev/launchpad.git
 ```
 
-### set aws credential file
-
-You need aws credentials to access aws resources and create EKS.
+### config aws credential file
+You need aws credentials to access aws resources.
 
 ```
 vim launchpad/spaceone/package/conf/aws_credential
 ```
 ```
-[spaceone_dev]
+[default]
 aws_access_key_id = [aws_access_key_id]
 aws_secret_access_key = [aws_secret_access_key]
 region = [default region]
@@ -45,65 +44,68 @@ region = [default region]
 
 ### Setting up the configuration file
 
-Configuration file settings for infrastructure resources and spaceone
+- `launchpad/spaceone/package/conf/certificate.conf`    # for certificate
+- `launchpad/spaceone/package/conf/eks.conf`            # for eks
+- `launchpad/spaceone/package/conf/documentdb.conf`     # for document db
+- `launchpad/spaceone/package/conf/deployment.conf`     # for SpaceONE deployment
+- `launchpad/spaceone/package/conf/initialization.conf` # for initialize spaceone
 
-The part that do not need to be created, set enable to false.
-
-:information_source: If you just need to install spaceone, set false of all infrastructure part and set true of all application part
-
-
-- infrastructure part
-    1. certificate
-        - `launchpad/spaceone/package/infrastructure/conf/certificate.conf`
-    2. eks
-        - `launchpad/spaceone/package/infrastructure/conf/eks.conf`
-    3. controllers
-        - `launchpad/spaceone/package/application/conf/controllers.conf`
-- application part
-    1. deployment
-        - `launchpad/spaceone/package/application/conf/deployment.conf`
-    2. initialization
-        - `launchpad/spaceone/package/application/conf/initialization.conf`
-
-### Start the install
-It takes about 2~30 minutes to complete.
+### Execute script
+It takes about 3~40 minutes to complete.
 ```
 cd launchpad/spaceone/package/
 ```
 ```
-chmod +x install.sh
+docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c install
 ```
+
+The development type uses only Pod.
 ```
-./install.sh
+docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c install -t dev
 ```
 
 ### Login
-After installation is complete, you can access spaceone console<br>
-Open browser(http://root.your-domain.com or http://domain-1.you-domain.comn) and-log in with the information below
+After installation is completed, you can access spaceone console<br>
+Open a browser(http://spaceone.console.your-domain.com) and log in to the root account with the information below.
 
-- admin
-    - ID : admin
-    - PASSWORD : Admin123!@#
-- user
-    - ID : user1@example.com
-    - PASSWORD : User123!@#
+- ID : admin
+- PASSWORD : Admin123!@#(If you change domain_owner_password in initialization.conf, use it.)
 
-### SpaceONE Initial Stup
-https://youtu.be/zSoEg2v_JrE
+### SpaceONE Basic Setup
+For basic setup, please refer to the user guide or watch the YouTube video.
 
-## Destroy
+- SpaceONE User Guide
+    - https://www.spaceone.org/docs/guides/user_guide/gettingstart/basic_setup/
+
+- Youtube video
+    - https://youtu.be/zSoEg2v_JrE 
+
+## Management
+### Upgrade SpaceONE
 ```
-cd launchpad/spaceone/package/
+cd output/helm/spaceone
 ```
+- Update value files
+*)  Please refer to the [chart examples](https://github.com/spaceone-dev/charts) for update details.
 ```
-chmod +x install.sh
+vim {value|frontend|database}.yam
+
+or
+
+vim minikube.yam
 ```
+- Upgrade helm chart
 ```
-./destroy.sh 
-``` 
+docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c upgrade
+```
+
+## destroy
+```
+docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c destroy
+```
 
 <hr>
 
-Please contact us for any problems during the installation process.
+SpaceONE discuss channel
 
 https://discuss.spaceone.org/

@@ -3,13 +3,13 @@
 #######################################################
 
 data "tls_certificate" "thumbprint" {
-  url             = var.cluster_oidc_issuer_url
+  url             = data.terraform_remote_state.eks.outputs.cluster_oidc_issuer_url
 }
 
 resource "aws_iam_openid_connect_provider" "associate_iam_oidc_provide" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.thumbprint.certificates[0].sha1_fingerprint]
-  url             = var.cluster_oidc_issuer_url
+  url             = data.terraform_remote_state.eks.outputs.cluster_oidc_issuer_url
 }
 
 #######################################################
@@ -210,7 +210,7 @@ resource "helm_release" "aws-load-balancer-controller" {
   
   set {
       name   = "clusterName"
-      value  = var.eks_cluster_name
+      value  = data.terraform_remote_state.eks.outputs.cluster_id
   }
 
   set {
@@ -361,7 +361,7 @@ resource "kubernetes_deployment" "external-dns" {
           args = [
             "--source=service",
             "--source=ingress",
-            "--domain-filter=${var.domain_name}",
+            "--domain-filter=${data.terraform_remote_state.certificate.outputs.domain_name}",
             "--provider=aws",
             "--policy=upsert-only",
             "--aws-zone-type=public",

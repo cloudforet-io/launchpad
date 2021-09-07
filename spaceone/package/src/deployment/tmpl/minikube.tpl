@@ -1,6 +1,5 @@
 enabled: true
 
-# Service
 mongodb:
     enabled: true
 redis:
@@ -8,41 +7,145 @@ redis:
 consul:
     enabled: true
     server:
-        replicas: 3
+        replicas: 1
     ui:
         enabled: false
-
 console:
+  enabled: true
+  developer: false
+  name: console
+  replicas: 1
+  image:
+      name: spaceone/console
+      version: 1.8.4.1
+  imagePullPolicy: IfNotPresent
+
+  production_json:
+      CONSOLE_API:
+        ENDPOINT: https://${console-api-domain}
+      DOMAIN_NAME: root
+      DOMAIN_NAME_REF: localhost
+  ingress:
     enabled: true
+    host: '${console-domain}'   # host for ingress (ex. *.console.spaceone.dev)
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+      alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+      alb.ingress.kubernetes.io/inbound-cidrs: 0.0.0.0/0 # replace or leave out
+      alb.ingress.kubernetes.io/scheme: "internet-facing" # internet-facing
+      alb.ingress.kubernetes.io/target-type: instance # Your console and console-api should be NodePort for this configuration.
+      alb.ingress.kubernetes.io/certificate-arn: ${certificate-arn} 
+      alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-console
+      external-dns.alpha.kubernetes.io/hostname: "${console-domain}"
 
 console-api:
+  enabled: true
+  developer: false
+  name: console-api
+  replicas: 1
+  image:
+      name: spaceone/console-api
+      version: 1.8.4.1
+  imagePullPolicy: IfNotPresent
+
+  production_json:
+      cors:
+      - http://*
+      - https://*
+      redis:
+          host: redis
+          port: 6379
+          db: 15
+      logger:
+          handlers:
+          - type: console
+            level: debug
+          - type: file
+            level: info
+            format: json
+            path: "/var/log/spaceone/console-api.log"
+      escalation:
+        enabled: false
+        allowedDomainId: domain_id
+        apiKey: apikey
+  ingress:
     enabled: true
+    host: '${console-api-domain}'   # host for ingress (ex. console-api.spaceone.dev)
+    annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+        alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+        alb.ingress.kubernetes.io/inbound-cidrs: 0.0.0.0/0 # replace or leave out
+        alb.ingress.kubernetes.io/scheme: "internet-facing" # internet-facing
+        alb.ingress.kubernetes.io/target-type: instance # Your console and console-api should be NodePort for this configuration.
+        alb.ingress.kubernetes.io/certificate-arn: ${certificate-arn}
+        alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-console-api
+        external-dns.alpha.kubernetes.io/hostname: ${console-api-domain}
 
 identity:
     enabled: true
     replicas: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/identity
+      name: spaceone/identity
       version: 1.8.4
+    imagePullPolicy: Always
+
+    application_grpc:
+      HANDLERS:
+          authentication:
+          - backend: spaceone.core.handler.authentication_handler.AuthenticationGRPCHandler
+            uri: grpc://localhost:50051/v1/Domain/get_public_key
+          authorization:
+          - backend: spaceone.core.handler.authorization_handler.AuthorizationGRPCHandler
+            uri: grpc://localhost:50051/v1/Authorization/verify
+          mutation:
+          - backend: spaceone.core.handler.mutation_handler.SpaceONEMutationHandler
+
+      ENDPOINTS:
+      - service: identity
+        name: Identity Service
+        endpoint: grpc://identity:50051/v1
+      - service: inventory
+        name: Inventory Service
+        endpoint: grpc://inventory:50051/v1
+      - service: plugin
+        name: Plugin Manager
+        endpoint: grpc://plugin:50051/v1
+      - service: repository
+        name: Repository Service
+        endpoint: grpc://repository:50051/v1
+      - service: secret
+        name: Secret Manager
+        endpoint: grpc://secret:50051/v1
+      - service: monitoring
+        name: Monitoring Service
+        endpoint: grpc://monitoring:50051/v1
+      - service: config
+        name: Config Service
+        endpoint: grpc://config:50051/v1
+      - service: power_scheduler
+        name: Power Scheduler Service
+        endpoint: grpc://power-scheduler:50051/v1
+      - service: statistics
+        name: Statistics Service
+        endpoint: grpc://statistics:50051/v1
+      - service: billing
+        name: Billing Service
+        endpoint: grpc://billing:50051/v1
 
 secret:
     enabled: true
     replicas: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/secret
+      name: spaceone/secret
       version: 1.8.4
     application_grpc:
-#        BACKEND: ConsulConnector
-#        CONNECTORS:
-#            ConsulConnector:
-#                host: spaceone-consul-server
-#                port: 8500
-        BACKEND: AWSSecretManagerConnector
+        BACKEND: ConsulConnector
         CONNECTORS:
-            AWSSecretManagerConnector:
-                aws_access_key_id: ${aws_access_key_id}
-                aws_secret_access_key: ${aws_secret_access_key}
-                region_name: ${region_name}
+            ConsulConnector:
+                host: spaceone-consul-server
+                port: 8500
     volumeMounts:
         application_grpc: []
         application_scheduler: []
@@ -52,20 +155,25 @@ repository:
     enabled: true
     replicas: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/repository
+      name: spaceone/repository
       version: 1.8.4.1
+    application_grpc:
+        ROOT_TOKEN_INFO:
+            protocol: consul
+            config:
+                host: spaceone-consul-server
+            uri: root/api_key/TOKEN
 
 plugin:
     enabled: true
     replicas: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/plugin
+      name: spaceone/plugin
       version: 1.8.4
  
-    scheduler: true
-    worker: true
+    scheduler: false
+    worker: false
     application_scheduler:
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
         TOKEN_INFO:
             protocol: consul
             config:
@@ -76,20 +184,19 @@ config:
     enabled: true
     replicas: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/config
+      name: spaceone/config
       version: 1.8.4
 
 inventory:
     enabled: true
     replicas: 1
-    replicas_worker: 2
+    replicas_worker: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/inventory
+      name: spaceone/inventory
       version: 1.8.4
     scheduler: true
     worker: true
     application_grpc:
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
         TOKEN_INFO:
             protocol: consul
             config:
@@ -98,14 +205,12 @@ inventory:
         collect_queue: collector_q
 
     application_scheduler:
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
         TOKEN_INFO:
             protocol: consul
             config:
                 host: spaceone-consul-server
             uri: root/api_key/TOKEN
     application_worker:
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
         TOKEN_INFO:
             protocol: consul
             config:
@@ -116,54 +221,19 @@ inventory:
           authorization: []
           mutation: []
 
-#
     volumeMounts:
         application_grpc: []
         application_scheduler: []
         application_worker: []
 
-######################################
-# if you want NLB for spacectl
-# change ClusterIP to LoadBalancer
-#####################################
-
-#    service:
-#      type: LoadBalancer
-#      annotations:
-#          service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-#          external-dns.alpha.kubernetes.io/hostname: inventory.spaceone.dev
-#      ports:
-#        - name: grpc
-#          port: 50051
-#          targetPort: 50051
-#          protocol: TCP
-#
-
-##############################
-# for monitoring webhook
-# 1) Update WEBHOOK_DOMAIN:
-#    - if your SpaceONE domain is spaceone.dev
-#    - set WEBHOOK_DOMAIN as monitoring-webhook.spaceone.dev 
-# 2) Update TOKEN or TOKEN_INFO
-# 3) Update Ingress for rest API
-#    - make sure that your certificate includes monitoring WEBHOOK_DOMAIN
-#    - external dns is your WEBHOOK_DOMAIN name
-##############################
 monitoring:
     enabled: true
-    grpc: true
-    scheduler: true
-    worker: true
-    rest: true
     replicas: 1
-    replicas_rest: 1
-    replicas_worker: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/monitoring
+      name: spaceone/monitoring
       version: 1.8.4
     application_grpc:
-      WEBHOOK_DOMAIN: https://${monitoring_webhook_domain}
-#      TOKEN: __CHANGE_YOUR_ROOT_TOKEN___
+      WEBHOOK_DOMAIN: https://monitoring-webhook.example.com
       TOKEN_INFO:
           protocol: consul
           config:
@@ -184,7 +254,6 @@ monitoring:
             provider: google_cloud
 
     application_rest:
-#      TOKEN: __CHANGE_YOUR_ROOT_TOKEN___
       TOKEN_INFO:
           protocol: consul
           config:
@@ -192,7 +261,6 @@ monitoring:
           uri: root/api_key/TOKEN
 
     application_scheduler:
-#      TOKEN: __CHANGE_YOUR_ROOT_TOKEN___
       TOKEN_INFO:
           protocol: consul
           config:
@@ -200,8 +268,7 @@ monitoring:
           uri: root/api_key/TOKEN
 
     application_worker:
-      WEBHOOK_DOMAIN: https://${monitoring_webhook_domain}
-#      TOKEN: __CHANGE_YOUR_ROOT_TOKEN___
+      WEBHOOK_DOMAIN: https://monitoring-webhook.example.com
       TOKEN_INFO:
           protocol: consul
           config:
@@ -227,13 +294,12 @@ statistics:
     enabled: true
     replicas: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/statistics
+      name: spaceone/statistics
       version: 1.8.4
  
-    scheduler: true
-    worker: true
+    scheduler: false
+    worker: false
     application_scheduler:
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
         TOKEN_INFO:
             protocol: consul
             config:
@@ -244,7 +310,7 @@ billing:
     enabled: true
     replicas: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/billing
+      name: spaceone/billing
       version: 1.8.4
 
 notification:
@@ -252,7 +318,7 @@ notification:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/notification
-      version: 1.8.4
+      version: 1.8.4 
     application_grpc:
         INSTALLED_PROTOCOL_PLUGINS:
           - name: Slack
@@ -270,22 +336,22 @@ notification:
               plugin_id: plugin-email-noti-protocol
               options: {}
               secret_data:
-                smtp_host: ${smpt_host}
-                smtp_port: ${smpt_port}
-                user: ${smpt_user}
-                password: ${smpt_password}
+                smtp_host: email-smtp.us-west-2.amazonaws.com
+                smtp_port: "587"
+                user: aws_access_key_id
+                password: aws_secret_access_key
+              schema: email_smtp
 
 power-scheduler:
     enabled: false
     replicas: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/power-scheduler
+      name: spaceone/power-scheduler
       version: 1.8.4
  
     scheduler: true
     worker: true
     application_scheduler:
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
         TOKEN_INFO:
             protocol: consul
             config:
@@ -298,7 +364,7 @@ cost-saving:
     worker: true
     replicas: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/cost-saving
+      name: spaceone/cost-saving
       version: 1.8.4
 
     application_grpc:
@@ -343,7 +409,7 @@ spot-automation:
     rest: true
     replicas: 1
     image:
-      name: public.ecr.aws/megazone/spaceone/spot-automation
+      name: spaceone/spot-automation
       version: 1.8.4
 
 # Overwrite application config
@@ -356,7 +422,6 @@ spot-automation:
         INTERRUPT:
             salt: ___CHANGE_SALT___
             endpoint: http://spot-automation-proxy.dev.spaceone.dev
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___
         TOKEN_INFO:
             protocol: consul
             config:
@@ -386,7 +451,6 @@ spot-automation:
         INTERRUPT:
             salt: ___CHANGE_SALT___
             endpoint: http://spot-automation-proxy.dev.spaceone.dev
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___
         TOKEN_INFO:
             protocol: consul
             config:
@@ -397,20 +461,16 @@ spot-automation:
         annotations:
             kubernetes.io/ingress.class: alb
             alb.ingress.kubernetes.io/scheme: internet-facing
-            alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-auto-spot
+            alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-spot-auto
             external-dns.alpha.kubernetes.io/hostname: spot-automation-proxy.dev.spaceone.dev
-
 
 marketplace-assets:
     enabled: false
 
-
-# include config/alb.yaml (for ALB)
-# include config/nlb.yaml (for NLB)
 supervisor:
     enabled: true
     image:
-      name: public.ecr.aws/megazone/spaceone/supervisor
+      name: spaceone/supervisor
       version: 1.8.4
     application: {}
     application_scheduler:
@@ -430,13 +490,12 @@ supervisor:
                 end_port: 50052
                 headless: true
                 replica:
-                    inventory.Collector: 2
-                    inventory.Collector?aws-ec2: 4
-                    inventory.Collector?aws-cloud-services: 4
-                    inventory.Collector?aws-power-state: 4
-                    monitoring.DataSource: 2
+                    inventory.Collector: 1
+                    inventory.Collector?aws-ec2: 1
+                    inventory.Collector?aws-cloud-services: 1
+                    inventory.Collector?aws-power-state: 1
+                    monitoring.DataSource: 1
 
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
         TOKEN_INFO:
             protocol: consul
             config:
@@ -444,14 +503,6 @@ supervisor:
             uri: root/api_key/TOKEN
 
 ingress:
-    enabled: false
-
-spaceone-initializer:
-    enabled: false
-    image:
-        version: 1.8.4
-
-domain-initialzer:
     enabled: false
 
 #######################################
@@ -466,6 +517,7 @@ global:
     frontend:
         sidecar: []
         volumes: []
+
     shared_conf:
         HANDLERS:
             authentication:
@@ -510,9 +562,6 @@ global:
             PowerSchedulerConnector:
                 endpoint:
                     v1: grpc://power-scheduler:50051
-            SpotAutomationConnector:
-                endpoint:
-                    v1: grpc://spot-automation:50051
         CACHES:
             default:
                 backend: spaceone.core.cache.redis_cache.RedisCache
@@ -522,33 +571,3 @@ global:
                 encoding: utf-8
                 socket_timeout: 10
                 socket_connect_timeout: 10
-
-
-#######################################
-# TYPE 2. global variable (for mongodb cluster)
-#######################################
-#global:
-#    namespace: spaceone
-#    supervisor_namespace: root-supervisor
-#    backend:
-#        sidecar:
-#            - name: mongos
-#              image: mongo:4.4.0-bionic
-#              command: [ 'mongos', '--config', '/mnt/mongos.yml', '--bind_ip_all' ]
-#              volumeMounts:
-#                - name: mongos-conf
-#                  mountPath: /mnt/mongos.yml
-#                  subPath: mongos.yml
-#                  readOnly: true
-#                - name: mongo-shard-key
-#                  mountPath: /opt/mongos/mongo-shard.pem
-#                  subPath: mongo-shard.pem
-#                  readOnly: true
-#        volumes:
-#            - name: mongo-shard-key
-#              secret:
-#                  defaultMode: 0400
-#                  secretName: mongo-shard-key
-#            - name: mongos-conf
-#              configMap:
-#                  name: mongos-conf

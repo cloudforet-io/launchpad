@@ -1,32 +1,28 @@
-
-variable "console_api_domain" {
-  default = ""
+variable "region" {
+  type        = string
+  description = "AWS Region for EKS"
 }
 
-variable "console_api_certificate_arn" {
-  default = ""
+variable "enterprise" {
+  default = false
 }
 
-variable "console_domain" {
-  default = ""
+variable "development" {
+  default = false
 }
 
-variable "console_certificate_arn" {
-  default = ""
-}
+variable "notification_smpt_host" {
+  default = "" 
+} 
 
-variable "database_user_name" {
-  default = ""
-}
+variable "notification_smpt_port" {
+  default = "" 
+} 
 
-variable "database_user_password" {
-  default = ""
-}
+variable "notification_smpt_user" {
+  default = "" 
+} 
 
-variable "database_cluster_host_name" {
-  default = ""
-}
-
-variable "cache_host" { 
-  default = ""
-}
+variable "notification_smpt_password" {
+  default = "" 
+} 

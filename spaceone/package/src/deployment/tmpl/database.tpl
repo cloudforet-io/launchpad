@@ -5,14 +5,15 @@ identity:
               username: ${database_user_name}
               password: ${database_user_password}
               db: identity
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 0
@@ -27,22 +28,21 @@ secret:
               username: ${database_user_name}
               password: ${database_user_password}
               db: secret
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 4
               encoding: utf-8
               socket_timeout: 10
               socket_connect_timeout: 10
-
-
 
 repository:
     database:
@@ -51,14 +51,15 @@ repository:
               username: ${database_user_name}
               password: ${database_user_password}
               db: repository
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 3
@@ -75,14 +76,15 @@ plugin:
               username: ${database_user_name}
               password: ${database_user_password}
               db: plugin
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 2
@@ -98,14 +100,15 @@ config:
               username: ${database_user_name}
               password: ${database_user_password}
               db: config
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 0
@@ -122,22 +125,21 @@ inventory:
               username: ${database_user_name}
               password: ${database_user_password}
               db: inventory
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 1
               encoding: utf-8
               socket_timeout: 10
               socket_connect_timeout: 10
-
-
 
 monitoring:
     database:
@@ -146,22 +148,21 @@ monitoring:
               username: ${database_user_name}
               password: ${database_user_password}
               db: monitoring
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 5
               encoding: utf-8
               socket_timeout: 10
               socket_connect_timeout: 10
-
-
 
 statistics:
     database:
@@ -170,22 +171,21 @@ statistics:
               username: ${database_user_name}
               password: ${database_user_password}
               db: statistics
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 5
               encoding: utf-8
               socket_timeout: 10
               socket_connect_timeout: 10
-
-
 
 billing:
     database:
@@ -194,14 +194,15 @@ billing:
               username: ${database_user_name}
               password: ${database_user_password}
               db: billing
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 5
@@ -216,14 +217,15 @@ notification:
               username: ${database_user_name}
               password: ${database_user_password}
               db: notification
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 5
@@ -238,14 +240,15 @@ power-scheduler:
               username: ${database_user_name}
               password: ${database_user_password}
               db: power-scheduler
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 12
@@ -260,14 +263,15 @@ cost-saving:
               username: ${database_user_name}
               password: ${database_user_password}
               db: cost-saving
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 13
@@ -282,18 +286,18 @@ spot-automation:
               username: ${database_user_name}
               password: ${database_user_password}
               db: spot-automation
-              host: ${database_cluster_host_name}
+              host: ${endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
               maxPoolSize: 200
+              retryWrites: false
         CACHES:
             default:
-              backend: ${cache_host}
+              backend: spaceone.core.cache.redis_cache.RedisCache
               host: redis
               port: 6379
               db: 14
               encoding: utf-8
               socket_timeout: 10
               socket_connect_timeout: 10
-

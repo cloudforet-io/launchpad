@@ -42,3 +42,33 @@ output "node_groups" {
   description = "Outputs from node groups"
   value       = module.eks.node_groups
 }
+
+output "worker_security_group_id" {
+  description = "Security group ID attached to the EKS workers."
+  value       = module.eks.worker_security_group_id
+}
+
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value = module.vpc.vpc_id
+}
+
+output "public_subnets" {
+  description = "List of IDs of public subnets"
+  value       = module.vpc.public_subnets
+}
+
+output "private_subnets" {
+  description = "List of IDs of private subnets"
+  value       = module.vpc.private_subnets
+}
+
+output "database_subnets" {
+  description = "List of IDs of database subnets"
+  value       = module.vpc.database_subnets
+}
+
+output "cluster_primary_security_group_id" {
+  description = "The cluster primary security group ID created by the EKS cluster on 1.14 or later. Referred to as 'Cluster security group' in the EKS console."
+  value       = module.eks.cluster_primary_security_group_id
+}

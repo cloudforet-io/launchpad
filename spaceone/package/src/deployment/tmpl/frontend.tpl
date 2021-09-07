@@ -5,10 +5,10 @@ console:
   enabled: true
   developer: false
   name: console
-  replicas: 1
+  replicas: 2
   image:
       name: public.ecr.aws/megazone/spaceone/console
-      version: 1.8.1.1
+      version: 1.8.4.1
   imagePullPolicy: IfNotPresent
 
   # For production.json (nodejs)
@@ -46,7 +46,8 @@ console:
       alb.ingress.kubernetes.io/inbound-cidrs: 0.0.0.0/0 # replace or leave out
       alb.ingress.kubernetes.io/scheme: "internet-facing" # internet-facing
       alb.ingress.kubernetes.io/target-type: instance # Your console and console-api should be NodePort for this configuration.
-      alb.ingress.kubernetes.io/certificate-arn: ${console-domain-certificate-arn} 
+      alb.ingress.kubernetes.io/certificate-arn: ${certificate-arn} 
+      alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-console
       external-dns.alpha.kubernetes.io/hostname: "${console-domain}"
 
 ###############################
@@ -56,10 +57,10 @@ console-api:
   enabled: true
   developer: false
   name: console-api
-  replicas: 1
+  replicas: 2
   image:
       name: public.ecr.aws/megazone/spaceone/console-api
-      version: 1.8.1
+      version: 1.8.4.1
   imagePullPolicy: IfNotPresent
 
 ###############################################
@@ -83,7 +84,10 @@ console-api:
             level: info
             format: json
             path: "/var/log/spaceone/console-api.log"
-
+      escalation:
+        enabled: false
+        allowedDomainId: domain_id
+        apiKey: apikey
 ###############################################
 # TODO: Update value
 #  - host
@@ -102,6 +106,7 @@ console-api:
         alb.ingress.kubernetes.io/inbound-cidrs: 0.0.0.0/0 # replace or leave out
         alb.ingress.kubernetes.io/scheme: "internet-facing" # internet-facing
         alb.ingress.kubernetes.io/target-type: instance # Your console and console-api should be NodePort for this configuration.
-        alb.ingress.kubernetes.io/certificate-arn: ${console-api-domain-certificate-arn}
+        alb.ingress.kubernetes.io/certificate-arn: ${certificate-arn}
+        alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-console-api
         external-dns.alpha.kubernetes.io/hostname: ${console-api-domain}
 

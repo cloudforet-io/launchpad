@@ -47,6 +47,7 @@ module "vpc" {
 # EKS cluster
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
+  version         = "17.11.0"
 	cluster_name    = var.cluster_name
   cluster_version = var.eks_cluster_version
   vpc_id          = module.vpc.vpc_id
@@ -60,7 +61,7 @@ module "eks" {
   node_groups_defaults = var.node_groups_defaults
 
 	node_groups = {
-    spaceone_core_node_group = {
+    core = {
       desired_capacity  = var.node_groups_desired_capacity
       max_capacity      = var.node_groups_max_capacity
       min_capacity      = var.node_groups_min_capacity
@@ -80,23 +81,9 @@ module "eks" {
 resource "null_resource" "replace_kube_config" {
   depends_on = [module.eks]
   provisioner "local-exec" {
-    command = "cp ./kubeconfig_${var.cluster_name} ../../outputs/eks_config/config"
-  }
-  provisioner "local-exec" {
     command = <<EOT
-        if [ ! -d "$HOME/.kube" ]; then
-          mkdir ~/.kube
-        fi
+        cp ./kubeconfig_${var.cluster_name} ../../outputs/eks_config/config
+        export KUBECONFIG=../../outputs/eks_config/config
     EOT
-  }
-  provisioner "local-exec" {
-    command = <<EOT
-        if [ -f "$HOME/.kube/config" ]; then
-          mv $HOME/.kube/config $HOME/.kube/config.bk.$(date +%Y%m%d) 
-        fi
-    EOT
-  }
-  provisioner "local-exec" {
-    command = "mv ./kubeconfig_${var.cluster_name} $HOME/.kube/config"
   }
 }

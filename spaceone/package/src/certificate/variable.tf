@@ -1,6 +1,4 @@
-variable "region" {
-  default = ""
-}
+variable "region" {}
 
 variable "domain_name" {
   default = ""
