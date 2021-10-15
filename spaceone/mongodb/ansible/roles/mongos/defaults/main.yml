@@ -1,5 +1,0 @@
----
-shard_port: 27028
-private_key_path: /home/ubuntu/mongoconfig/mongo-shard.pem
-system_log_path: /var/log/mongodb/mongos.log
-mongos_conf_path: /etc/mongos.conf
