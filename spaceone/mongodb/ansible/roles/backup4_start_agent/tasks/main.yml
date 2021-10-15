@@ -1,6 +1,0 @@
-- 
-  name: start pbm_agent service
-  ansible.builtin.service:
-    name: pbm-agent
-    state: started
-    enabled: true

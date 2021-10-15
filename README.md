@@ -1,173 +1,108 @@
-# launchpad
+# SpaceONE launchpad
+This launchpad provides Spaceone in the standard configuration.
 
-SpaceONE infrastructure automation provisioning code
+As a result, the following resources are created.
+- Certificate managed by ACM
+- VPC & EKS
+- EKS controller for ingress and management dns records.
+- DocumentDB
+- IAM for Secret manager
+- Kubernetes controllers
+    - [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller)
+    - [External DNS](https://github.com/kubernetes-sigs/external-dns)
+- SpaceONE
+    - root domain
+    - user domain
 
-* Based on AWS
-* Implementation of Terraform and Ansible
 
-<hr/>
+![spaceone](https://user-images.githubusercontent.com/19552819/133223528-43291a11-8f47-4a51-9527-38c9f4297fee.png)
 
+## Prerequisite
+- docker ([document](https://docs.docker.com/engine/install/))
+- public domain Managed by Route53
 
-## Architecture
- 
-![MongoDB](./mongodb_arch_img.jpg)
+## Installation
+Spaceone launchpad contains scripts to create an EKS cluster and install spaceone.
 
-
-## Terraform
-
-* Guaranteed Terraform Version 0.14.2
-* Separated workspace from each supported parts
-* Thus, Each parts is must be executed separately
-
-### Supported Part list
-* mongodb
-
-### Modules
-* bastion
-* route53
-* security_group
-* shard_cluster
-
-<br/>
-
-### How to use
-
-#### 1. Terraform init
-
-we recommended to use S3 Backend for state management and state locking.
-
-`backend.tfvars` file looks like
-
-```yaml
-# AWS S3 bucket name for backend
-bucket = ""
-
-# AWS S3 object key for tfstate file
-key = ""
-
-region = ""
-
-# support locking via DynamoDB
-dynamodb_table = ""
+### git clone
+```
+git clone https://github.com/spaceone-dev/launchpad.git
 ```
 
-Fill out `backend.tfvars` values and `terraform init` run
+### config aws credential file
+You need aws credentials to access aws resources.
 
-```sh
-> terraform init --var-file=backend.tfvars
+```
+vim /conf/aws_credential
+```
+```
+[default]
+aws_access_key_id = [aws_access_key_id]
+aws_secret_access_key = [aws_secret_access_key]
+region = [default region]
 ```
 
-<br/>
+### Setting up the configuration file
 
-#### 2. Fill out `*.auto.tfvars` for environments
+- `/conf/certificate.conf`    # for certificate
+- `/conf/eks.conf`            # for eks
+- `/conf/documentdb.conf`     # for document db
+- `/conf/deployment.conf`     # for SpaceONE deployment
+- `/conf/initialization.conf` # for initialize spaceone
 
-Each parts included `.auto.tfvars` files for your environment properly.
-
-For example, mongodb parts included `security_group.auto.tfvars` and `shard_cluster.auto.tfvars`.
-
-Let's see a `security_group.auto.tfvars` for instance.
-```yaml
-# security_group.tfvars
-
-region                        =   ""
-vpc_id                        =   ""
-
-mongodb_bastion_ingress_rule_admin_access_security_group_id = ""    # From Source security group ID for Administrator access
-mongodb_bastion_ingress_rule_admin_access_port              = 0
-mongodb_app_ingress_rule_mongodb_access_security_group_id   = ""    # From Source security group ID for Worker Nodes
+### Execute script
+It takes about 3~40 minutes to complete.
+```
+docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c install
 ```
 
-You can fill out all of `.auto.tfvars` in each parts.
-
-#### 2-1. Fill out SSH PEM String to access ec2 instances through SSH for Ansible if you want
-
-Configure for Ansible in bastion instance automatically.
-Fill out SSH PEM Key string to access each nodes through bastion Ansible if you want.
-PEM Key string must be the same when deploy instances selected key pairs.
-
-`spaceone/terraform/modules/ssh_pem/mongodb.pem`
-
-```pem
-# mongodb.pem
------BEGIN RSA PRIVATE KEY-----
-ENTER_YOUR_PRIVATE_KEY_STRING
------END RSA PRIVATE KEY-----
+The development type uses only Pod.
+```
+docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c install -t dev
 ```
 
-if you don't set SSH Key, you must set PEM key in bastion manually for Ansible after deployment.
+### Login
+After installation is completed, you can access spaceone console<br>
+Open a browser(http://spaceone.console.your-domain.com) and log in to the root account with the information below.
 
-#### 3. Terraform plan
+- ID : admin
+- PASSWORD : Admin123!@#(If you change domain_owner_password in initialization.conf, use it.)
 
-And then, make file for your environment.
+### SpaceONE Basic Setup
+For basic setup, please refer to the user guide or watch the YouTube video.
 
-We already add `default.auto.tfvars` for example.
+- SpaceONE User Guide
+    - https://www.spaceone.org/docs/guides/user_guide/gettingstart/basic_setup/
 
-`default.auto.tfvars` is simple. It looks like
+- Youtube video
+    - https://youtu.be/zSoEg2v_JrE 
 
-```yaml
-environment   = "dev"
-region        = ""
+## Management
+### Upgrade SpaceONE
+```
+cd output/helm/spaceone
+```
+- Update value files
+*)  Please refer to the [chart examples](https://github.com/spaceone-dev/charts) for update details.
+```
+vim {value|frontend|database}.yaml
+
+or
+
+vim minikube.yaml
+```
+- Upgrade helm chart
+```
+docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c upgrade
 ```
 
-Fill out the values in `default.auto.tfvars`.
-
-It's time to run the `Terraform plan` !
-
-If you run the mongodb with all of `tfvars` in mongodb parts,
-```sh
-> terraform plan
+## destroy
+```
+docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c destroy
 ```
 
-#### 4. Terraform apply
+<hr>
 
-Go to build your spaceONE using launchpad !
-```sh
-> terraform apply
-```
+SpaceONE discuss channel
 
-<br>
-<hr/>
-
-
-## Ansible
-
-
-### Roles
-* ubuntu_base
-* mongodb_base
-* mongod
-* mongos
-* config_replicaset
-* data_node_replicaset
-* shard_cluster
-* bastion
-
-### How to use
-
-#### 1. Access Bastion Instance
-
-#### 2. Access Test for 
-
-We will use Ansible dynamic inventory. 
-Configure for using Ansible dynamic inventory automatically. You don't need to anything to configure for it.
-Please check do `ansible-inventory` command.
-
-```sh
-> ansible-inventory --graph -i inventory/
-```
-
-#### 3. Fill out Variables in group variable file - mongodb.yml
-
-`spaceone/ansible/inventory/group_vars/mongodb.yml`
-
-We will run ansible playbook `mongodb.yml` only. This playbook is included variety roles for configuration MongoDB.
-You must set variables in this playbook for use.
-
-#### 4. Run playbook!
-
-Ready to Run. 
-It's simple! Run playbook now.
-
-```sh
-> ansible-playbook -i inventory/ mongodb.yml
-```
+https://discuss.spaceone.org/

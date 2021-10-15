@@ -1,3 +1,8 @@
 .terraform*
+*.tfstate*
 .idea
 .DS_Store
+__pycache__
+config
+*.gpg
+secret-key

@@ -1,3 +1,0 @@
----
-data_disk_device_name: nvme1n1
-mongo_data_path: /data/mongo
