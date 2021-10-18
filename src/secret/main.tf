@@ -27,7 +27,7 @@ resource "aws_iam_policy" "this" {
               "secretsmanager:*"
           ],
           "Resource": [
-              "arn:aws:secretsmanager:ap-northeast-2:${data.aws_caller_identity.current.account_id}:secret:*"
+              "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:*"
           ]
       }
   ]
