@@ -6,3 +6,5 @@ __pycache__
 config
 *.gpg
 secret-key
+data/helm/cache
+data/helm/config
