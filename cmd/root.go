@@ -81,39 +81,6 @@ func initConfig() {
 	}
 }
 
-func executeTerraform(component string, action string) {
-	//https://github.com/briandowns/spinner#available-character-sets
-	s := spinner.New(spinner.CharSets[26], 100*time.Millisecond)
-	s.Prefix = fmt.Sprintf("[%v] %v", action, component)
-
-	s.Start()
-
-	err := _init(component)
-	if err != nil {
-		panic(err)
-	}
-
-	switch action {
-	case "install":
-		err = _plan(component)
-		if err != nil {
-			panic(err)
-		}
-
-		err = _apply(component)
-		if err != nil {
-			panic(err)
-		}
-	case "destroy":
-		err = _destroy(component)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	s.Stop()
-}
-
 func _setAwsCredentais() {
 	homedir, _ := os.UserHomeDir()
 	// TODO: filepath module vs text path
@@ -178,21 +145,9 @@ func _setTfvarRegion(file_source string) {
 	os.Setenv("TF_VAR_region", region)
 }
 
-func _setTerraform(component string) (*tfexec.Terraform, error) {
-	workingDir := fmt.Sprintf("./module/%v", component)
-
-	execPath, err := tfinstall.Find(context.Background(), tfinstall.LatestVersion("/usr/bin/", false))
-	if err != nil {
-		return nil, errors.Wrap(err, "Error locating Terraform binary")
-	}
-
-	tf, err := tfexec.NewTerraform(workingDir, string(execPath))
-	if err != nil {
-		return nil, errors.Wrap(err, "Error running NewTerraform")
-	}
-
-	return tf, nil
-}
+/**
+helm client
+**/
 
 func _getHelmClient() helmclient.Client {
 
@@ -212,4 +167,136 @@ func _getHelmClient() helmclient.Client {
 	}
 
 	return helmClient
+}
+
+func _UninstallRelease(releaseName string, chartName string) error {
+	helmClient := _getHelmClient()
+	chartSpec := helmclient.ChartSpec{
+		ReleaseName: releaseName,
+		ChartName:   fmt.Sprintf("spaceone/%s", chartName),
+		Namespace:   "spaceone",
+		UpgradeCRDs: true,
+		Wait:        true,
+	}
+
+	// TODO: Check existing releases before unintall helm chart
+	// https://pkg.go.dev/github.com/mittwald/go-helm-client#HelmClient.GetRelease
+
+	if err := helmClient.UninstallRelease(&chartSpec); err != nil {
+		// TODO: Optional exception handling
+		if strings.Contains(err.Error(), "Release not loaded") {
+			return nil
+		}
+		return errors.Wrap(err, "Error uninstall helm release")
+	}
+
+	return nil
+}
+
+/**
+terraform client
+**/
+func _setTerraform(component string) (*tfexec.Terraform, error) {
+	workingDir := fmt.Sprintf("./module/%v", component)
+
+	execPath, err := tfinstall.Find(context.Background(), tfinstall.LatestVersion("/usr/bin/", false))
+	if err != nil {
+		return nil, errors.Wrap(err, "Error locating Terraform binary")
+	}
+
+	tf, err := tfexec.NewTerraform(workingDir, string(execPath))
+	if err != nil {
+		return nil, errors.Wrap(err, "Error running NewTerraform")
+	}
+
+	return tf, nil
+}
+
+func _executeTerraform(component string, action string) {
+	//https://github.com/briandowns/spinner#available-character-sets
+	s := spinner.New(spinner.CharSets[26], 100*time.Millisecond)
+	s.Prefix = fmt.Sprintf("[%v] %v", action, component)
+
+	s.Start()
+
+	err := _init(component)
+	if err != nil {
+		panic(err)
+	}
+
+	switch action {
+	case "install":
+		err = _plan(component)
+		if err != nil {
+			panic(err)
+		}
+
+		err = _apply(component)
+		if err != nil {
+			panic(err)
+		}
+	case "destroy":
+		err = _destroy(component)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	s.Stop()
+}
+
+func _init(component string) error {
+	tf, err := _setTerraform(component)
+	if err != nil {
+		return errors.Wrap(err, "Error set terraform")
+	}
+
+	err = tf.Init(context.Background(), tfexec.Upgrade(true))
+	if err != nil {
+		return errors.Wrap(err, "Error running terraform Init")
+	}
+
+	return nil
+}
+
+func _plan(component string) error {
+	tf, err := _setTerraform(component)
+	if err != nil {
+		return errors.Wrap(err, "Error set terraform")
+	}
+
+	_, err = tf.Plan(context.Background())
+	if err != nil {
+		return errors.Wrap(err, "Error running terraform Plan")
+	}
+
+	return nil
+}
+
+func _apply(component string) error {
+	tf, err := _setTerraform(component)
+	if err != nil {
+		return errors.Wrap(err, "Error set terraform")
+	}
+
+	err = tf.Apply(context.Background())
+	if err != nil {
+		return errors.Wrap(err, "Error running terraform Apply")
+	}
+
+	return nil
+}
+
+func _destroy(component string) error {
+	tf, err := _setTerraform(component)
+	if err != nil {
+		return err
+	}
+
+	err = tf.Destroy(context.Background())
+	if err != nil {
+		return errors.Wrap(err, "Error running Terraform Destroy")
+	}
+
+	return nil
 }

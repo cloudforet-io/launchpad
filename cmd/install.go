@@ -16,14 +16,12 @@ limitations under the License.
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"os/exec"
 
-	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -69,52 +67,10 @@ func build(components *[]string) {
 			_generateGpgKey()
 		}
 
-		executeTerraform(component, "install")
+		_executeTerraform(component, "install")
 	}
 
 	log.Println("\nSpaceONE build complete")
-}
-
-func _init(component string) error {
-	tf, err := _setTerraform(component)
-	if err != nil {
-		return errors.Wrap(err, "Error set terraform")
-	}
-
-	err = tf.Init(context.Background(), tfexec.Upgrade(true))
-	if err != nil {
-		return errors.Wrap(err, "Error running terraform Init")
-	}
-
-	return nil
-}
-
-func _plan(component string) error {
-	tf, err := _setTerraform(component)
-	if err != nil {
-		return errors.Wrap(err, "Error set terraform")
-	}
-
-	_, err = tf.Plan(context.Background())
-	if err != nil {
-		return errors.Wrap(err, "Error running terraform Plan")
-	}
-
-	return nil
-}
-
-func _apply(component string) error {
-	tf, err := _setTerraform(component)
-	if err != nil {
-		return errors.Wrap(err, "Error set terraform")
-	}
-
-	err = tf.Apply(context.Background())
-	if err != nil {
-		return errors.Wrap(err, "Error running terraform Apply")
-	}
-
-	return nil
 }
 
 func _setInstallType(isDevelop bool) []string {

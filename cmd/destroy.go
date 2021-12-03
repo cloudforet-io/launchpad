@@ -16,16 +16,13 @@ limitations under the License.
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
-	helmclient "github.com/mittwald/go-helm-client"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -63,7 +60,7 @@ func destroy() {
 
 	for _, component := range components {
 		if component != "deployment" && component != "initialization" {
-			executeTerraform(component, "destroy")
+			_executeTerraform(component, "destroy")
 		}
 	}
 
@@ -74,20 +71,6 @@ func destroy() {
 
 	log.Println("\nSpaceONE Destroy completed")
 
-}
-
-func _destroy(component string) error {
-	tf, err := _setTerraform(component)
-	if err != nil {
-		return err
-	}
-
-	err = tf.Destroy(context.Background())
-	if err != nil {
-		return errors.Wrap(err, "Error running Terraform Destroy")
-	}
-
-	return nil
 }
 
 func _uninstallHelmRelease() error {
@@ -166,30 +149,6 @@ func _removeConfigure(components *[]string) error {
 	kubeConfig := "./data/kubeconfig/config"
 	if _, err := os.Stat(kubeConfig); !os.IsNotExist(err) {
 		os.Remove(kubeConfig)
-	}
-
-	return nil
-}
-
-func _UninstallRelease(releaseName string, chartName string) error {
-	helmClient := _getHelmClient()
-	chartSpec := helmclient.ChartSpec{
-		ReleaseName: releaseName,
-		ChartName:   fmt.Sprintf("spaceone/%s", chartName),
-		Namespace:   "spaceone",
-		UpgradeCRDs: true,
-		Wait:        true,
-	}
-
-	// TODO: Check existing releases before unintall helm chart
-	// https://pkg.go.dev/github.com/mittwald/go-helm-client#HelmClient.GetRelease
-
-	if err := helmClient.UninstallRelease(&chartSpec); err != nil {
-		// TODO: Optional exception handling
-		if strings.Contains(err.Error(), "Release not loaded") {
-			return nil
-		}
-		return errors.Wrap(err, "Error uninstall helm release")
 	}
 
 	return nil
