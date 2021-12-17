@@ -61,22 +61,20 @@ After installation is completed, you can access SpaceONE console<br>
 Open a browser(http://spaceone.console.your-domain.com) and log in to the root account with the information below.
 
 - ID : admin
-- PASSWORD : Admin123!@#(If you change domain_owner_password in initialization.conf, use it.)
+- PASSWORD : Admin123!@#
+    - If you change domain_owner_password in initialization.conf, use it.
 
 ### SpaceONE Basic Setup
 For basic setup, please refer to the user guide or watch the YouTube video.
 
-- SpaceONE User Guide
-    - https://www.spaceone.org/docs/guides/user_guide/gettingstart/basic_setup/
+- [SpaceONE User Guide](https://www.spaceone.org/docs/guides/user_guide/gettingstart/basic_setup/)
 
-- Youtube video
-    - https://youtu.be/zSoEg2v_JrE 
+- [Youtube video](https://youtu.be/zSoEg2v_JrE)
 
 ## Management
 ### Upgrade SpaceONE
 
-- Update value files
-    - see a for details, refer to [chart examples](https://github.com/spaceone-dev/charts)
+- Update value files (see a for details, refer to [chart examples](https://github.com/spaceone-dev/charts))
 ```
 ## enterprise version
 vim data/helm/values/spaceone/{value|frontend|database}.yaml
