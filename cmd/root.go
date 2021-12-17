@@ -213,30 +213,35 @@ func _setTerraform(component string) (*tfexec.Terraform, error) {
 }
 
 func _executeTerraform(component string, action string) {
-	//https://github.com/briandowns/spinner#available-character-sets
+	// refer:https://github.com/briandowns/spinner#available-character-sets
 	s := spinner.New(spinner.CharSets[26], 100*time.Millisecond)
 	s.Prefix = fmt.Sprintf("[%v] %v", action, component)
 
 	s.Start()
 
-	err := _init(component)
+	tf, err := _setTerraform(component)
+	if err != nil {
+		panic(errors.Wrap(err, "Error set terraform"))
+	}
+
+	err = _init(tf, component)
 	if err != nil {
 		panic(err)
 	}
 
 	switch action {
 	case "install":
-		err = _plan(component)
+		err = _plan(tf, component)
 		if err != nil {
 			panic(err)
 		}
 
-		err = _apply(component)
+		err = _apply(tf, component)
 		if err != nil {
 			panic(err)
 		}
 	case "destroy":
-		err = _destroy(component)
+		err = _destroy(tf, component)
 		if err != nil {
 			panic(err)
 		}
@@ -245,13 +250,9 @@ func _executeTerraform(component string, action string) {
 	s.Stop()
 }
 
-func _init(component string) error {
-	tf, err := _setTerraform(component)
-	if err != nil {
-		return errors.Wrap(err, "Error set terraform")
-	}
+func _init(tf *tfexec.Terraform, component string) error {
 
-	err = tf.Init(context.Background(), tfexec.Upgrade(true))
+	err := tf.Init(context.Background(), tfexec.Upgrade(true))
 	if err != nil {
 		return errors.Wrap(err, "Error running terraform Init")
 	}
@@ -259,13 +260,8 @@ func _init(component string) error {
 	return nil
 }
 
-func _plan(component string) error {
-	tf, err := _setTerraform(component)
-	if err != nil {
-		return errors.Wrap(err, "Error set terraform")
-	}
-
-	_, err = tf.Plan(context.Background())
+func _plan(tf *tfexec.Terraform, component string) error {
+	_, err := tf.Plan(context.Background())
 	if err != nil {
 		return errors.Wrap(err, "Error running terraform Plan")
 	}
@@ -273,13 +269,8 @@ func _plan(component string) error {
 	return nil
 }
 
-func _apply(component string) error {
-	tf, err := _setTerraform(component)
-	if err != nil {
-		return errors.Wrap(err, "Error set terraform")
-	}
-
-	err = tf.Apply(context.Background())
+func _apply(tf *tfexec.Terraform, component string) error {
+	err := tf.Apply(context.Background())
 	if err != nil {
 		return errors.Wrap(err, "Error running terraform Apply")
 	}
@@ -287,13 +278,8 @@ func _apply(component string) error {
 	return nil
 }
 
-func _destroy(component string) error {
-	tf, err := _setTerraform(component)
-	if err != nil {
-		return err
-	}
-
-	err = tf.Destroy(context.Background())
+func _destroy(tf *tfexec.Terraform, component string) error {
+	err := tf.Destroy(context.Background())
 	if err != nil {
 		return errors.Wrap(err, "Error running Terraform Destroy")
 	}

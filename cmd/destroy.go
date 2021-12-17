@@ -19,9 +19,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -48,23 +46,16 @@ func destroy() {
 
 	components := []string{"initialization", "deployment", "secret", "documentdb", "controllers", "eks", "certificate"}
 
-	err := _uninstallHelmRelease()
-	if err != nil {
-		panic(err)
-	}
-
-	err = _deleteKubernetesNamespace()
-	if err != nil {
-		panic(err)
-	}
-
 	for _, component := range components {
-		if component != "deployment" && component != "initialization" {
-			_executeTerraform(component, "destroy")
-		}
+		_executeTerraform(component, "destroy")
 	}
 
-	err = _removeConfigure(&components)
+	err := _removeHelmData()
+	if err != nil {
+		panic(err)
+	}
+
+	err = _removeTerraformData(&components)
 	if err != nil {
 		panic(err)
 	}
@@ -73,22 +64,9 @@ func destroy() {
 
 }
 
-func _uninstallHelmRelease() error {
-	err := _UninstallRelease("user-domain", "spaceone-initializer")
-	if err != nil {
-		return err
-	}
-
-	err = _UninstallRelease("spaceone", "spaceone")
-	if err != nil {
-		return err
-	}
-
-	// Waiting for k8s resources to be deleted
-	time.Sleep(5 * time.Second)
-
-	initializerHelmValues := "./data/helm/values/spaceone-initializer/*"
-	if files, err := filepath.Glob(initializerHelmValues); err == nil {
+func _removeHelmData() error {
+	initializerHelmValuePath := "./data/helm/values/spaceone-initializer/*"
+	if files, err := filepath.Glob(initializerHelmValuePath); err == nil {
 		for _, f := range files {
 			if err := os.Remove(f); err != nil {
 				return errors.Wrap(err, "Error delete spaceone-initailzer helm release values")
@@ -96,8 +74,8 @@ func _uninstallHelmRelease() error {
 		}
 	}
 
-	spaceoneHelmValues := "./data/helm/values/spaceone/*"
-	if files, err := filepath.Glob(spaceoneHelmValues); err == nil {
+	spaceoneHelmValuePath := "./data/helm/values/spaceone/*"
+	if files, err := filepath.Glob(spaceoneHelmValuePath); err == nil {
 		for _, f := range files {
 			if err := os.Remove(f); err != nil {
 				return errors.Wrap(err, "Error delete spaceone helm release values")
@@ -105,25 +83,28 @@ func _uninstallHelmRelease() error {
 		}
 	}
 
+	helmRepositoryConfig := "./data/helm/config/*"
+	if files, err := filepath.Glob(helmRepositoryConfig); err == nil {
+		for _, f := range files {
+			if err := os.Remove(f); err != nil {
+				return errors.Wrap(err, "Error delete helm repository config")
+			}
+		}
+	}
+
+	helmRepositoryCache := "./data/helm/cache/repository/*"
+	if files, err := filepath.Glob(helmRepositoryCache); err == nil {
+		for _, f := range files {
+			if err := os.Remove(f); err != nil {
+				return errors.Wrap(err, "Error delete helm repository cache")
+			}
+		}
+	}
+
 	return nil
 }
 
-func _deleteKubernetesNamespace() error {
-	// TODO: use kubectl or kubernetes client
-	err := exec.Command("kubectl", "delete", "ns", "root-supervisor").Run()
-	if err != nil {
-		return errors.Wrap(err, "Error Delete namespace root-supervisor")
-	}
-
-	err = exec.Command("kubectl", "delete", "ns", "spaceone").Run()
-	if err != nil {
-		return errors.Wrap(err, "Error Delete namespace spaceone")
-	}
-
-	return nil
-}
-
-func _removeConfigure(components *[]string) error {
+func _removeTerraformData(components *[]string) error {
 
 	for _, component := range *components {
 		tfvar := fmt.Sprintf("./module/%s/%s.auto.tfvars", component, component)

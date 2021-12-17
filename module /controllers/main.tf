@@ -201,6 +201,8 @@ resource "kubernetes_cluster_role_binding" "aws-load-balancer-controller" {
   }
 }
 
+// TODO: controller helm install
+
 resource "helm_release" "aws-load-balancer-controller" {
   depends_on = [kubernetes_cluster_role_binding.aws-load-balancer-controller]
   name       = "aws-load-balancer-controller"

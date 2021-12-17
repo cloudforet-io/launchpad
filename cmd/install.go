@@ -38,7 +38,7 @@ var installCmd = &cobra.Command{
 		isDevelop, err := cmd.Flags().GetBool("devel")
 		cobra.CheckErr(err)
 
-		components := _setInstallType(isDevelop)
+		components := _getInstallComponents(isDevelop)
 
 		build(&components)
 	},
@@ -54,7 +54,7 @@ func init() {
 }
 
 func build(components *[]string) {
-	log.Println("Build SpaceONE")
+	log.Println("Start building SpaceONE")
 
 	for _, component := range *components {
 		if component != "secret" && component != "controllers" {
@@ -73,7 +73,7 @@ func build(components *[]string) {
 	log.Println("\nSpaceONE build complete")
 }
 
-func _setInstallType(isDevelop bool) []string {
+func _getInstallComponents(isDevelop bool) []string {
 	if isDevelop {
 		os.Setenv("TF_VAR_development", "ture")
 		return []string{"certificate", "eks", "controllers", "deployment", "initialization"}

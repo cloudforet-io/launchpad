@@ -22,7 +22,7 @@ As a result, the following resources are created.
 - public domain Managed by Route53
 
 ## Installation
-Spaceone launchpad contains scripts to create an EKS cluster and install spaceone.
+Spaceone launchpad contains scripts to create all Components of SpaceONE.
 
 ### git clone
 ```
@@ -33,7 +33,7 @@ git clone https://github.com/spaceone-dev/launchpad.git
 You need aws credentials to access aws resources.
 
 ```
-vim /conf/aws_credential
+vim /vars/aws_credential
 ```
 ```
 [default]
@@ -44,25 +44,20 @@ region = [default region]
 
 ### Setting up the configuration file
 
-- `/conf/certificate.conf`    # for certificate
-- `/conf/eks.conf`            # for eks
-- `/conf/documentdb.conf`     # for document db
-- `/conf/deployment.conf`     # for SpaceONE deployment
-- `/conf/initialization.conf` # for initialize spaceone
+- `/vars/certificate.conf`    # for certificate
+- `/vars/eks.conf`            # for eks
+- `/vars/documentdb.conf`     # for document db
+- `/vars/deployment.conf`     # for SpaceONE helm chart
+- `/vars/initialization.conf` # for initialize SpaceONE domain
 
 ### Execute script
 It takes about 3~40 minutes to complete.
 ```
-docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c install
+./launchpad.sh install
 ```
 
-The development type uses only Pod.
-```
-docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c install -t dev
-```
-
-### Login
-After installation is completed, you can access spaceone console<br>
+## Login to SpaceONE
+After installation is completed, you can access SpaceONE console<br>
 Open a browser(http://spaceone.console.your-domain.com) and log in to the root account with the information below.
 
 - ID : admin
@@ -79,26 +74,21 @@ For basic setup, please refer to the user guide or watch the YouTube video.
 
 ## Management
 ### Upgrade SpaceONE
-```
-cd output/helm/spaceone
-```
+
 - Update value files
-*)  Please refer to the [chart examples](https://github.com/spaceone-dev/charts) for update details.
+    - see a for details, refer to [chart examples](https://github.com/spaceone-dev/charts)
 ```
-vim {value|frontend|database}.yaml
-
-or
-
-vim minikube.yaml
+## enterprise version
+vim data/helm/values/spaceone/{value|frontend|database}.yaml
 ```
 - Upgrade helm chart
 ```
-docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c upgrade
+./launchpad.sh upgrade
 ```
 
-## destroy
+### Destroy SpaceONE
 ```
-docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c destroy
+./launchpad.sh destroy
 ```
 
 <hr>

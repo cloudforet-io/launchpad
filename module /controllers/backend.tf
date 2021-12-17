@@ -1,21 +1,19 @@
 terraform {
   required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 2.0.1"
-    }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.0.1"
+      version = "~> 2.7.1"
     }
     aws = {
       source  = "hashicorp/aws"
       version = ">= 2.28.1"
     }
   }
+
   backend "local" {
     path = "../../data/tfstates/controllers.tfstate"
   }
+
   required_version = ">= 0.13.1"
 }
 

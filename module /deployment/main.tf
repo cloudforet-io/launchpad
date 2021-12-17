@@ -1,13 +1,36 @@
-resource "null_resource" "create_k8s_namespace" {
+module "get_aws_secret_key" {
+  source = "matti/outputs/shell"
+
+  command = "base64 --decode ../secret/gpg/secret-key | gpg --pinentry-mode loopback --decrypt --batch --passphrase spaceone"
+}
+
+resource "kubernetes_namespace" "spaceone" {
+  metadata {
+    name = "spaceone"
+  }
+}
+
+resource "kubernetes_namespace" "root_supervisor" {
+  metadata {
+    name = "root-supervisor"
+  }
+}
+
+resource "null_resource" "add_spaceone_repo" {
   provisioner "local-exec" {
     command = <<EOT
-        kubectl create ns spaceone
-        kubectl create ns root-supervisor
+      helm repo add spaceone https://spaceone-dev.github.io/charts --repository-config ${path.module}/../../data/helm/config/repositories.yaml --repository-cache ${path.module}/../../data/helm/cache/repository
+      helm repo update --repository-config ${path.module}/../../data/helm/config/repositories.yaml --repository-cache ${path.module}/../../data/helm/cache/repository
+      sleep 5
     EOT
   }
 }
 
-resource "local_file" "generate_frontend" {
+resource "local_file" "generate_frontend_yaml" {
+  depends_on = [
+    kubernetes_namespace.spaceone,
+    kubernetes_namespace.root_supervisor
+  ]
   count = var.enterprise ? 1 : 0
   content  =  templatefile("${path.module}/tmpl/frontend.tpl",
     {
@@ -18,23 +41,18 @@ resource "local_file" "generate_frontend" {
   filename = "${path.module}/../../data/helm/values/spaceone/frontend.yaml"
 }
 
-module "get_secret_key" {
-  depends_on = [
-    null_resource.create_k8s_namespace
-  ]
-  source = "matti/outputs/shell"
-
-  command = "base64 --decode ../secret/gpg/secret-key | gpg --pinentry-mode loopback --decrypt --batch --passphrase spaceone"
-}
-
 data "aws_region" "current" {}
 
-resource "local_file" "generate_value" {
+resource "local_file" "generate_value_yaml" {
+  depends_on = [
+    kubernetes_namespace.spaceone,
+    kubernetes_namespace.root_supervisor
+  ]
   count = var.enterprise ? 1 : 0
   content  =  templatefile("${path.module}/tmpl/values.tpl",
     {
       aws_access_key_id          = "${data.terraform_remote_state.secret[0].outputs.access_key_id}"
-      aws_secret_access_key      = "${module.get_secret_key.stdout}"
+      aws_secret_access_key      = "${module.get_aws_secret_key.stdout}"
       region_name                = "${data.aws_region.current.name}"
       monitoring_domain          = "monitoring.${data.terraform_remote_state.certificate.outputs.domain_name}"
       monitoring_webhook_domain  = "monitoring-webhook.${data.terraform_remote_state.certificate.outputs.domain_name}"
@@ -47,7 +65,11 @@ resource "local_file" "generate_value" {
   filename = "${path.module}/../../data/helm/values/spaceone/values.yaml"
 }
 
-resource "local_file" "generate_database" {
+resource "local_file" "generate_database_yaml" {
+  depends_on = [
+    kubernetes_namespace.spaceone,
+    kubernetes_namespace.root_supervisor
+  ]
  count = var.enterprise ? 1 : 0
  content  =  templatefile("${path.module}/tmpl/database.tpl",
    {
@@ -58,7 +80,11 @@ resource "local_file" "generate_database" {
  filename = "${path.module}/../../data/helm/values/spaceone/database.yaml"
 }
 
-resource "local_file" "generate_minikube" {
+resource "local_file" "generate_minikube_yaml" {
+  depends_on = [
+    kubernetes_namespace.spaceone,
+    kubernetes_namespace.root_supervisor
+  ]
  count = var.development ? 1 : 0
  content  =  templatefile("${path.module}/tmpl/minikube.tpl",
    {
@@ -70,60 +96,33 @@ resource "local_file" "generate_minikube" {
  filename = "${path.module}/../../data/helm/values/spaceone/minikube.yaml"
 }
 
-resource "null_resource" "add_spaceone_repo" {
+resource "helm_release" "install_spaceone" {
+  count      = var.enterprise ? 1 : 0
   depends_on = [
-    local_file.generate_database,
-    local_file.generate_frontend,
-    local_file.generate_value,
-    local_file.generate_minikube
+    local_file.generate_frontend_yaml[0],
+    local_file.generate_value_yaml[0],
+    local_file.generate_database_yaml[0]
   ]
-  provisioner "local-exec" {
-    command = <<EOT
-      helm repo add spaceone https://spaceone-dev.github.io/charts --repository-config ${path.module}/../../data/helm/config/repositories.yaml --repository-cache ${path.module}/../../data/helm/cache/repository
-      helm repo update --repository-config ${path.module}/../../data/helm/config/repositories.yaml --repository-cache ${path.module}/../../data/helm/cache/repository
-      sleep 5
-    EOT
-  }
+  name       = "spaceone"
+  chart      = "spaceone/spaceone"
+  namespace  = "spaceone"
+  wait       = false // need to modify monitoring scheduler
+  
+  values = [
+    local_file.generate_frontend_yaml[0].content,
+    local_file.generate_value_yaml[0].content,
+    local_file.generate_database_yaml[0].content
+  ]
 }
 
-resource "null_resource" "kubectl_config_set_context" {
-  depends_on = [
-    null_resource.add_spaceone_repo,
+resource "helm_release" "install_spaceone_dev" {
+  count      = var.development ? 1 : 0
+  depends_on = [local_file.generate_minikube_yaml[0]]
+  name       = "spaceone"
+  chart      = "spaceone/spaceone"
+  namespace  = "spaceone"
+  
+  values = [
+    local_file.generate_minikube_yaml[0].content
   ]
-  provisioner "local-exec" {
-    command = "kubectl config set-context --current --namespace spaceone"
-  }
-}
-
-resource "null_resource" "install_spaceone_with_helm" {
-  depends_on = [
-    null_resource.kubectl_config_set_context,
-  ]
-  count = var.enterprise ? 1 : 0
-  provisioner "local-exec" {
-    command = <<EOT
-      helm install spaceone --repository-config ${path.module}/../../data/helm/config/repositories.yaml --repository-cache ${path.module}/../../data/helm/cache/repository \
-        -f ${path.module}/../../data/helm/values/spaceone/frontend.yaml \
-        -f ${path.module}/../../data/helm/values/spaceone/values.yaml \
-        -f ${path.module}/../../data/helm/values/spaceone/database.yaml \
-        spaceone/spaceone
-    EOT
-  }
-}
-
-resource "null_resource" "install_spaceone_with_helm_dev" {
-  depends_on = [
-    null_resource.kubectl_config_set_context,
-  ]
-  count = var.development ? 1 : 0
-  provisioner "local-exec" {
-    command = "kubectl config set-context $(kubectl config current-context) --namespace spaceone"
-  }
-  provisioner "local-exec" {
-    command = <<EOT
-      helm install spaceone --repository-config ${path.module}/../../data/helm/config/repositories.yaml --repository-cache ${path.module}/../../data/helm/cache/repository \
-        -f ${path.module}/../../data/helm/values/spaceone/minikube.yaml \
-        spaceone/spaceone
-    EOT
-  }
 }
