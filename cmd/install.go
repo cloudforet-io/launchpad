@@ -77,7 +77,7 @@ func build(components *[]string) {
 
 func _getInstallComponents(isDevelop bool) []string {
 	if isDevelop {
-		os.Setenv("TF_VAR_development", "ture")
+		os.Setenv("TF_VAR_development", "true")
 		return []string{"certificate", "eks", "controllers", "deployment", "initialization"}
 	} else {
 		os.Setenv("TF_VAR_enterprise", "true")
