@@ -64,7 +64,9 @@ func build(components *[]string) {
 			}
 		}
 		if component == "secret" {
-			_generateGpgKey()
+			if err := _generateGpgKey(); err != nil {
+				panic(err)
+			}
 		}
 
 		_executeTerraform(component, "install")
@@ -88,7 +90,7 @@ func _generateGpgKey() error {
 	gpgConfigPath := "/tmp/gpg_config"
 	gpgConfig, err := os.Create(gpgConfigPath)
 	if err != nil {
-		return errors.Wrap(err, "Error Create gpg config file")
+		return errors.Wrap(err, "Failed to Create gpg config file")
 	}
 	defer gpgConfig.Close()
 
@@ -104,17 +106,17 @@ Passphrase: spaceone
 %echo done`)
 	_, err = io.WriteString(gpgConfig, string(configurations))
 	if err != nil {
-		return errors.Wrap(err, "Error Write gpg config to file")
+		return errors.Wrap(err, "Failed to Write gpg config to file")
 	}
 
 	err = exec.Command("gpg", "--no-tty", "--batch", "--gen-key", gpgConfigPath).Run()
 	if err != nil {
-		return errors.Wrap(err, "Error Generate gpg key")
+		return errors.Wrap(err, "gpg key generation command error")
 	}
 
 	err = exec.Command("gpg", "--output", "./module/secret/gpg/public-key-binary.gpg", "--export", "gpg@spaceone.org").Run()
 	if err != nil {
-		return errors.Wrap(err, "Error export gpg key")
+		return errors.Wrap(err, "Failed to export gpg key")
 	}
 
 	return nil
@@ -125,7 +127,7 @@ func _generateTfvars(component string) error {
 	dst := fmt.Sprintf("./module/%v/%v.auto.tfvars", component, component)
 	err := _file_copy(src, dst)
 	if err != nil {
-		return errors.Wrap(err, "Error generate tfvars")
+		return errors.Wrap(err, "Failed to generate tfvars")
 	}
 
 	return err

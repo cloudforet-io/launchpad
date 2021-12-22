@@ -28,7 +28,6 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/hashicorp/terraform-exec/tfinstall"
-	helmclient "github.com/mittwald/go-helm-client"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -99,7 +98,7 @@ func _setAwsCredentais() {
 func _setKubectlConfig() error {
 	err := os.Setenv("KUBECONFIG", "/spaceone/data/kubeconfig/config")
 	if err != nil {
-		return errors.Wrap(err, "Error set kubectl config")
+		return errors.Wrap(err, "Kubectl config environment set error")
 	}
 
 	return nil
@@ -139,58 +138,12 @@ func _setTfvarRegion(file_source string) {
 	//TODO : Refactoring to use the Go scanner
 	cmd := fmt.Sprintf("grep region %v | cut -d'=' -f2 | tr -d ' '", file_source)
 	output, err := exec.Command("bash", "-c", cmd).Output()
-	cobra.CheckErr(err)
-
-	region := strings.TrimSuffix(string(output), "\n")
-	os.Setenv("TF_VAR_region", region)
-}
-
-/**
-helm client
-**/
-
-func _getHelmClient() helmclient.Client {
-
-	repositoryCachePath := "./data/helm/cache/repository"
-	repositoryConfigPath := "./data/helm/config/repositories.yaml"
-
-	opt := &helmclient.Options{
-		RepositoryCache:  repositoryCachePath,
-		RepositoryConfig: repositoryConfigPath,
-		Debug:            true,
-		Linting:          true,
-	}
-
-	helmClient, err := helmclient.New(opt)
 	if err != nil {
 		panic(err)
 	}
 
-	return helmClient
-}
-
-func _UninstallRelease(releaseName string, chartName string) error {
-	helmClient := _getHelmClient()
-	chartSpec := helmclient.ChartSpec{
-		ReleaseName: releaseName,
-		ChartName:   fmt.Sprintf("spaceone/%s", chartName),
-		Namespace:   "spaceone",
-		UpgradeCRDs: true,
-		Wait:        true,
-	}
-
-	// TODO: Check existing releases before unintall helm chart
-	// https://pkg.go.dev/github.com/mittwald/go-helm-client#HelmClient.GetRelease
-
-	if err := helmClient.UninstallRelease(&chartSpec); err != nil {
-		// TODO: Optional exception handling
-		if strings.Contains(err.Error(), "Release not loaded") {
-			return nil
-		}
-		return errors.Wrap(err, "Error uninstall helm release")
-	}
-
-	return nil
+	region := strings.TrimSuffix(string(output), "\n")
+	os.Setenv("TF_VAR_region", region)
 }
 
 /**
@@ -198,15 +151,16 @@ terraform client
 **/
 func _setTerraform(component string) (*tfexec.Terraform, error) {
 	workingDir := fmt.Sprintf("./module/%v", component)
+	terraformBinPath := "/usr/bin/"
 
-	execPath, err := tfinstall.Find(context.Background(), tfinstall.LatestVersion("/usr/bin/", false))
+	execPath, err := tfinstall.Find(context.Background(), tfinstall.LatestVersion(terraformBinPath, false))
 	if err != nil {
-		return nil, errors.Wrap(err, "Error locating Terraform binary")
+		return nil, errors.Wrap(err, "Cannot find Terraform Binary")
 	}
 
 	tf, err := tfexec.NewTerraform(workingDir, string(execPath))
 	if err != nil {
-		return nil, errors.Wrap(err, "Error running NewTerraform")
+		return nil, errors.Wrap(err, "Failed to set NewTerraform")
 	}
 
 	return tf, nil
@@ -221,7 +175,7 @@ func _executeTerraform(component string, action string) {
 
 	tf, err := _setTerraform(component)
 	if err != nil {
-		panic(errors.Wrap(err, "Error set terraform"))
+		panic(err)
 	}
 
 	err = _init(tf, component)
@@ -251,10 +205,9 @@ func _executeTerraform(component string, action string) {
 }
 
 func _init(tf *tfexec.Terraform, component string) error {
-
 	err := tf.Init(context.Background(), tfexec.Upgrade(true))
 	if err != nil {
-		return errors.Wrap(err, "Error running terraform Init")
+		return errors.Wrap(err, "Failed to terraform Init")
 	}
 
 	return nil
@@ -263,7 +216,7 @@ func _init(tf *tfexec.Terraform, component string) error {
 func _plan(tf *tfexec.Terraform, component string) error {
 	_, err := tf.Plan(context.Background())
 	if err != nil {
-		return errors.Wrap(err, "Error running terraform Plan")
+		return errors.Wrap(err, "Failed to terraform Plan")
 	}
 
 	return nil
@@ -272,7 +225,7 @@ func _plan(tf *tfexec.Terraform, component string) error {
 func _apply(tf *tfexec.Terraform, component string) error {
 	err := tf.Apply(context.Background())
 	if err != nil {
-		return errors.Wrap(err, "Error running terraform Apply")
+		return errors.Wrap(err, "Failed to terraform Apply")
 	}
 
 	return nil
@@ -281,7 +234,7 @@ func _apply(tf *tfexec.Terraform, component string) error {
 func _destroy(tf *tfexec.Terraform, component string) error {
 	err := tf.Destroy(context.Background())
 	if err != nil {
-		return errors.Wrap(err, "Error running Terraform Destroy")
+		return errors.Wrap(err, "Failed to Terraform Destroy")
 	}
 
 	return nil
