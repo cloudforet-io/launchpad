@@ -62,6 +62,7 @@ resource "aws_iam_role_policy_attachment" "AWSLoadBalancerController" {
 #######################################################
 
 resource "aws_iam_policy" "external-dns" {
+  count = var.development ? 0 : 1
   depends_on  = [aws_iam_openid_connect_provider.associate_iam_oidc_provide]
 
   name        = "external-dns-${random_string.random.result}"
@@ -69,6 +70,7 @@ resource "aws_iam_policy" "external-dns" {
 }
 
 resource "aws_iam_role" "external-dns" {
+  count = var.development ? 0 : 1
   depends_on  = [aws_iam_openid_connect_provider.associate_iam_oidc_provide]
 
   name        =  "external-dns_iam_role-${random_string.random.result}"
@@ -93,8 +95,9 @@ resource "aws_iam_role" "external-dns" {
 }
 
 resource "aws_iam_role_policy_attachment" "external-dns" {
-    role       = aws_iam_role.external-dns.name
-    policy_arn = aws_iam_policy.external-dns.arn
+  count = var.development ? 0 : 1
+  role       = aws_iam_role.external-dns[0].name
+  policy_arn = aws_iam_policy.external-dns[0].arn
 }
 
 #######################################################
@@ -231,14 +234,15 @@ resource "helm_release" "aws-load-balancer-controller" {
 #######################################################
 
 resource "kubernetes_service_account" "external-dns" {
-  depends_on = [aws_iam_role.external-dns]
+  count = var.development ? 0 : 1
+  depends_on = [aws_iam_role.external-dns[0]]
 
   automount_service_account_token = true
   metadata {
     name = "external-dns"
     namespace = "kube-system"
     annotations = {
-      "eks.amazonaws.com/role-arn" = "${aws_iam_role.external-dns.arn}"
+      "eks.amazonaws.com/role-arn" = "${aws_iam_role.external-dns[0].arn}"
     }   
     labels = {
       "app.kubernetes.io/name"       = "external-dns"
@@ -248,7 +252,8 @@ resource "kubernetes_service_account" "external-dns" {
 }
 
 resource "kubernetes_cluster_role" "external-dns" {
-  depends_on = [aws_iam_role.external-dns]
+  count = var.development ? 0 : 1
+  depends_on = [aws_iam_role.external-dns[0]]
   metadata {
     name = "external-dns"
     labels = {
@@ -303,7 +308,8 @@ resource "kubernetes_cluster_role" "external-dns" {
 }
 
 resource "kubernetes_cluster_role_binding" "external-dns" {
-  depends_on = [kubernetes_service_account.external-dns,kubernetes_cluster_role.external-dns]
+  count = var.development ? 0 : 1
+  depends_on = [kubernetes_service_account.external-dns[0],kubernetes_cluster_role.external-dns[0]]
 
   metadata {
     name = "external-dns"
@@ -317,18 +323,19 @@ resource "kubernetes_cluster_role_binding" "external-dns" {
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "ClusterRole"
-    name      = kubernetes_cluster_role.external-dns.metadata[0].name
+    name      = kubernetes_cluster_role.external-dns[0].metadata[0].name
   }
 
   subject {
     kind      = "ServiceAccount"
-    name      = kubernetes_service_account.external-dns.metadata[0].name
+    name      = kubernetes_service_account.external-dns[0].metadata[0].name
     namespace = "kube-system"
   }
 }
 
 resource "kubernetes_deployment" "external-dns" {
-  depends_on = [kubernetes_cluster_role_binding.external-dns]
+  count = var.development ? 0 : 1
+  depends_on = [kubernetes_cluster_role_binding.external-dns[0]]
 
   metadata {
     name      = "external-dns"
@@ -352,7 +359,7 @@ resource "kubernetes_deployment" "external-dns" {
           "app.kubernetes.io/name" = "external-dns"
         }
         annotations = {
-          "iam.amazonaws.com/role" = "${aws_iam_policy.external-dns.arn}"
+          "iam.amazonaws.com/role" = "${aws_iam_policy.external-dns[0].arn}"
         }   
       }
 
@@ -363,7 +370,7 @@ resource "kubernetes_deployment" "external-dns" {
           args = [
             "--source=service",
             "--source=ingress",
-            "--domain-filter=${data.terraform_remote_state.certificate.outputs.domain_name}",
+            "--domain-filter=${data.terraform_remote_state.certificate[0].outputs.domain_name}",
             "--provider=aws",
             "--policy=upsert-only",
             "--aws-zone-type=public",

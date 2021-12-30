@@ -22,6 +22,7 @@ terraform {
 }
 
 data "terraform_remote_state" "certificate" {
+  count = var.enterprise ? 1 : 0
   backend = "local"
   config = {
     path = "../../data/tfstates/certificate.tfstate"

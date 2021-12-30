@@ -19,8 +19,10 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -35,12 +37,12 @@ var installCmd = &cobra.Command{
 		_setAwsCredentais()
 		_setKubectlConfig()
 
-		isDevelop, err := cmd.Flags().GetBool("devel")
-		cobra.CheckErr(err)
+		isMinimal, err := cmd.Flags().GetBool("minimal")
+		if err != nil {
+			panic(errors.Wrap(err, "Failed to get command flag"))
+		}
 
-		components := _getInstallComponents(isDevelop)
-
-		build(&components)
+		build(isMinimal)
 	},
 }
 
@@ -50,19 +52,20 @@ func init() {
 	// installCmd.PersistentFlags().String("foo", "", "A help for foo")
 	// installCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	installCmd.Flags().BoolP("devel", "", false, "install develop mode")
+	installCmd.Flags().BoolP("minimal", "", false, "install minimal mode")
 }
 
-func build(components *[]string) {
+func build(isMinimal bool) {
 	log.Println("Start building SpaceONE")
 
-	for _, component := range *components {
-		if component != "secret" && component != "controllers" {
-			err := _generateTfvars(component)
-			if err != nil {
-				panic(err)
-			}
+	components := _getInstallComponents(isMinimal)
+	for _, component := range components {
+
+		err := _generateTfvars(component)
+		if err != nil {
+			panic(err)
 		}
+
 		if component == "secret" {
 			if err := _generateGpgKey(); err != nil {
 				panic(err)
@@ -72,13 +75,77 @@ func build(components *[]string) {
 		_executeTerraform(component, "install")
 	}
 
+	if isMinimal {
+		_setDomain()
+	}
+
 	log.Println("\nSpaceONE build complete")
 }
 
-func _getInstallComponents(isDevelop bool) []string {
-	if isDevelop {
+// TODO: find a simple way
+func _setDomain() {
+	consoleDomainName := _getNlbDomainNameFromService("console")
+	consoleApiDomainName := _getNlbDomainNameFromService("console-api")
+	monitoringWebhookDomainName := _getNlbDomainNameFromService("monitoring-rest")
+
+	cmd := fmt.Sprintf("sed -i 's/console-api.example.com/%s/' ./data/helm/values/spaceone/minimal.yaml", consoleApiDomainName)
+	_, err := exec.Command("bash", "-c", cmd).CombinedOutput()
+	if err != nil {
+		panic(errors.Wrap(err, "Failed to Update console-api domain"))
+	}
+
+	cmd = fmt.Sprintf("sed -i 's/monitoring-webhook.example.com/%s/' ./data/helm/values/spaceone/minimal.yaml", monitoringWebhookDomainName)
+	_, err = exec.Command("bash", "-c", cmd).CombinedOutput()
+	if err != nil {
+		panic(errors.Wrap(err, "Failed to Update monitoring-webhook domain"))
+	}
+
+	/**
+	* After set domain, spaceone and console pod should be update
+	**/
+
+	// Update configmap
+	upgrade()
+
+	// To mount the updated configmap to console pod
+	_restartConsolePod()
+
+	ip := _getIpFromDomain(consoleDomainName)
+	log.Printf("To access spaceone console, Add \"%s spaceone.console-dev.com\" to /etc/hosts", ip)
+}
+
+func _getNlbDomainNameFromService(serviceName string) string {
+	cmd := fmt.Sprintf("kubectl get svc %s -n spaceone --output=custom-columns=\"hostname:status.loadBalancer.ingress[*].hostname\" | tail -n1", serviceName)
+	DomainByte, err := exec.Command("bash", "-c", cmd).Output()
+	if err != nil {
+		panic(errors.Wrap(err, "Failed to get console domain name"))
+	}
+
+	DomainStr := strings.TrimSuffix(string(DomainByte), "\n")
+
+	return DomainStr
+}
+
+func _restartConsolePod() {
+	deleteConsolePod := "kubectl delete pod -l spaceone.service=console -n spaceone"
+	cmd := exec.Command("bash", "-c", deleteConsolePod)
+
+	if err := cmd.Run(); err != nil {
+		panic(errors.Wrap(err, "Failed to delete console pods"))
+	}
+}
+
+func _getIpFromDomain(domain string) string {
+	ips, _ := net.LookupHost(domain)
+	firstIp := ips[0]
+
+	return firstIp
+}
+
+func _getInstallComponents(isMinimal bool) []string {
+	if isMinimal {
 		os.Setenv("TF_VAR_development", "true")
-		return []string{"certificate", "eks", "controllers", "deployment", "initialization"}
+		return []string{"eks", "controllers", "deployment", "initialization"}
 	} else {
 		os.Setenv("TF_VAR_enterprise", "true")
 		return []string{"certificate", "eks", "controllers", "documentdb", "secret", "deployment", "initialization"}
@@ -125,10 +192,13 @@ Passphrase: spaceone
 func _generateTfvars(component string) error {
 	src := fmt.Sprintf("./vars/%v.conf", component)
 	dst := fmt.Sprintf("./module/%v/%v.auto.tfvars", component, component)
-	err := _file_copy(src, dst)
-	if err != nil {
-		return errors.Wrap(err, "Failed to generate tfvars")
+
+	if component != "secret" && component != "controllers" {
+		err := _fileCopy(src, dst)
+		if err != nil {
+			return errors.Wrap(err, "Failed to generate tfvars")
+		}
 	}
 
-	return err
+	return nil
 }

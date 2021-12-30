@@ -17,7 +17,7 @@ identity:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/identity
-      version: 1.8.5
+      version: 1.9.0
 
     pod:
         spec: {}
@@ -27,7 +27,7 @@ secret:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/secret
-      version: 1.8.5
+      version: 1.9.0
     application_grpc:
 #        BACKEND: ConsulConnector
 #        CONNECTORS:
@@ -53,14 +53,14 @@ repository:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/repository
-      version: 1.8.5
+      version: 1.9.0
 
 plugin:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/plugin
-      version: 1.8.5
+      version: 1.9.0
  
     scheduler: true
     worker: true
@@ -80,7 +80,7 @@ config:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/config
-      version: 1.8.5
+      version: 1.9.0
 
     pod:
         spec: {}
@@ -91,7 +91,7 @@ inventory:
     replicas_worker: 2
     image:
       name: public.ecr.aws/megazone/spaceone/inventory
-      version: 1.8.5
+      version: 1.9.0
     scheduler: true
     worker: true
     application_grpc:
@@ -169,7 +169,7 @@ monitoring:
     replicas_worker: 1
     image:
       name: public.ecr.aws/megazone/spaceone/monitoring
-      version: 1.8.5
+      version: 1.9.0
     application_grpc:
       WEBHOOK_DOMAIN: https://${monitoring_webhook_domain}
 #      TOKEN: __CHANGE_YOUR_ROOT_TOKEN___
@@ -240,7 +240,7 @@ statistics:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/statistics
-      version: 1.8.5
+      version: 1.9.0
  
     scheduler: true
     worker: true
@@ -260,7 +260,7 @@ billing:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/billing
-      version: 1.8.5
+      version: 1.9.0
 
     pod:
         spec: {}
@@ -270,7 +270,7 @@ notification:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/notification
-      version: 1.8.5
+      version: 1.9.0
     application_grpc:
         INSTALLED_PROTOCOL_PLUGINS:
           - name: Slack
@@ -292,6 +292,7 @@ notification:
                 smtp_port: ${smpt_port}
                 user: ${smpt_user}
                 password: ${smpt_password}
+              schema: email_smtp
 
     pod:
         spec: {}
@@ -301,7 +302,7 @@ power-scheduler:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/power-scheduler
-      version: 1.8.5
+      version: 1.9.0
  
     scheduler: true
     worker: true
@@ -316,43 +317,27 @@ power-scheduler:
     pod:
         spec: {}
 
-cost-saving:
-    enabled: false
-    scheduler: true
+cost-analysis:
+    enabled: true
+    scheduler: false
     worker: true
     replicas: 1
+    replicas_worker: 2
     image:
-      name: public.ecr.aws/megazone/spaceone/cost-saving
-      version: 1.8.5
+      name: public.ecr.aws/megazone/spaceone/cost-analysis
+      version: 1.9.0
 
     application_grpc:
-        CONNECTORS:
-            ProductConnector:
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-                endpoint:
-                    v1: grpc://inventory.portal.dev.spaceone.dev:50051
-
-
-    application_scheduler:
-        SCHEDULERS:
-            cost_saving_scheduler:
-                backend: spaceone.cost_saving.scheduler.cost_saving_scheduler.CostSavingScheduler
-                queue: cost_saving_q
-                interval: 3600
-            CONNECTORS:
-                ProductConnector:
-                    token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-                    endpoint:
-                        v1: grpc://inventory.portal.dev.spaceone.dev:50051
-
-            TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
+        DEFAULT_EXCHANGE_RATE:
+            KRW: 1178.7
+            JPY: 114.2
+            CNY: 6.3
 
     application_worker:
-        CONNECTORS:
-            ProductConnector:
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-                endpoint:
-                    v1: grpc://inventory.portal.dev.spaceone.dev:50051
+        DEFAULT_EXCHANGE_RATE:
+            KRW: 1178.7
+            JPY: 114.2
+            CNY: 6.3
 
     volumeMounts:
         application: []
@@ -371,7 +356,7 @@ spot-automation:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/spot-automation
-      version: 1.8.5
+      version: 1.9.0
 
 # Overwrite application config
     application_grpc:
@@ -440,7 +425,7 @@ supervisor:
     enabled: true
     image:
       name: public.ecr.aws/megazone/spaceone/supervisor
-      version: 1.8.5
+      version: 1.9.0
     application: {}
     application_scheduler:
         NAME: root
@@ -481,7 +466,7 @@ ingress:
 spaceone-initializer:
     enabled: false
     image:
-        version: 1.8.5
+        version: 1.9.0
 
 domain-initialzer:
     enabled: false

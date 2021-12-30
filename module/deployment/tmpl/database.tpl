@@ -301,3 +301,25 @@ spot-automation:
               encoding: utf-8
               socket_timeout: 10
               socket_connect_timeout: 10
+
+cost-analysis:
+    database:
+        DATABASES:
+            default:
+              username: ${database_user_name}
+              password: ${database_user_password}
+              db: cost-analysis
+              host: ${endpoint}
+              port: 27017
+              ssl: False
+              read_preference: PRIMARY
+              maxPoolSize: 200
+        CACHES:
+            default:
+              backend: spaceone.core.cache.redis_cache.RedisCache
+              host: redis
+              port: 6379
+              db: 15
+              encoding: utf-8
+              socket_timeout: 10
+              socket_connect_timeout: 10

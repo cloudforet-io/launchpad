@@ -17,27 +17,19 @@ console:
   replicas: 1
   image:
       name: spaceone/console
-      version: 1.8.4.1
+      version: 1.8.5
   imagePullPolicy: IfNotPresent
 
   production_json:
       CONSOLE_API:
-        ENDPOINT: https://${console-api-domain}
-      DOMAIN_NAME: root
-      DOMAIN_NAME_REF: localhost
-  ingress:
-    enabled: true
-    host: '${console-domain}'   # host for ingress (ex. *.console.spaceone.dev)
-    annotations:
-      kubernetes.io/ingress.class: alb
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
-      alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
-      alb.ingress.kubernetes.io/inbound-cidrs: 0.0.0.0/0 # replace or leave out
-      alb.ingress.kubernetes.io/scheme: "internet-facing" # internet-facing
-      alb.ingress.kubernetes.io/target-type: instance # Your console and console-api should be NodePort for this configuration.
-      alb.ingress.kubernetes.io/certificate-arn: ${certificate-arn} 
-      alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-console
-      external-dns.alpha.kubernetes.io/hostname: "${console-domain}"
+        ENDPOINT: http://console-api.example.com
+      DOMAIN_NAME: spaceone
+  service:
+      type: LoadBalancer
+      annotations:
+          service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+          service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+          service.beta.kubernetes.io/aws-load-balancer-name: "spaceone-console-nlb"
 
 console-api:
   enabled: true
@@ -46,7 +38,7 @@ console-api:
   replicas: 1
   image:
       name: spaceone/console-api
-      version: 1.8.4.1
+      version: 1.8.5
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -69,26 +61,19 @@ console-api:
         enabled: false
         allowedDomainId: domain_id
         apiKey: apikey
-  ingress:
-    enabled: true
-    host: '${console-api-domain}'   # host for ingress (ex. console-api.spaceone.dev)
-    annotations:
-        kubernetes.io/ingress.class: alb
-        alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
-        alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
-        alb.ingress.kubernetes.io/inbound-cidrs: 0.0.0.0/0 # replace or leave out
-        alb.ingress.kubernetes.io/scheme: "internet-facing" # internet-facing
-        alb.ingress.kubernetes.io/target-type: instance # Your console and console-api should be NodePort for this configuration.
-        alb.ingress.kubernetes.io/certificate-arn: ${certificate-arn}
-        alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-console-api
-        external-dns.alpha.kubernetes.io/hostname: ${console-api-domain}
+  service:
+      type: LoadBalancer
+      annotations:
+          service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+          service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+          service.beta.kubernetes.io/aws-load-balancer-name: "spaceone-console-api-nlb"
 
 identity:
     enabled: true
     replicas: 1
     image:
       name: spaceone/identity
-      version: 1.8.4
+      version: 1.8.5
     imagePullPolicy: Always
 
     application_grpc:
@@ -139,7 +124,7 @@ secret:
     replicas: 1
     image:
       name: spaceone/secret
-      version: 1.8.4
+      version: 1.8.5
     application_grpc:
         BACKEND: ConsulConnector
         CONNECTORS:
@@ -156,7 +141,7 @@ repository:
     replicas: 1
     image:
       name: spaceone/repository
-      version: 1.8.4.1
+      version: 1.8.5
     application_grpc:
         ROOT_TOKEN_INFO:
             protocol: consul
@@ -169,7 +154,7 @@ plugin:
     replicas: 1
     image:
       name: spaceone/plugin
-      version: 1.8.4
+      version: 1.8.5
  
     scheduler: false
     worker: false
@@ -185,7 +170,7 @@ config:
     replicas: 1
     image:
       name: spaceone/config
-      version: 1.8.4
+      version: 1.8.5
 
 inventory:
     enabled: true
@@ -193,7 +178,7 @@ inventory:
     replicas_worker: 1
     image:
       name: spaceone/inventory
-      version: 1.8.4
+      version: 1.8.5
     scheduler: true
     worker: true
     application_grpc:
@@ -231,7 +216,7 @@ monitoring:
     replicas: 1
     image:
       name: spaceone/monitoring
-      version: 1.8.4
+      version: 1.8.5
     application_grpc:
       WEBHOOK_DOMAIN: https://monitoring-webhook.example.com
       TOKEN_INFO:
@@ -275,27 +260,19 @@ monitoring:
               host: spaceone-consul-server
           uri: root/api_key/TOKEN
 
-    ingress:
+    service:
+        type: LoadBalancer
         annotations:
-            kubernetes.io/ingress.class: alb
-            alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
-            alb.ingress.kubernetes.io/inbound-cidrs: 0.0.0.0/0 # replace or leave out
-            alb.ingress.kubernetes.io/scheme: internet-facing
-            alb.ingress.kubernetes.io/target-type: ip 
-            alb.ingress.kubernetes.io/certificate-arn: ${certificate-arn} 
-            alb.ingress.kubernetes.io/healthcheck-path: "/check"
-            alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=600
-            alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-monitoring
-            external-dns.alpha.kubernetes.io/hostname: ${monitoring_domain} # monitoring-webhook.domain.com
-        servicePort: 80
-        path: /*
+            service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+            service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+            service.beta.kubernetes.io/aws-load-balancer-name: "spaceone-monitoring-nlb"
 
 statistics:
     enabled: true
     replicas: 1
     image:
       name: spaceone/statistics
-      version: 1.8.4
+      version: 1.8.5
  
     scheduler: false
     worker: false
@@ -311,14 +288,14 @@ billing:
     replicas: 1
     image:
       name: spaceone/billing
-      version: 1.8.4
+      version: 1.8.5
 
 notification:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/notification
-      version: 1.8.4 
+      version: 1.8.5 
     application_grpc:
         INSTALLED_PROTOCOL_PLUGINS:
           - name: Slack
@@ -336,10 +313,10 @@ notification:
               plugin_id: plugin-email-noti-protocol
               options: {}
               secret_data:
-                smtp_host: email-smtp.us-west-2.amazonaws.com
-                smtp_port: "587"
-                user: aws_access_key_id
-                password: aws_secret_access_key
+                smtp_host: ${smpt_host}
+                smtp_port: ${smpt_port}
+                user: ${smpt_user}
+                password: ${smpt_password}
               schema: email_smtp
 
 power-scheduler:
@@ -347,7 +324,7 @@ power-scheduler:
     replicas: 1
     image:
       name: spaceone/power-scheduler
-      version: 1.8.4
+      version: 1.8.5
  
     scheduler: true
     worker: true
@@ -365,7 +342,7 @@ cost-saving:
     replicas: 1
     image:
       name: spaceone/cost-saving
-      version: 1.8.4
+      version: 1.8.5
 
     application_grpc:
         CONNECTORS:
@@ -410,7 +387,7 @@ spot-automation:
     replicas: 1
     image:
       name: spaceone/spot-automation
-      version: 1.8.4
+      version: 1.8.5
 
 # Overwrite application config
     application_grpc:
@@ -457,13 +434,6 @@ spot-automation:
                 host: spaceone-consul-server
             uri: root/api_key/TOKEN
 
-    ingress:
-        annotations:
-            kubernetes.io/ingress.class: alb
-            alb.ingress.kubernetes.io/scheme: internet-facing
-            alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-spot-auto
-            external-dns.alpha.kubernetes.io/hostname: spot-automation-proxy.dev.spaceone.dev
-
 marketplace-assets:
     enabled: false
 
@@ -471,7 +441,7 @@ supervisor:
     enabled: true
     image:
       name: spaceone/supervisor
-      version: 1.8.4
+      version: 1.8.5
     application: {}
     application_scheduler:
         NAME: root

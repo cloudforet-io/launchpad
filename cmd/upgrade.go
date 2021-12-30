@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os/exec"
 	"time"
@@ -36,7 +37,9 @@ var upgradeCmd = &cobra.Command{
 		_setKubectlConfig()
 
 		isRepoUpdate, err := cmd.Flags().GetBool("update-repo")
-		cobra.CheckErr(err)
+		if err != nil {
+			panic(errors.Wrap(err, "Failed to get command flag"))
+		}
 
 		if isRepoUpdate {
 			_updateHelmRepo()
@@ -64,34 +67,67 @@ func upgrade() {
 	log.Println("\nSpaceONE upgrade complete")
 }
 
-// TODO: Using go helm client
 func _upgradeHelmRelease() {
-	repositoryCachePath := "./data/helm/cache/repository"
-	repositoryConfigPath := "./data/helm/config/repositories.yaml"
-
-	helmValueFiles := _getHelmValues()
-
-	args := []string{
-		"upgrade",
-		"spaceone",
-		"spaceone/spaceone",
-		"-n", "spaceone",
-		"-f", (*helmValueFiles)[0],
-		"-f", (*helmValueFiles)[1],
-		"-f", (*helmValueFiles)[2],
-		"--repository-cache", repositoryCachePath,
-		"--repository-config", repositoryConfigPath,
-	}
-
+	options := _getHelmCmdOptions()
 	cmd := exec.Command(
 		"helm",
-		args...,
+		options...,
 	)
 
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		panic(errors.Wrap(err, string(stdoutStderr)))
 	}
+}
+
+func _getHelmCmdOptions() []string {
+	helmValueFiles := _getHelmValues()
+	repositoryCachePath := "./data/helm/cache/repository"
+	repositoryConfigPath := "./data/helm/config/repositories.yaml"
+
+	options := []string{
+		"upgrade",
+		"spaceone",
+		"spaceone/spaceone",
+		"-n", "spaceone",
+	}
+
+	for _, helmValue := range helmValueFiles {
+		options = append(options, "-f")
+		options = append(options, helmValue)
+	}
+
+	options = append(options, "--repository-cache")
+	options = append(options, repositoryCachePath)
+
+	options = append(options, "--repository-config")
+	options = append(options, repositoryConfigPath)
+
+	return options
+}
+
+func _getHelmValues() []string {
+	var helmValues []string
+	ignoreFileList := []string{".gitkeep"}
+
+	files, err := ioutil.ReadDir("./data/helm/values/spaceone/")
+	if err != nil {
+		panic(errors.Wrap(err, "ReadDir Error"))
+	}
+
+	for _, file := range files {
+		valueFileName := file.Name()
+		if !_checkContainFile(ignoreFileList, valueFileName) {
+			fullPath := fmt.Sprintf("./data/helm/values/spaceone/%s", valueFileName)
+			helmValues = append(helmValues, fullPath)
+		}
+	}
+
+	if len(helmValues) < 1 {
+		panic("helm value file does not exist!")
+	}
+
+	return helmValues
 }
 
 // TODO: Using go helm client
@@ -111,17 +147,4 @@ func _updateHelmRepo() {
 	if err != nil {
 		panic(errors.Wrap(err, string(stdoutStderr)))
 	}
-}
-
-func _getHelmValues() *[]string {
-	var valueYamls []string
-	var fileNames = []string{"values.yaml", "frontend.yaml", "database.yaml"}
-
-	for _, fileName := range fileNames {
-		path := fmt.Sprintf("./data/helm/values/spaceone/%s", fileName)
-
-		valueYamls = append(valueYamls, path)
-	}
-
-	return &valueYamls
 }

@@ -87,7 +87,7 @@ func _setAwsCredentais() {
 
 	src := filepath.Join("./vars", "aws_credential")
 	dst := filepath.Join(homedir, ".aws/credentials")
-	err := _file_copy(src, dst)
+	err := _fileCopy(src, dst)
 	if err != nil {
 		panic(err)
 	}
@@ -104,7 +104,7 @@ func _setKubectlConfig() error {
 	return nil
 }
 
-func _file_copy(src, dst string) error {
+func _fileCopy(src, dst string) error {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -128,6 +128,16 @@ func _file_copy(src, dst string) error {
 
 	_, err = io.Copy(destination, source)
 	return err
+}
+
+func _checkContainFile(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
 
 func _setTfvarRegion(file_source string) {

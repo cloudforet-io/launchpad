@@ -33,6 +33,11 @@ var destroyCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_setAwsCredentais()
 		_setKubectlConfig()
+
+		if _, err := os.Stat("./data/helm/values/spaceone/minimal.yaml"); err == nil {
+			os.Setenv("TF_VAR_development", "true")
+		}
+
 		destroy()
 	},
 }
@@ -47,7 +52,10 @@ func destroy() {
 	components := []string{"initialization", "deployment", "secret", "documentdb", "controllers", "eks", "certificate"}
 
 	for _, component := range components {
-		_executeTerraform(component, "destroy")
+		terraformState := fmt.Sprintf("./data/tfstates/%s.tfstate", component)
+		if _, err := os.Stat(terraformState); err == nil {
+			_executeTerraform(component, "destroy")
+		}
 	}
 
 	err := _removeHelmData()
@@ -117,7 +125,7 @@ func _removeHelmData() error {
 func _removeTerraformData(components *[]string) error {
 	for _, component := range *components {
 		tfvar := fmt.Sprintf("./module/%s/%s.auto.tfvars", component, component)
-		if _, err := os.Stat(tfvar); !os.IsNotExist(err) {
+		if _, err := os.Stat(tfvar); err == nil {
 			if err = os.Remove(tfvar); err != nil {
 				return errors.Wrap(err, "Failed to delete terraform auto vars")
 			}
@@ -138,7 +146,7 @@ func _removeTerraformData(components *[]string) error {
 
 func _removeGpgKeyBinary() error {
 	publicKeyBinary := "./module/secret/gpg/public-key-binary.gpg"
-	if _, err := os.Stat(publicKeyBinary); !os.IsNotExist(err) {
+	if _, err := os.Stat(publicKeyBinary); err == nil {
 		if err = os.Remove(publicKeyBinary); err != nil {
 			return errors.Wrap(err, "Failed to delete gpg key binary")
 		}
@@ -149,7 +157,7 @@ func _removeGpgKeyBinary() error {
 
 func _removeKubeConfig() error {
 	kubeConfig := "./data/kubeconfig/config"
-	if _, err := os.Stat(kubeConfig); !os.IsNotExist(err) {
+	if _, err := os.Stat(kubeConfig); err == nil {
 		if err = os.Remove(kubeConfig); err != nil {
 			return errors.Wrap(err, "Failed to delete kubeconfig")
 		}
