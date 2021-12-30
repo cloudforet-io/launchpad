@@ -14,8 +14,12 @@ As a result, the following resources are created.
     - root domain
     - user domain
 
-
 ![spaceone](https://user-images.githubusercontent.com/19552819/133223528-43291a11-8f47-4a51-9527-38c9f4297fee.png)
+
+Also, SpaceONE can be installed in the minimal version.
+minimal version creates the following resources.
+- vpc & eks
+- EKS controller for ingress
 
 ## Prerequisite
 - docker ([document](https://docs.docker.com/engine/install/))
@@ -44,21 +48,42 @@ region = [default region]
 
 ### Setting up the configuration file
 
-- `/vars/certificate.conf`    # for certificate
+- `/vars/certificate.conf`    # for certificate (standard only)
 - `/vars/eks.conf`            # for eks
-- `/vars/documentdb.conf`     # for document db
+- `/vars/documentdb.conf`     # for document db (standard only)
 - `/vars/deployment.conf`     # for SpaceONE helm chart
 - `/vars/initialization.conf` # for initialize SpaceONE domain
 
 ### Execute script
-It takes about 3~40 minutes to complete.
+Execute launchpad script.(It takes about 3~40 minutes to complete.)<br>
+If you want the minimal version, add the `--minimal` option.<br>
 ```
-./launchpad.sh install
+./launchpad.sh install [--minimal]
 ```
 
 ## Login to SpaceONE
+### standard
 After installation is completed, you can access SpaceONE console<br>
 Open a browser(http://spaceone.console.your-domain.com) and log in to the root account with the information below.
+
+- ID : admin
+- PASSWORD : Admin123!@#
+    - If you change domain_owner_password in initialization.conf, use it.
+
+### minimal
+After the installation is complete, the domain record must be added to /etc/hosts on the local PC.<br>
+Records that need to be added will be displayed on the console after installation is completed.
+
+```diff
+vim /etc/hosts
+---
+.
+.
+.
++xxx.xxx.xxx.xxx spaceone.console-dev.com
+```
+
+And, Open a browser(http://spaceone.console-dev.com) and log in to the root account with the information below.
 
 - ID : admin
 - PASSWORD : Admin123!@#
@@ -76,8 +101,11 @@ For basic setup, please refer to the user guide or watch the YouTube video.
 
 - Update value files (see a for details, refer to [chart examples](https://github.com/spaceone-dev/charts))
 ```
-## enterprise version
+## standard version
 vim data/helm/values/spaceone/{value|frontend|database}.yaml
+
+## minimal version
+vim data/helm/values/spaceone/minimal.yaml
 ```
 - Upgrade helm chart
 ```
