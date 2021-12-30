@@ -6,8 +6,7 @@ if [ ! -f ./launchpad ]; then
     docker run -it -w /spaceone --rm -v `pwd`:/spaceone $IMG_GO /bin/bash -c "env GOOS=linux GOARCH=amd64 go build"
 fi
 
-CHECK_IMG=$(docker images -q $IMG_LAUNCHPAD)
-if [ ! $CHECK_IMG ]; then
+if [ ! $(docker images -q $IMG_LAUNCHPAD) ]; then
     docker build . -t $IMG_LAUNCHPAD
 fi
 
