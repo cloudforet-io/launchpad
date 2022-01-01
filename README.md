@@ -16,14 +16,14 @@ As a result, the following resources are created.
 
 ![spaceone](https://user-images.githubusercontent.com/19552819/133223528-43291a11-8f47-4a51-9527-38c9f4297fee.png)
 
-Also, SpaceONE can be installed in the minimal version.
+Also, SpaceONE can be installed in the minimal version.<br>
 minimal version creates the following resources.
 - vpc & eks
 - EKS controller for ingress
 
 ## Prerequisite
-- docker ([document](https://docs.docker.com/engine/install/))
-- public domain Managed by Route53
+- Docker ([document](https://docs.docker.com/engine/install/))
+- Public domain managed by Route53
 
 ## Installation
 Spaceone launchpad contains scripts to create all Components of SpaceONE.
@@ -47,12 +47,16 @@ region = [default region]
 ```
 
 ### Setting up the configuration file
-
-- `/vars/certificate.conf`    # for certificate (standard only)
-- `/vars/eks.conf`            # for eks
-- `/vars/documentdb.conf`     # for document db (standard only)
-- `/vars/deployment.conf`     # for SpaceONE helm chart
-- `/vars/initialization.conf` # for initialize SpaceONE domain
+- standard
+    - `/vars/certificate.conf`    # for certificate
+    - `/vars/eks.conf`            # for eks
+    - `/vars/documentdb.conf`     # for document db
+    - `/vars/deployment.conf`     # for SpaceONE helm chart
+    - `/vars/initialization.conf` # for initialize SpaceONE domain
+- minimal 
+    - `/vars/eks.conf`            # for eks
+    - `/vars/deployment.conf`     # for SpaceONE helm chart
+    - `/vars/initialization.conf` # for initialize SpaceONE domain
 
 ### Execute script
 Execute launchpad script.(It takes about 3~40 minutes to complete.)<br>
@@ -66,13 +70,12 @@ If you want the minimal version, add the `--minimal` option.<br>
 After installation is completed, you can access SpaceONE console<br>
 Open a browser(http://spaceone.console.your-domain.com) and log in to the root account with the information below.
 
-- ID : admin
-- PASSWORD : Admin123!@#
-    - If you change domain_owner_password in initialization.conf, use it.
+- ID : `domain_owner` in initialization.com
+- PASSWORD : `domain_owner_password` in initialization.com
 
 ### minimal
 After the installation is complete, the domain record must be added to /etc/hosts on the local PC.<br>
-Records that need to be added will be displayed on the console after installation is completed.
+Records that need to be added will be displayed after installation is completed.
 
 ```diff
 vim /etc/hosts
@@ -85,9 +88,8 @@ vim /etc/hosts
 
 And, Open a browser(http://spaceone.console-dev.com) and log in to the root account with the information below.
 
-- ID : admin
-- PASSWORD : Admin123!@#
-    - If you change domain_owner_password in initialization.conf, use it.
+- ID : `domain_owner`
+- PASSWORD : `domain_owner_password`
 
 ### SpaceONE Basic Setup
 For basic setup, please refer to the user guide or watch the YouTube video.
