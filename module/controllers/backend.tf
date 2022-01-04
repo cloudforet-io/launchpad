@@ -25,7 +25,7 @@ data "terraform_remote_state" "eks" {
 }
 
 data "terraform_remote_state" "certificate" {
-  count = var.development ? 0 : 1
+  count = var.minimal ? 0 : 1
   backend = "local"
   config = {
     path = "../../data/tfstates/certificate.tfstate"

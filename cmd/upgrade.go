@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 NAME HERE <EMAIL ADDRESS>
+Copyright © 2021 SpaceONE <spaceone-support@mz.co.kr>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,8 +30,12 @@ import (
 // upgradeCmd represents the upgrade command
 var upgradeCmd = &cobra.Command{
 	Use:   "upgrade",
-	Short: "Upgrade SpaceONE helm release",
-	Long:  `Long description`,
+	Short: "Upgrade SpaceONE",
+	Long: `Upgrade SpaceONE
+If there is a new release, use the --update-repo option.
+
+SpaceONE release example:
+https://github.com/spaceone-dev/charts`,
 	Run: func(cmd *cobra.Command, args []string) {
 		_setAwsCredentais()
 		_setKubectlConfig()
@@ -52,19 +56,20 @@ var upgradeCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(upgradeCmd)
 
-	upgradeCmd.Flags().BoolP("update-repo", "", false, "Update helm repo before upgrade helm chart")
+	upgradeCmd.Flags().BoolP("update-repo", "", false, "Update helm repository before upgrade helm chart")
 }
 
 func upgrade() {
-	//https://pkg.go.dev/github.com/mittwald/go-helm-client#HelmClient.InstallOrUpgradeChart
+	log.Println("Upgrade SpaceONE")
 	s := spinner.New(spinner.CharSets[26], 100*time.Millisecond)
-	s.Prefix = "Upgrade SpaceONE"
+	s.Prefix = "[upgrade] spaceone"
+	s.FinalMSG = "ok\n"
 
 	s.Start()
 	_upgradeHelmRelease()
 	s.Stop()
 
-	log.Println("\nSpaceONE upgrade complete")
+	log.Println("SpaceONE upgrade complete")
 }
 
 func _upgradeHelmRelease() {

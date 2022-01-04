@@ -17,7 +17,7 @@ console:
   replicas: 1
   image:
       name: spaceone/console
-      version: 1.8.5
+      version: 1.9.0
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -38,7 +38,7 @@ console-api:
   replicas: 1
   image:
       name: spaceone/console-api
-      version: 1.8.5
+      version: 1.9.0
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -73,7 +73,7 @@ identity:
     replicas: 1
     image:
       name: spaceone/identity
-      version: 1.8.5
+      version: 1.9.0
     imagePullPolicy: Always
 
     application_grpc:
@@ -124,7 +124,7 @@ secret:
     replicas: 1
     image:
       name: spaceone/secret
-      version: 1.8.5
+      version: 1.9.0
     application_grpc:
         BACKEND: ConsulConnector
         CONNECTORS:
@@ -141,7 +141,7 @@ repository:
     replicas: 1
     image:
       name: spaceone/repository
-      version: 1.8.5
+      version: 1.9.0
     application_grpc:
         ROOT_TOKEN_INFO:
             protocol: consul
@@ -154,7 +154,7 @@ plugin:
     replicas: 1
     image:
       name: spaceone/plugin
-      version: 1.8.5
+      version: 1.9.0
  
     scheduler: false
     worker: false
@@ -170,7 +170,7 @@ config:
     replicas: 1
     image:
       name: spaceone/config
-      version: 1.8.5
+      version: 1.9.0
 
 inventory:
     enabled: true
@@ -178,7 +178,7 @@ inventory:
     replicas_worker: 1
     image:
       name: spaceone/inventory
-      version: 1.8.5
+      version: 1.9.0
     scheduler: true
     worker: true
     application_grpc:
@@ -216,7 +216,7 @@ monitoring:
     replicas: 1
     image:
       name: spaceone/monitoring
-      version: 1.8.5
+      version: 1.9.0
     application_grpc:
       WEBHOOK_DOMAIN: https://monitoring-webhook.example.com
       TOKEN_INFO:
@@ -272,7 +272,7 @@ statistics:
     replicas: 1
     image:
       name: spaceone/statistics
-      version: 1.8.5
+      version: 1.9.0
  
     scheduler: false
     worker: false
@@ -288,14 +288,14 @@ billing:
     replicas: 1
     image:
       name: spaceone/billing
-      version: 1.8.5
+      version: 1.9.0
 
 notification:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/notification
-      version: 1.8.5 
+      version: 1.9.0 
     application_grpc:
         INSTALLED_PROTOCOL_PLUGINS:
           - name: Slack
@@ -324,7 +324,7 @@ power-scheduler:
     replicas: 1
     image:
       name: spaceone/power-scheduler
-      version: 1.8.5
+      version: 1.9.0
  
     scheduler: true
     worker: true
@@ -335,49 +335,40 @@ power-scheduler:
                 host: spaceone-consul-server
             uri: root/api_key/TOKEN
 
-cost-saving:
-    enabled: false
-    scheduler: true
+cost-analysis:
+    enabled: true
+    scheduler: false
     worker: true
     replicas: 1
+    replicas_worker: 2
     image:
-      name: spaceone/cost-saving
-      version: 1.8.5
+      name: public.ecr.aws/megazone/spaceone/cost-analysis
+      version: 1.9.0.1
+
+    # Overwrite scheduler config
+    application_scheduler:
+        TOKEN: <root_token>
 
     application_grpc:
-        CONNECTORS:
-            ProductConnector:
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-                endpoint:
-                    v1: grpc://inventory.portal.dev.spaceone.dev:50051
-
-
-    application_scheduler:
-        SCHEDULERS:
-            cost_saving_scheduler:
-                backend: spaceone.cost_saving.scheduler.cost_saving_scheduler.CostSavingScheduler
-                queue: cost_saving_q
-                interval: 3600
-            CONNECTORS:
-                ProductConnector:
-                    token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-                    endpoint:
-                        v1: grpc://inventory.portal.dev.spaceone.dev:50051
-
-            TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
+        DEFAULT_EXCHANGE_RATE:
+            KRW: 1178.7
+            JPY: 114.2
+            CNY: 6.3
 
     application_worker:
-        CONNECTORS:
-            ProductConnector:
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-                endpoint:
-                    v1: grpc://inventory.portal.dev.spaceone.dev:50051
+        DEFAULT_EXCHANGE_RATE:
+            KRW: 1178.7
+            JPY: 114.2
+            CNY: 6.3
 
     volumeMounts:
         application: []
         application_worker: []
         application_scheduler: []
         application_rest: []
+
+    pod:
+        spec: {}
 
 spot-automation:
     enabled: false
@@ -387,7 +378,7 @@ spot-automation:
     replicas: 1
     image:
       name: spaceone/spot-automation
-      version: 1.8.5
+      version: 1.9.0
 
 # Overwrite application config
     application_grpc:
@@ -441,7 +432,7 @@ supervisor:
     enabled: true
     image:
       name: spaceone/supervisor
-      version: 1.8.5
+      version: 1.9.0
     application: {}
     application_scheduler:
         NAME: root

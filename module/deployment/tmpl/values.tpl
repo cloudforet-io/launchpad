@@ -325,7 +325,11 @@ cost-analysis:
     replicas_worker: 2
     image:
       name: public.ecr.aws/megazone/spaceone/cost-analysis
-      version: 1.9.0
+      version: 1.9.0.1
+
+    # Overwrite scheduler config
+    application_scheduler:
+        TOKEN: <root_token>
 
     application_grpc:
         DEFAULT_EXCHANGE_RATE:

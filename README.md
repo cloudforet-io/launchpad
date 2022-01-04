@@ -4,7 +4,6 @@ This launchpad provides Spaceone in the standard configuration.
 As a result, the following resources are created.
 - Certificate managed by ACM
 - VPC & EKS
-- EKS controller for ingress and management dns records.
 - DocumentDB
 - IAM for Secret manager
 - Kubernetes controllers
@@ -18,8 +17,12 @@ As a result, the following resources are created.
 
 Also, SpaceONE can be installed in the minimal version.<br>
 minimal version creates the following resources.
-- vpc & eks
-- EKS controller for ingress
+- VPC & EKS
+- Kubernetes controllers
+    - [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller)
+- SpaceONE
+    - root domain
+    - user domain
 
 ## Prerequisite
 - Docker ([document](https://docs.docker.com/engine/install/))
@@ -75,7 +78,7 @@ Open a browser(http://spaceone.console.your-domain.com) and log in to the root a
 
 ### minimal
 After the installation is complete, the domain record must be added to /etc/hosts on the local PC.<br>
-Records that need to be added will be displayed after installation is completed.
+Domain records will be displayed after installation is completed.
 
 ```diff
 vim /etc/hosts
@@ -88,8 +91,8 @@ vim /etc/hosts
 
 And, Open a browser(http://spaceone.console-dev.com) and log in to the root account with the information below.
 
-- ID : `domain_owner`
-- PASSWORD : `domain_owner_password`
+- ID : `domain_owner` in initialization.com
+- PASSWORD : `domain_owner_password` in initialization.com
 
 ### SpaceONE Basic Setup
 For basic setup, please refer to the user guide or watch the YouTube video.
@@ -100,8 +103,9 @@ For basic setup, please refer to the user guide or watch the YouTube video.
 
 ## Management
 ### Upgrade SpaceONE
+To change SpaceONE configuration, modify the helm value and run upgrade.
 
-- Update value files (see a for details, refer to [chart examples](https://github.com/spaceone-dev/charts))
+- Update value files
 ```
 ## standard version
 vim data/helm/values/spaceone/{value|frontend|database}.yaml
@@ -110,8 +114,9 @@ vim data/helm/values/spaceone/{value|frontend|database}.yaml
 vim data/helm/values/spaceone/minimal.yaml
 ```
 - Upgrade helm chart
+    - If you are upgrading to a new release, use the --update-repo option.
 ```
-./launchpad.sh upgrade
+./launchpad.sh upgrade {--update-repo}
 ```
 
 ### Destroy SpaceONE
@@ -121,6 +126,8 @@ vim data/helm/values/spaceone/minimal.yaml
 
 <hr>
 
-SpaceONE discuss channel
-
+SpaceONE discuss channel<br>
 https://discuss.spaceone.org/
+
+SpaceONE release example<br>
+https://github.com/spaceone-dev/charts

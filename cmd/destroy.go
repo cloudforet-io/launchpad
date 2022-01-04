@@ -28,14 +28,14 @@ import (
 // destroyCmd represents the destroy command
 var destroyCmd = &cobra.Command{
 	Use:   "destroy",
-	Short: "Destroy SpaceONE from eks to spaceone package",
-	Long:  `Long description`,
+	Short: "Destroy SpaceONE",
+	Long:  `Destroy all results installed by launchpad.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		_setAwsCredentais()
 		_setKubectlConfig()
 
 		if _, err := os.Stat("./data/helm/values/spaceone/minimal.yaml"); err == nil {
-			os.Setenv("TF_VAR_development", "true")
+			os.Setenv("TF_VAR_minimal", "true")
 		}
 
 		destroy()
@@ -78,7 +78,7 @@ func destroy() {
 		panic(err)
 	}
 
-	log.Println("\nSpaceONE Destroy completed")
+	log.Println("SpaceONE Destroy completed")
 
 }
 
@@ -149,6 +149,13 @@ func _removeGpgKeyBinary() error {
 	if _, err := os.Stat(publicKeyBinary); err == nil {
 		if err = os.Remove(publicKeyBinary); err != nil {
 			return errors.Wrap(err, "Failed to delete gpg key binary")
+		}
+	}
+
+	secretKey := "./module/secret/gpg/secret-key"
+	if _, err := os.Stat(secretKey); err == nil {
+		if err = os.Remove(secretKey); err != nil {
+			return errors.Wrap(err, "Failed to delete gpg secret key")
 		}
 	}
 

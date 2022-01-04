@@ -39,11 +39,12 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "launchpad",
 	Short: "SpaceONE launchpad",
-	Long:  `Install and Management SpaceONE in the standard configuration`,
+	Long: `Install and Management SpaceONE
+
+Set the variable before installing SpaceONE.`,
 	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
@@ -51,30 +52,23 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	// Here you will define your flags and configuration settings.
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.launchpad.yaml)")
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-// initConfig reads in config file and ENV variables if set.
+//Not used.
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".launchpad" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
 		viper.SetConfigName(".launchpad")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.AutomaticEnv()
 
-	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
@@ -159,6 +153,7 @@ func _setTfvarRegion(file_source string) {
 /**
 terraform client
 **/
+
 func _setTerraform(component string) (*tfexec.Terraform, error) {
 	workingDir := fmt.Sprintf("./module/%v", component)
 	terraformBinPath := "/usr/bin/"
@@ -180,6 +175,7 @@ func _executeTerraform(component string, action string) {
 	// refer:https://github.com/briandowns/spinner#available-character-sets
 	s := spinner.New(spinner.CharSets[26], 100*time.Millisecond)
 	s.Prefix = fmt.Sprintf("[%v] %v", action, component)
+	s.FinalMSG = "ok\n"
 
 	s.Start()
 

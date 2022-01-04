@@ -1,5 +1,5 @@
 variable "region" {}
 
-variable "development" {
+variable "minimal" {
   default = false
 }

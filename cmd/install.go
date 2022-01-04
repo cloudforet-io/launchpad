@@ -31,8 +31,8 @@ import (
 // installCmd represents the install command
 var installCmd = &cobra.Command{
 	Use:   "install",
-	Short: "Install SpaceONE from eks to spaceone package",
-	Long:  `Long description`,
+	Short: "Install SpaceONE",
+	Long:  `Install SpaceONE from EKS Cluster to SpaceONE`,
 	Run: func(cmd *cobra.Command, args []string) {
 		_setAwsCredentais()
 		_setKubectlConfig()
@@ -59,8 +59,9 @@ func build(isMinimal bool) {
 	log.Println("Start building SpaceONE")
 
 	components := _getInstallComponents(isMinimal)
-	for _, component := range components {
 
+	// Generate tfvars from vars and gpg key before applying terraform
+	for _, component := range components {
 		err := _generateTfvars(component)
 		if err != nil {
 			panic(err)
@@ -71,7 +72,10 @@ func build(isMinimal bool) {
 				panic(err)
 			}
 		}
+	}
 
+	// applying terraform
+	for _, component := range components {
 		_executeTerraform(component, "install")
 	}
 
@@ -79,7 +83,7 @@ func build(isMinimal bool) {
 		_setDomain()
 	}
 
-	log.Println("\nSpaceONE build complete")
+	log.Println("SpaceONE build complete")
 }
 
 // TODO: find a simple way
@@ -111,7 +115,7 @@ func _setDomain() {
 	_restartConsolePod()
 
 	ip := _getIpFromDomain(consoleDomainName)
-	log.Printf("To access spaceone console, Add \"%s spaceone.console-dev.com\" to /etc/hosts", ip)
+	log.Printf("To access spaceone console, Add \"%s spaceone.console-dev.com\" to /etc/hosts \n", ip)
 }
 
 func _getNlbDomainNameFromService(serviceName string) string {
@@ -127,10 +131,16 @@ func _getNlbDomainNameFromService(serviceName string) string {
 }
 
 func _restartConsolePod() {
+	log.Println("restart console pod")
+
 	deleteConsolePod := "kubectl delete pod -l spaceone.service=console -n spaceone"
 	cmd := exec.Command("bash", "-c", deleteConsolePod)
 
-	if err := cmd.Run(); err != nil {
+	if err := cmd.Start(); err != nil {
+		panic(errors.Wrap(err, "Failed to execute delete console pods command"))
+	}
+
+	if err := cmd.Wait(); err != nil {
 		panic(errors.Wrap(err, "Failed to delete console pods"))
 	}
 }
@@ -144,16 +154,19 @@ func _getIpFromDomain(domain string) string {
 
 func _getInstallComponents(isMinimal bool) []string {
 	if isMinimal {
-		os.Setenv("TF_VAR_development", "true")
-		return []string{"eks", "controllers", "deployment", "initialization"}
+		os.Setenv("TF_VAR_minimal", "true")
+		// return []string{"eks", "controllers", "deployment", "initialization"}
+		return []string{"deployment", "initialization"}
 	} else {
-		os.Setenv("TF_VAR_enterprise", "true")
+		os.Setenv("TF_VAR_standard", "true")
 		return []string{"certificate", "eks", "controllers", "documentdb", "secret", "deployment", "initialization"}
 	}
 }
 
 //TODO: Using gpg client
 func _generateGpgKey() error {
+	log.Printf("Generate gpg key")
+
 	gpgConfigPath := "/tmp/gpg_config"
 	gpgConfig, err := os.Create(gpgConfigPath)
 	if err != nil {
@@ -194,6 +207,7 @@ func _generateTfvars(component string) error {
 	dst := fmt.Sprintf("./module/%v/%v.auto.tfvars", component, component)
 
 	if component != "secret" && component != "controllers" {
+		log.Printf("Generate %s.auto.tfvars", component)
 		err := _fileCopy(src, dst)
 		if err != nil {
 			return errors.Wrap(err, "Failed to generate tfvars")

@@ -22,7 +22,7 @@ terraform {
 }
 
 data "terraform_remote_state" "certificate" {
-  count = var.enterprise ? 1 : 0
+  count = var.standard ? 1 : 0
   backend = "local"
   config = {
     path = "../../data/tfstates/certificate.tfstate"
@@ -30,7 +30,7 @@ data "terraform_remote_state" "certificate" {
 }
 
 data "terraform_remote_state" "documentdb" {
-  count = var.enterprise ? 1 : 0
+  count = var.standard ? 1 : 0
   backend = "local"
   config = {
     path = "../../data/tfstates/documentdb.tfstate"
@@ -38,7 +38,7 @@ data "terraform_remote_state" "documentdb" {
 }
 
 data "terraform_remote_state" "secret" {
-  count = var.enterprise ? 1 : 0
+  count = var.standard ? 1 : 0
   backend = "local"
   config = {
     path = "../../data/tfstates/secret.tfstate"

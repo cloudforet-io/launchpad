@@ -3,11 +3,11 @@ variable "region" {
   description = "AWS Region for EKS"
 }
 
-variable "enterprise" {
+variable "standard" {
   default = false
 }
 
-variable "development" {
+variable "minimal" {
   default = false
 }
 

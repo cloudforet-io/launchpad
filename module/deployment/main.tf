@@ -31,7 +31,7 @@ resource "local_file" "generate_frontend_yaml" {
     kubernetes_namespace.spaceone,
     kubernetes_namespace.root_supervisor
   ]
-  count = var.enterprise ? 1 : 0
+  count = var.standard ? 1 : 0
   content  =  templatefile("${path.module}/tmpl/frontend.tpl",
     {
       console-api-domain                 = "console-api.${data.terraform_remote_state.certificate[0].outputs.domain_name}"
@@ -48,7 +48,7 @@ resource "local_file" "generate_value_yaml" {
     kubernetes_namespace.spaceone,
     kubernetes_namespace.root_supervisor
   ]
-  count = var.enterprise ? 1 : 0
+  count = var.standard ? 1 : 0
   content  =  templatefile("${path.module}/tmpl/values.tpl",
     {
       aws_access_key_id          = "${data.terraform_remote_state.secret[0].outputs.access_key_id}"
@@ -70,7 +70,7 @@ resource "local_file" "generate_database_yaml" {
     kubernetes_namespace.spaceone,
     kubernetes_namespace.root_supervisor
   ]
- count = var.enterprise ? 1 : 0
+ count = var.standard ? 1 : 0
  content  =  templatefile("${path.module}/tmpl/database.tpl",
    {
      database_user_name                  = "${data.terraform_remote_state.documentdb[0].outputs.database_user_name}"
@@ -85,7 +85,7 @@ resource "local_file" "generate_minimal_yaml" {
     kubernetes_namespace.spaceone,
     kubernetes_namespace.root_supervisor
   ]
- count = var.development ? 1 : 0
+ count = var.minimal ? 1 : 0
  content  =  templatefile("${path.module}/tmpl/minimal.tpl",
   {
       smpt_host                  = "${var.notification_smpt_host}" 
@@ -97,7 +97,7 @@ resource "local_file" "generate_minimal_yaml" {
 }
 
 resource "helm_release" "install_spaceone" {
-  count      = var.enterprise ? 1 : 0
+  count      = var.standard ? 1 : 0
   depends_on = [
     local_file.generate_frontend_yaml[0],
     local_file.generate_value_yaml[0],
@@ -116,7 +116,7 @@ resource "helm_release" "install_spaceone" {
 }
 
 resource "helm_release" "install_spaceone_dev" {
-  count      = var.development ? 1 : 0
+  count      = var.minimal ? 1 : 0
   depends_on = [local_file.generate_minimal_yaml[0]]
   name       = "spaceone"
   chart      = "spaceone/spaceone"

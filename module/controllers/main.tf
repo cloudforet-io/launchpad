@@ -62,7 +62,7 @@ resource "aws_iam_role_policy_attachment" "AWSLoadBalancerController" {
 #######################################################
 
 resource "aws_iam_policy" "external-dns" {
-  count = var.development ? 0 : 1
+  count = var.minimal ? 0 : 1
   depends_on  = [aws_iam_openid_connect_provider.associate_iam_oidc_provide]
 
   name        = "external-dns-${random_string.random.result}"
@@ -70,7 +70,7 @@ resource "aws_iam_policy" "external-dns" {
 }
 
 resource "aws_iam_role" "external-dns" {
-  count = var.development ? 0 : 1
+  count = var.minimal ? 0 : 1
   depends_on  = [aws_iam_openid_connect_provider.associate_iam_oidc_provide]
 
   name        =  "external-dns_iam_role-${random_string.random.result}"
@@ -95,7 +95,7 @@ resource "aws_iam_role" "external-dns" {
 }
 
 resource "aws_iam_role_policy_attachment" "external-dns" {
-  count = var.development ? 0 : 1
+  count = var.minimal ? 0 : 1
   role       = aws_iam_role.external-dns[0].name
   policy_arn = aws_iam_policy.external-dns[0].arn
 }
@@ -234,7 +234,7 @@ resource "helm_release" "aws-load-balancer-controller" {
 #######################################################
 
 resource "kubernetes_service_account" "external-dns" {
-  count = var.development ? 0 : 1
+  count = var.minimal ? 0 : 1
   depends_on = [aws_iam_role.external-dns[0]]
 
   automount_service_account_token = true
@@ -252,7 +252,7 @@ resource "kubernetes_service_account" "external-dns" {
 }
 
 resource "kubernetes_cluster_role" "external-dns" {
-  count = var.development ? 0 : 1
+  count = var.minimal ? 0 : 1
   depends_on = [aws_iam_role.external-dns[0]]
   metadata {
     name = "external-dns"
@@ -308,7 +308,7 @@ resource "kubernetes_cluster_role" "external-dns" {
 }
 
 resource "kubernetes_cluster_role_binding" "external-dns" {
-  count = var.development ? 0 : 1
+  count = var.minimal ? 0 : 1
   depends_on = [kubernetes_service_account.external-dns[0],kubernetes_cluster_role.external-dns[0]]
 
   metadata {
@@ -334,7 +334,7 @@ resource "kubernetes_cluster_role_binding" "external-dns" {
 }
 
 resource "kubernetes_deployment" "external-dns" {
-  count = var.development ? 0 : 1
+  count = var.minimal ? 0 : 1
   depends_on = [kubernetes_cluster_role_binding.external-dns[0]]
 
   metadata {
