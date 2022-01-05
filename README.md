@@ -73,8 +73,8 @@ If you want the minimal version, add the `--minimal` option.<br>
 After installation is completed, you can access SpaceONE console<br>
 Open a browser(http://spaceone.console.your-domain.com) and log in to the root account with the information below.
 
-- ID : `domain_owner` in initialization.com
-- PASSWORD : `domain_owner_password` in initialization.com
+- ID : `domain_owner` in initialization.conf
+- PASSWORD : `domain_owner_password` in initialization.conf
 
 ### minimal
 After the installation is complete, the domain record must be added to /etc/hosts on the local PC.<br>
@@ -91,8 +91,8 @@ vim /etc/hosts
 
 And, Open a browser(http://spaceone.console-dev.com) and log in to the root account with the information below.
 
-- ID : `domain_owner` in initialization.com
-- PASSWORD : `domain_owner_password` in initialization.com
+- ID : `domain_owner` in initialization.conf
+- PASSWORD : `domain_owner_password` in initialization.conf
 
 ### SpaceONE Basic Setup
 For basic setup, please refer to the user guide or watch the YouTube video.
