@@ -15,8 +15,7 @@ As a result, the following resources are created.
 
 ![spaceone](https://user-images.githubusercontent.com/19552819/133223528-43291a11-8f47-4a51-9527-38c9f4297fee.png)
 
-Also, SpaceONE can be installed in the minimal version.<br>
-minimal version creates the following resources.
+Also, SpaceONE can be installed in the minimal version. minimal version creates the following resources.
 - VPC & EKS
 - Kubernetes controllers
     - [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller)
@@ -29,16 +28,14 @@ minimal version creates the following resources.
 - Public domain managed by Route53
 
 ## Installation
-Spaceone launchpad contains scripts to create all Components of SpaceONE.
+SpaceONEf launchpad contains scripts to create all Components of SpaceONE.
 
 ### git clone
 ```
 git clone https://github.com/spaceone-dev/launchpad.git
 ```
 
-### config aws credential file
-You need aws credentials to access aws resources.
-
+### set aws credential file
 ```
 vim /vars/aws_credential
 ```
@@ -94,7 +91,7 @@ And, Open a browser(http://spaceone.console-dev.com) and log in to the root acco
 - ID : `domain_owner` in initialization.conf
 - PASSWORD : `domain_owner_password` in initialization.conf
 
-### SpaceONE Basic Setup
+## SpaceONE Basic Setup
 For basic setup, please refer to the user guide or watch the YouTube video.
 
 - [SpaceONE User Guide](https://www.spaceone.org/docs/guides/user_guide/gettingstart/basic_setup/)
@@ -103,7 +100,7 @@ For basic setup, please refer to the user guide or watch the YouTube video.
 
 ## Management
 ### Upgrade SpaceONE
-To change SpaceONE configuration, modify the helm value and run upgrade.
+To change SpaceONE configuration, Update helm value files and run upgrade command.
 
 - Update value files
 ```
@@ -114,7 +111,7 @@ vim data/helm/values/spaceone/{value|frontend|database}.yaml
 vim data/helm/values/spaceone/minimal.yaml
 ```
 - Upgrade helm chart
-    - If you are upgrading to a new release, use the --update-repo option.
+    - If there is a [new helm chart](https://github.com/spaceone-dev/charts), use the --update-repo option.
 ```
 ./launchpad.sh upgrade {--update-repo}
 ```
