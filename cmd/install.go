@@ -155,8 +155,7 @@ func _getIpFromDomain(domain string) string {
 func _getInstallComponents(isMinimal bool) []string {
 	if isMinimal {
 		os.Setenv("TF_VAR_minimal", "true")
-		// return []string{"eks", "controllers", "deployment", "initialization"}
-		return []string{"deployment", "initialization"}
+		return []string{"eks", "controllers", "deployment", "initialization"}
 	} else {
 		os.Setenv("TF_VAR_standard", "true")
 		return []string{"certificate", "eks", "controllers", "documentdb", "secret", "deployment", "initialization"}
