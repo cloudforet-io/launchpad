@@ -1,5 +1,5 @@
 # SpaceONE launchpad
-This launchpad provides Spaceone in the standard configuration.
+This launchpad provides a standard configuration SpaceONE.
 
 As a result, the following resources are created.
 - Certificate managed by ACM
