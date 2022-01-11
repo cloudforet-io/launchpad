@@ -115,7 +115,14 @@ func _setDomain() {
 	_restartConsolePod()
 
 	ip := _getIpFromDomain(consoleDomainName)
-	log.Printf("To access spaceone console, Add \"%s spaceone.console-dev.com\" to /etc/hosts \n", ip)
+	
+	hostSetMsg := "\n" +
+	"****************************************************************************************\n" +
+	"\n"+
+	fmt.Sprintf("To access SpaceONE console, Add \"%s spaceone.console-dev.com\" to /etc/hosts\n", ip) +
+	"\n"+
+	"****************************************************************************************"
+	log.Println(hostSetMsg)
 }
 
 func _getNlbDomainNameFromService(serviceName string) string {
