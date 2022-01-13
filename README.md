@@ -1,10 +1,9 @@
 # SpaceONE launchpad
-This launchpad provides Spaceone in the standard configuration.
+This launchpad provides a standard configuration SpaceONE.
 
 As a result, the following resources are created.
 - Certificate managed by ACM
 - VPC & EKS
-- EKS controller for ingress and management dns records.
 - DocumentDB
 - IAM for Secret manager
 - Kubernetes controllers
@@ -14,26 +13,31 @@ As a result, the following resources are created.
     - root domain
     - user domain
 
-
 ![spaceone](https://user-images.githubusercontent.com/19552819/133223528-43291a11-8f47-4a51-9527-38c9f4297fee.png)
 
+Also, SpaceONE can be installed in the minimal version. minimal version creates the following resources.
+- VPC & EKS
+- Kubernetes controllers
+    - [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller)
+- SpaceONE
+    - root domain
+    - user domain
+
 ## Prerequisite
-- docker ([document](https://docs.docker.com/engine/install/))
-- public domain Managed by Route53
+- Docker ([document](https://docs.docker.com/engine/install/))
+- Public domain managed by Route53
 
 ## Installation
-Spaceone launchpad contains scripts to create an EKS cluster and install spaceone.
+SpaceONEf launchpad contains scripts to create all Components of SpaceONE.
 
 ### git clone
 ```
 git clone https://github.com/spaceone-dev/launchpad.git
 ```
 
-### config aws credential file
-You need aws credentials to access aws resources.
-
+### set aws credential file
 ```
-vim /conf/aws_credential
+vim /vars/aws_credential
 ```
 ```
 [default]
@@ -43,66 +47,84 @@ region = [default region]
 ```
 
 ### Setting up the configuration file
-
-- `/conf/certificate.conf`    # for certificate
-- `/conf/eks.conf`            # for eks
-- `/conf/documentdb.conf`     # for document db
-- `/conf/deployment.conf`     # for SpaceONE deployment
-- `/conf/initialization.conf` # for initialize spaceone
+- standard
+    - `/vars/certificate.conf`    # for certificate
+    - `/vars/eks.conf`            # for eks
+    - `/vars/documentdb.conf`     # for document db
+    - `/vars/deployment.conf`     # for SpaceONE helm chart
+    - `/vars/initialization.conf` # for initialize SpaceONE domain
+- minimal 
+    - `/vars/eks.conf`            # for eks
+    - `/vars/deployment.conf`     # for SpaceONE helm chart
+    - `/vars/initialization.conf` # for initialize SpaceONE domain
 
 ### Execute script
-It takes about 3~40 minutes to complete.
+Execute launchpad script.(It takes about 3~40 minutes to complete.)<br>
+If you want the minimal version, add the `--minimal` option.<br>
 ```
-docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c install
-```
-
-The development type uses only Pod.
-```
-docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c install -t dev
+./launchpad.sh install [--minimal]
 ```
 
-### Login
-After installation is completed, you can access spaceone console<br>
+## Login to SpaceONE
+### standard
+After installation is completed, you can access SpaceONE console<br>
 Open a browser(http://spaceone.console.your-domain.com) and log in to the root account with the information below.
 
-- ID : admin
-- PASSWORD : Admin123!@#(If you change domain_owner_password in initialization.conf, use it.)
+- ID : `domain_owner` in initialization.conf
+- PASSWORD : `domain_owner_password` in initialization.conf
 
-### SpaceONE Basic Setup
+### minimal
+After the installation is complete, the domain record must be added to /etc/hosts on the local PC.<br>
+Domain records will be displayed after installation is completed.
+
+```diff
+vim /etc/hosts
+---
+.
+.
+.
++xxx.xxx.xxx.xxx spaceone.console-dev.com
+```
+
+And, Open a browser(http://spaceone.console-dev.com) and log in to the root account with the information below.
+
+- ID : `domain_owner` in initialization.conf
+- PASSWORD : `domain_owner_password` in initialization.conf
+
+## SpaceONE Basic Setup
 For basic setup, please refer to the user guide or watch the YouTube video.
 
-- SpaceONE User Guide
-    - https://www.spaceone.org/docs/guides/user_guide/gettingstart/basic_setup/
+- [SpaceONE User Guide](https://www.spaceone.org/docs/guides/user_guide/gettingstart/basic_setup/)
 
-- Youtube video
-    - https://youtu.be/zSoEg2v_JrE 
+- [Youtube video](https://youtu.be/zSoEg2v_JrE)
 
 ## Management
 ### Upgrade SpaceONE
-```
-cd output/helm/spaceone
-```
+To change SpaceONE configuration, Update helm value files and run upgrade command.
+
 - Update value files
-*)  Please refer to the [chart examples](https://github.com/spaceone-dev/charts) for update details.
 ```
-vim {value|frontend|database}.yaml
+## standard version
+vim data/helm/values/spaceone/{value|frontend|database}.yaml
 
-or
-
-vim minikube.yaml
+## minimal version
+vim data/helm/values/spaceone/minimal.yaml
 ```
 - Upgrade helm chart
+    - If there is a [new helm chart](https://github.com/spaceone-dev/charts), use the --update-repo option.
 ```
-docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c upgrade
+./launchpad.sh upgrade {--update-repo}
 ```
 
-## destroy
+### Destroy SpaceONE
 ```
-docker run --rm -v `pwd`:/spaceone spaceone/launchpad:0.1 -c destroy
+./launchpad.sh destroy
 ```
 
 <hr>
 
-SpaceONE discuss channel
-
+SpaceONE discuss channel<br>
 https://discuss.spaceone.org/
+
+SpaceONE release example<br>
+https://github.com/spaceone-dev/charts
