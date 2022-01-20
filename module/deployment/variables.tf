@@ -11,6 +11,10 @@ variable "minimal" {
   default = false
 }
 
+variable "internal_minimal" {
+  default = false
+}
+
 variable "notification_smpt_host" {
   default = "" 
 } 

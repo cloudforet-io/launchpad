@@ -96,6 +96,22 @@ resource "local_file" "generate_minimal_yaml" {
  filename = "${path.module}/../../data/helm/values/spaceone/minimal.yaml"
 }
 
+resource "local_file" "generate_internal_minimal_yaml" {
+  depends_on = [
+    kubernetes_namespace.spaceone,
+    kubernetes_namespace.root_supervisor
+  ]
+ count = var.internal_minimal ? 1 : 0
+ content  =  templatefile("${path.module}/tmpl/internal_minimal.tpl",
+  {
+      smpt_host                  = "${var.notification_smpt_host}" 
+      smpt_port                  = "${var.notification_smpt_port}"
+      smpt_user                  = "${var.notification_smpt_user}"
+      smpt_password              = "${var.notification_smpt_password}"
+  })
+ filename = "${path.module}/../../data/helm/values/spaceone/internal_minimal.yaml"
+}
+
 resource "helm_release" "install_spaceone" {
   count      = var.standard ? 1 : 0
   depends_on = [
@@ -115,7 +131,7 @@ resource "helm_release" "install_spaceone" {
   ]
 }
 
-resource "helm_release" "install_spaceone_dev" {
+resource "helm_release" "install_spaceone_minimal" {
   count      = var.minimal ? 1 : 0
   depends_on = [local_file.generate_minimal_yaml[0]]
   name       = "spaceone"
@@ -124,5 +140,17 @@ resource "helm_release" "install_spaceone_dev" {
   
   values = [
     local_file.generate_minimal_yaml[0].content
+  ]
+}
+
+resource "helm_release" "install_spaceone_internal_minimal" {
+  count      = var.internal_minimal ? 1 : 0
+  depends_on = [local_file.generate_internal_minimal_yaml[0]]
+  name       = "spaceone"
+  chart      = "spaceone/spaceone"
+  namespace  = "spaceone"
+  
+  values = [
+    local_file.generate_internal_minimal_yaml[0].content
   ]
 }
