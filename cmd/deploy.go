@@ -68,6 +68,12 @@ func _setDomainWhereNoIngress() {
 		panic(errors.Wrap(err, "Failed to Update console-api domain"))
 	}
 
+	cmd = fmt.Sprintf("sed -i 's/domain_reference/%s/' ./data/helm/values/spaceone/internal_minimal.yaml", nodeIp)
+	_, err = exec.Command("bash", "-c", cmd).CombinedOutput()
+	if err != nil {
+		panic(errors.Wrap(err, "Failed to Update domain_reference"))
+	}
+
 	// cmd = fmt.Sprintf("sed -i 's/monitoring-webhook.example.com/%s/' ./data/helm/values/spaceone/minimal.yaml", monitoringWebhookDomainName)
 	// _, err = exec.Command("bash", "-c", cmd).CombinedOutput()
 	// if err != nil {

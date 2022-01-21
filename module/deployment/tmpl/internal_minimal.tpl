@@ -24,6 +24,7 @@ console:
       CONSOLE_API:
         ENDPOINT: http://console-api.example.com
       DOMAIN_NAME: spaceone
+      DOMAIN_NAME_REF: domain_reference
 
 console-api:
   enabled: true
