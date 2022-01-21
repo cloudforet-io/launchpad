@@ -48,10 +48,10 @@ func deploy(isMinimal bool) {
 		for _, component := range components {
 			_executeTerraform(component, "install")
 		}
-	
-		if isMinimal {
-			_setDomainWhereNoIngress()
-		}
+	}
+
+	if isMinimal {
+		_setDomainWhereNoIngress()
 	}
 }
 
