@@ -62,7 +62,7 @@ func _setDomainWhereNoIngress() {
 	consoleNodePort := _getNodePort("console")
 	consoleApiNodePort := _getNodePort("console-api")
 
-	cmd := fmt.Sprintf("sed -i 's/console-api.example.com/%s:%s/' ./data/helm/values/spaceone/minimal.yaml", nodeIp,consoleApiNodePort)
+	cmd := fmt.Sprintf("sed -i 's/console-api.example.com/%s:%s/' ./data/helm/values/spaceone/internal_minimal.yaml", nodeIp,consoleApiNodePort)
 	_, err := exec.Command("bash", "-c", cmd).CombinedOutput()
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to Update console-api domain"))
@@ -90,7 +90,7 @@ func _setDomainWhereNoIngress() {
 }
 
 func _getNodeIp() string {
-	cmd := "kubectl get nodes `k get nodes | grep -v NAME | awk '{print $1}' | head -1` --output=custom-columns='IP:.status.addresses[0].address' | tail -1"
+	cmd := "kubectl get nodes `kubectl get nodes | grep -v NAME | awk '{print $1}' | head -1` --output=custom-columns='IP:.status.addresses[0].address' | tail -1"
 
 	output, err := exec.Command("bash", "-c", cmd).Output()
 	if err != nil {
@@ -103,7 +103,7 @@ func _getNodeIp() string {
 }
 
 func _getNodePort(ServiceName string) string {
-	cmd := fmt.Sprintf("k get svc %s -n spaceone --output=custom-columns='nodePort:.spec.ports[0].nodePort' | tail -1", ServiceName)
+	cmd := fmt.Sprintf("kubectl get svc %s -n spaceone --output=custom-columns='nodePort:.spec.ports[0].nodePort' | tail -1", ServiceName)
 
 	output, err := exec.Command("bash", "-c", cmd).Output()
 	if err != nil {

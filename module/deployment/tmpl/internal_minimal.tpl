@@ -24,12 +24,6 @@ console:
       CONSOLE_API:
         ENDPOINT: http://console-api.example.com
       DOMAIN_NAME: spaceone
-  service:
-      type: LoadBalancer
-      annotations:
-          service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-          service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
-          service.beta.kubernetes.io/aws-load-balancer-name: "spaceone-console-nlb"
 
 console-api:
   enabled: true
@@ -61,12 +55,6 @@ console-api:
         enabled: false
         allowedDomainId: domain_id
         apiKey: apikey
-  service:
-      type: LoadBalancer
-      annotations:
-          service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-          service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
-          service.beta.kubernetes.io/aws-load-balancer-name: "spaceone-console-api-nlb"
 
 identity:
     enabled: true
@@ -213,7 +201,13 @@ inventory:
 
 monitoring:
     enabled: true
+    grpc: true
+    scheduler: true
+    worker: true
+    rest: false
     replicas: 1
+    replicas_rest: 1
+    replicas_worker: 1
     image:
       name: spaceone/monitoring
       version: 1.9.0
@@ -259,13 +253,6 @@ monitoring:
           config:
               host: spaceone-consul-server
           uri: root/api_key/TOKEN
-
-    service:
-        type: LoadBalancer
-        annotations:
-            service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-            service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
-            service.beta.kubernetes.io/aws-load-balancer-name: "spaceone-monitoring-nlb"
 
 statistics:
     enabled: true

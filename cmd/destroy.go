@@ -20,12 +20,7 @@ var destroyCmd = &cobra.Command{
 	Short: "Destroy SpaceONE",
 	Long:  `Destroy all results installed by launchpad.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		_setAwsCredentais()
-		_setKubectlConfig()
-
-		if _, err := os.Stat("./data/helm/values/spaceone/minimal.yaml"); err == nil {
-			os.Setenv("TF_VAR_minimal", "true")
-		}
+		_checkInstalledType()
 
 		destroy()
 	},
@@ -68,6 +63,23 @@ func destroy() {
 	}
 
 	log.Println("SpaceONE Destroy completed")
+
+}
+
+func _checkInstalledType() {
+	if _, err := os.Stat("./data/helm/values/spaceone/minimal.yaml"); err == nil {
+		os.Setenv("TF_VAR_minimal", "true")
+	}
+
+	if _, err := os.Stat("./data/helm/values/spaceone/internal_minimal.yaml"); err == nil {
+		os.Setenv("TF_VAR_internal_minimal", "true")
+	}
+
+	if _, err := os.Stat("./data/helm/values/spaceone/internal_minimal.yaml"); os.IsNotExist(err) {
+		_setAwsCredentais()
+	}
+
+	_setKubectlConfig()
 
 }
 

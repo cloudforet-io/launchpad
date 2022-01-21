@@ -213,7 +213,13 @@ inventory:
 
 monitoring:
     enabled: true
+    grpc: true
+    scheduler: true
+    worker: true
+    rest: true
     replicas: 1
+    replicas_rest: 1
+    replicas_worker: 1
     image:
       name: spaceone/monitoring
       version: 1.9.0
