@@ -25,6 +25,7 @@ var deployCmd = &cobra.Command{
 
 		isMinimal, _ := cmd.Flags().GetBool("minimal")
 		deploy(isMinimal)
+		
 	},
 }
 

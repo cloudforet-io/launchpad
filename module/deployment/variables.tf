@@ -1,6 +1,7 @@
 variable "region" {
   type        = string
   description = "AWS Region for EKS"
+  default     = ""
 }
 
 variable "standard" {

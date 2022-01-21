@@ -21,10 +21,11 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"time"
+	"io/ioutil"
 
+	"gopkg.in/yaml.v2"
 	"github.com/briandowns/spinner"
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/hashicorp/terraform-exec/tfinstall"
@@ -32,6 +33,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+type Credential struct {
+    Aws map[string]string `yaml:"aws,omitempty"`
+}
 
 var cfgFile string
 
@@ -75,18 +80,25 @@ func initConfig() {
 }
 
 func _setAwsCredentais() {
-	homedir, _ := os.UserHomeDir()
-	// TODO: filepath module vs text path
-	os.Mkdir(filepath.Join(homedir, ".aws"), 0755)
-
-	src := filepath.Join("./vars", "aws_credential")
-	dst := filepath.Join(homedir, ".aws/credentials")
-	err := _fileCopy(src, dst)
+	buf, err := ioutil.ReadFile("./vars/aws_credential.yaml")
 	if err != nil {
-		panic(err)
+		panic(errors.Wrap(err, "Failed to read aws_credential.yaml"))
 	}
 
-	_setTfvarRegion(src)
+	var credential Credential
+
+	err = yaml.Unmarshal(buf, &credential)
+	if err != nil {
+		panic(errors.Wrap(err, "Failed to yaml unmarshal"))
+	}
+
+	access_key := credential.Aws["aws_access_key_id"]
+	secret_key := credential.Aws["aws_secret_access_key"]
+	regoin 	   := credential.Aws["region"]
+
+	os.Setenv("AWS_ACCESS_KEY_ID", access_key)
+	os.Setenv("AWS_SECRET_ACCESS_KEY", secret_key)
+	os.Setenv("AWS_DEFAULT_REGION", regoin)
 }
 
 func _setKubectlConfig() error {
