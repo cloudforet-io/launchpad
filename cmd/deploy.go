@@ -45,14 +45,14 @@ func deploy(isMinimal bool) {
 			panic(err)
 		}
 
-		for _, component := range components {
-			_executeTerraform(component, "install")
-		}
+		_executeTerraform(component, "install")
 	}
 
 	if isMinimal {
 		_setDomainWhereNoIngress()
 	}
+
+	log.Println("SpaceONE Deployment complete")
 }
 
 func _setDomainWhereNoIngress() {
