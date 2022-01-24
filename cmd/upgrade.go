@@ -44,7 +44,7 @@ func init() {
 	upgradeCmd.Flags().BoolP("update-repo", "", false, "Update helm repository before upgrade helm release")
 }
 
-func upgrade(isRepoUpdate bool) {
+func upgrade(isRepoUpdate ...bool) {
 	log.Println("Upgrade SpaceONE")
 	s := spinner.New(spinner.CharSets[26], 100*time.Millisecond)
 	s.Prefix = "[upgrade] spaceone"
@@ -52,7 +52,7 @@ func upgrade(isRepoUpdate bool) {
 
 	s.Start()
 
-	if isRepoUpdate {
+	if isRepoUpdate[0] {
 		_updateHelmRepo()
 	}
 
