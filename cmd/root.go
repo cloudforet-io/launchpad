@@ -20,8 +20,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
-	"strings"
 	"time"
 	"io/ioutil"
 
