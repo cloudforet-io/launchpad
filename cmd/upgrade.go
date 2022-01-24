@@ -34,28 +34,30 @@ https://github.com/spaceone-dev/charts`,
 			panic(errors.Wrap(err, "Failed to get command flag"))
 		}
 
-		if isRepoUpdate {
-			_updateHelmRepo()
-		}
-
-		upgrade()
+		upgrade(isRepoUpdate)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(upgradeCmd)
 
-	upgradeCmd.Flags().BoolP("update-repo", "", false, "Update helm repository before upgrade helm chart")
+	upgradeCmd.Flags().BoolP("update-repo", "", false, "Update helm repository before upgrade helm release")
 }
 
-func upgrade() {
+func upgrade(isRepoUpdate bool) {
 	log.Println("Upgrade SpaceONE")
 	s := spinner.New(spinner.CharSets[26], 100*time.Millisecond)
 	s.Prefix = "[upgrade] spaceone"
-	s.FinalMSG = "ok\n"
+	s.FinalMSG = "done\n"
 
 	s.Start()
+
+	if isRepoUpdate {
+		_updateHelmRepo()
+	}
+
 	_upgradeHelmRelease()
+	
 	s.Stop()
 
 	log.Println("SpaceONE upgrade complete")
