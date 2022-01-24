@@ -146,22 +146,6 @@ func _checkContainFile(s []string, str string) bool {
 	return false
 }
 
-func _setTfvarRegion(file_source string) {
-	file, err := os.Open(file_source)
-	cobra.CheckErr(err)
-	defer file.Close()
-
-	//TODO : Refactoring to use the Go scanner
-	cmd := fmt.Sprintf("grep region %v | cut -d'=' -f2 | tr -d ' '", file_source)
-	output, err := exec.Command("bash", "-c", cmd).Output()
-	if err != nil {
-		panic(err)
-	}
-
-	region := strings.TrimSuffix(string(output), "\n")
-	os.Setenv("TF_VAR_region", region)
-}
-
 /**
 terraform client
 **/
