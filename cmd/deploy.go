@@ -89,7 +89,7 @@ func _setDomainWhereNoIngress() {
 	hostSetMsg := "\n" +
 	"****************************************************************************************\n" +
 	"\n"+
-	fmt.Sprintf("Console endpoint http://%s:%s", nodeIp, consoleNodePort) +
+	fmt.Sprintf("Console endpoint http://%s:%s\n", nodeIp, consoleNodePort) +
 	"\n"+
 	"****************************************************************************************"
 	log.Println(hostSetMsg)

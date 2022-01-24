@@ -187,7 +187,7 @@ func _executeTerraform(component string, action string) {
 	// refer:https://github.com/briandowns/spinner#available-character-sets
 	s := spinner.New(spinner.CharSets[26], 100*time.Millisecond)
 	s.Prefix = fmt.Sprintf("[%v] %v", action, component)
-	s.FinalMSG = "ok\n"
+	s.FinalMSG = "done\n"
 
 	s.Start()
 
