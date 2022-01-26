@@ -96,7 +96,7 @@ func _setAwsCredentais() {
 
 	os.Setenv("AWS_ACCESS_KEY_ID", access_key)
 	os.Setenv("AWS_SECRET_ACCESS_KEY", secret_key)
-	os.Setenv("AWS_DEFAULT_REGION", regoin)
+	os.Setenv("TF_VAR_region", regoin)
 }
 
 func _setKubectlConfig() error {
