@@ -142,7 +142,7 @@ And Open a browser(http://spaceone.console-dev.com), log in to the root account 
 ### deploy
 After the installation is complete, the access point will be displayed.
 
-And Open a browser(http://Node_IP:Port)log in to the root account with the information below.
+Open a browser(http://Node_IP:Port)log in to the root account with the information below.
 
 - ID : `domain_owner` in initialization.conf
 - PASSWORD : `domain_owner_password` in initialization.conf
