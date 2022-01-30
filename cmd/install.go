@@ -28,7 +28,7 @@ var installCmd = &cobra.Command{
 
 		isMinimal, _ := cmd.Flags().GetBool("minimal")
 
-		build(isMinimal)
+		Build(isMinimal)
 	},
 }
 
@@ -41,7 +41,7 @@ func init() {
 	installCmd.Flags().BoolP("minimal", "", false, "install minimal mode")
 }
 
-func build(isMinimal bool) {
+func Build(isMinimal bool) {
 	log.Println("Start building SpaceONE")
 
 	components := _getInstallComponents(isMinimal)
@@ -105,7 +105,7 @@ func _setDomain() {
 	**/
 
 	// Update configmap
-	upgrade()
+	Upgrade()
 
 	// To mount the updated configmap to console pod
 	_restartConsolePod()
@@ -150,6 +150,10 @@ func _restartConsolePod() {
 
 func _getIpFromDomain(domain string) string {
 	ips, _ := net.LookupHost(domain)
+	if len(ips) < 0 {
+		msg := fmt.Sprintf("There's nothing on the ips %v",ips)
+		panic(msg)
+	}
 	firstIp := ips[0]
 
 	return firstIp

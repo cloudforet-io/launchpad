@@ -23,7 +23,7 @@ var upgradeCmd = &cobra.Command{
 	Long: `Upgrade SpaceONE
 If there is a new release, use the --update-repo option.
 
-SpaceONE release example:
+SpaceONE helm chart example:
 https://github.com/spaceone-dev/charts`,
 	Run: func(cmd *cobra.Command, args []string) {
 		_setAwsCredentais()
@@ -34,7 +34,7 @@ https://github.com/spaceone-dev/charts`,
 			panic(errors.Wrap(err, "Failed to get command flag"))
 		}
 
-		upgrade(isRepoUpdate)
+		Upgrade(isRepoUpdate)
 	},
 }
 
@@ -44,7 +44,7 @@ func init() {
 	upgradeCmd.Flags().BoolP("update-repo", "", false, "Update helm repository before upgrade helm release")
 }
 
-func upgrade(isRepoUpdate ...bool) {
+func Upgrade(isRepoUpdate ...bool) {
 	log.Println("Upgrade SpaceONE")
 	s := spinner.New(spinner.CharSets[26], 100*time.Millisecond)
 	s.Prefix = "[upgrade] spaceone"
@@ -52,7 +52,7 @@ func upgrade(isRepoUpdate ...bool) {
 
 	s.Start()
 
-	if isRepoUpdate[0] {
+	if len(isRepoUpdate) > 0 && isRepoUpdate[0] {
 		_updateHelmRepo()
 	}
 

@@ -24,7 +24,7 @@ var destroyCmd = &cobra.Command{
 		_setAwsCredentais()	
 		_setKubectlConfig()
 
-		destroy()
+		Destroy()
 	},
 }
 
@@ -32,7 +32,7 @@ func init() {
 	rootCmd.AddCommand(destroyCmd)
 }
 
-func destroy() {
+func Destroy() {
 	log.Println("Destroy SpaceONE")
 
 	components := []string{"initialization", "deployment", "secret", "documentdb", "controllers", "eks", "certificate"}

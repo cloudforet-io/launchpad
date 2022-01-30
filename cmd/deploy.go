@@ -24,7 +24,7 @@ var deployCmd = &cobra.Command{
 		_setKubectlConfig()
 
 		isMinimal, _ := cmd.Flags().GetBool("minimal")
-		deploy(isMinimal)
+		Deploy(isMinimal)
 		
 	},
 }
@@ -34,7 +34,7 @@ func init() {
 	deployCmd.Flags().Bool("minimal", true, "install minimal mode")
 }
 
-func deploy(isMinimal bool) {
+func Deploy(isMinimal bool) {
 	log.Println("Start SpaceONE Micro-services deployment")
 
 	components := _getDeployComponents(isMinimal)
@@ -81,7 +81,7 @@ func _setDomainWhereNoIngress() {
 	// }
 
 	// Update configmap
-	upgrade()
+	Upgrade()
 
 	// To mount the updated configmap to console pod
 	_restartConsolePod()
