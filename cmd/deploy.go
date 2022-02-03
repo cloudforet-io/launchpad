@@ -86,12 +86,16 @@ func _setDomainWhereNoIngress() {
 	// To mount the updated configmap to console pod
 	_restartConsolePod()
 	
-	hostSetMsg := "\n" +
-	"****************************************************************************************\n" +
-	"\n"+
-	fmt.Sprintf("Console endpoint http://%s:%s\n", nodeIp, consoleNodePort) +
-	"\n"+
-	"****************************************************************************************"
+	hostSetMsg := fmt.Sprintf(`
+****************************************************************************************
+
+'SpaceONE deploy' does not provide ingress-controller and ingress resource.
+Access service endpoints directly from your browser.
+
+- Console endpoint       http://%[1]v:%[2]v
+
+****************************************************************************************`,nodeIp,consoleNodePort)
+
 	log.Println(hostSetMsg)
 }
 

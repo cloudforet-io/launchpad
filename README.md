@@ -96,8 +96,8 @@ If the kubernetes cluster already exists, only SpaceONE applications can be depl
 ---
 **NOTE**
 
-It does not provide ingress resources and uses [service of node port type](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types).<br>
-To expose SpaceONE to the outside
+It does not provide ingress resources and uses [service of nodePort type](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types).<br>
+To expose SpaceONE, you should the ingress resource.
 - [Install ingress controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/)
 - Update SpaceONE values(refer to Management section of this document)<br>
 

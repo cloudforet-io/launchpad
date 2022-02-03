@@ -112,12 +112,17 @@ func _setDomain() {
 
 	ip := _getIpFromDomain(consoleDomainName)
 	
-	hostSetMsg := "\n" +
-	"****************************************************************************************\n" +
-	"\n"+
-	fmt.Sprintf("To access SpaceONE console, Add \"%s spaceone.console-dev.com\" to /etc/hosts\n", ip) +
-	"\n"+
-	"****************************************************************************************"
+	hostSetMsg := fmt.Sprintf(`
+"****************************************************************************************" +
+
+SpaceONE minimal set does not have a public domain. 
+
+1. To access SpaceONE console, Add "%v spaceone.console-dev.com" to hosts file (etc. /etc/hosts)
+
+2. Open a browser(http://spaceone.console-dev.com) and log in 
+
+****************************************************************************************`,ip)
+
 	log.Println(hostSetMsg)
 }
 
