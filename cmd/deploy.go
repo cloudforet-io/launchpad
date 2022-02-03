@@ -31,7 +31,7 @@ var deployCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(deployCmd)
-	deployCmd.Flags().Bool("minimal", true, "install minimal mode")
+	deployCmd.Flags().Bool("minimal", false, "install minimal mode")
 }
 
 func Deploy(isMinimal bool) {
@@ -49,32 +49,46 @@ func Deploy(isMinimal bool) {
 	}
 
 	if isMinimal {
-		_setDomainWhereNoIngress()
+		_setDomainWhichNoIngress()
 	}
+
+	nodeIp := _getNodeIp()
+	consoleNodePort := _getNodePort("console")
+	
+	hostSetMsg := fmt.Sprintf(`
+****************************************************************************************
+
+'SpaceONE deploy' does not provide ingress-controller and ingress resource.
+Access service endpoints directly from your browser.
+
+- Console endpoint       http://%[1]v:%[2]v
+
+****************************************************************************************`,nodeIp, consoleNodePort)
+
+	log.Println(hostSetMsg)
 
 	log.Println("SpaceONE Deployment complete")
 }
 
-func _setDomainWhereNoIngress() {
-	log.Println("_setDomainWhereNoIngress")
+func _setDomainWhichNoIngress() {
+	log.Println("_setDomainWhichNoIngress")
 
 	nodeIp := _getNodeIp()
-	consoleNodePort := _getNodePort("console")
 	consoleApiNodePort := _getNodePort("console-api")
 
-	cmd := fmt.Sprintf("sed -i 's/console-api.example.com/%s:%s/' ./data/helm/values/spaceone/internal_minimal.yaml", nodeIp,consoleApiNodePort)
+	cmd := fmt.Sprintf("sed -i 's/console-api.example.com/%v:%v/' ./data/helm/values/spaceone/internal_minimal.yaml", nodeIp,consoleApiNodePort)
 	_, err := exec.Command("bash", "-c", cmd).CombinedOutput()
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to Update console-api domain"))
 	}
 
-	cmd = fmt.Sprintf("sed -i 's/domain_reference/%s/' ./data/helm/values/spaceone/internal_minimal.yaml", nodeIp)
+	cmd = fmt.Sprintf("sed -i 's/domain_reference/%v/' ./data/helm/values/spaceone/internal_minimal.yaml", nodeIp)
 	_, err = exec.Command("bash", "-c", cmd).CombinedOutput()
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to Update domain_reference"))
 	}
 
-	// cmd = fmt.Sprintf("sed -i 's/monitoring-webhook.example.com/%s/' ./data/helm/values/spaceone/minimal.yaml", monitoringWebhookDomainName)
+	// cmd = fmt.Sprintf("sed -i 's/monitoring-webhook.example.com/%v/' ./data/helm/values/spaceone/minimal.yaml", monitoringWebhookDomainName)
 	// _, err = exec.Command("bash", "-c", cmd).CombinedOutput()
 	// if err != nil {
 	// 	panic(errors.Wrap(err, "Failed to Update monitoring-webhook domain"))
@@ -85,18 +99,6 @@ func _setDomainWhereNoIngress() {
 
 	// To mount the updated configmap to console pod
 	_restartConsolePod()
-	
-	hostSetMsg := fmt.Sprintf(`
-****************************************************************************************
-
-'SpaceONE deploy' does not provide ingress-controller and ingress resource.
-Access service endpoints directly from your browser.
-
-- Console endpoint       http://%[1]v:%[2]v
-
-****************************************************************************************`,nodeIp,consoleNodePort)
-
-	log.Println(hostSetMsg)
 }
 
 func _getNodeIp() string {
@@ -113,7 +115,7 @@ func _getNodeIp() string {
 }
 
 func _getNodePort(ServiceName string) string {
-	cmd := fmt.Sprintf("kubectl get svc %s -n spaceone --output=custom-columns='nodePort:.spec.ports[0].nodePort' | tail -1", ServiceName)
+	cmd := fmt.Sprintf("kubectl get svc %v -n spaceone --output=custom-columns='nodePort:.spec.ports[0].nodePort' | tail -1", ServiceName)
 
 	output, err := exec.Command("bash", "-c", cmd).Output()
 	if err != nil {
@@ -128,7 +130,7 @@ func _getNodePort(ServiceName string) string {
 
 func _getDeployComponents(isMinimal bool) []string {
 	if isMinimal { 
-		os.Setenv("TF_VAR_internal_minimal", "true")
+		os.Setenv("TF_VAR_internal", "true")
 		return []string{"deployment", "initialization"}
 	} else {
 		os.Setenv("TF_VAR_internal_minimal", "true")
