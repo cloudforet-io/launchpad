@@ -76,7 +76,7 @@ resource "local_file" "generate_database_yaml" {
    {
      database_user_name                  = "${data.terraform_remote_state.documentdb[0].outputs.database_user_name}"
      database_user_password              = "${data.terraform_remote_state.documentdb[0].outputs.database_user_password}"
-     endpoint                            = "${data.terraform_remote_state.documentdb[0].outputs.endpoint}"
+     database_endpoint                   = "${data.terraform_remote_state.documentdb[0].outputs.endpoint}"
    })
  filename = "${path.module}/../../data/helm/values/spaceone/database.yaml"
 }
