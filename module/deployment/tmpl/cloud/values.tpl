@@ -2,15 +2,11 @@ enabled: true
 
 # Service
 mongodb:
-    enabled: true
+    enabled: false
 redis:
     enabled: true
 consul:
-    enabled: true
-    server:
-        replicas: 3
-    ui:
-        enabled: false
+    enabled: false
 
 identity:
     enabled: true
