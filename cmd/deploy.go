@@ -47,7 +47,7 @@ func Deploy() {
 		_executeTerraform(component, "install")
 	}
 
-	_setDomain()
+	_setDomainForInternal()
 	
 	log.Println("SpaceONE Deployment complete")
 }
@@ -57,7 +57,7 @@ func _getDeployComponents() []string {
 	return []string{"deployment", "initialization"}
 }
 
-func _setDomain() {
+func _setDomainForInternal() {
 	nodeIp := _getNodeIp()
 	consoleNodePort := _getNodePort("console")
 	consoleApiNodePort := _getNodePort("console-api")

@@ -66,7 +66,7 @@ func Build(isMinimal bool) {
 	}
 
 	if isMinimal {
-		_setDomainForInternal()
+		_setDomain()
 	}
 
 	log.Println("SpaceONE build complete")
@@ -83,7 +83,7 @@ func _getInstallComponents(isMinimal bool) []string {
 }
 
 // TODO: find a simple way
-func _setDomainForInternal() {
+func _setDomain() {
 	consoleDomainName := _getNlbDomainNameFromService("console")
 	consoleApiDomainName := _getNlbDomainNameFromService("console-api")
 	monitoringWebhookDomainName := _getNlbDomainNameFromService("monitoring-rest")
