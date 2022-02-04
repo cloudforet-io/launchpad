@@ -62,13 +62,13 @@ func _setDomainForInternal() {
 	consoleNodePort := _getNodePort("console")
 	consoleApiNodePort := _getNodePort("console-api")
 
-	cmd := fmt.Sprintf("sed -i 's/console-api.example.com/%v:%v/' ./data/helm/values/spaceone/internal_minimal.yaml", nodeIp,consoleApiNodePort)
+	cmd := fmt.Sprintf("sed -i 's/console-api.example.com/%v:%v/' ./data/helm/values/spaceone/frontend.yaml", nodeIp,consoleApiNodePort)
 	_, err := exec.Command("bash", "-c", cmd).CombinedOutput()
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to Update console-api domain"))
 	}
 
-	cmd = fmt.Sprintf("sed -i 's/domain_reference/%v/' ./data/helm/values/spaceone/internal_minimal.yaml", nodeIp)
+	cmd = fmt.Sprintf("sed -i 's/domain_reference/%v/' ./data/helm/values/spaceone/frontend.yaml", nodeIp)
 	_, err = exec.Command("bash", "-c", cmd).CombinedOutput()
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to Update domain_reference"))

@@ -157,7 +157,7 @@ monitoring:
     grpc: true
     scheduler: true
     worker: true
-    rest: true
+    rest: false
     replicas: 1
     replicas_rest: 1
     replicas_worker: 1

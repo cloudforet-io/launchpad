@@ -138,7 +138,7 @@ resource "local_file" "generate_internal_frontend_yaml" {
     kubernetes_namespace.root_supervisor
   ]
   count    = var.internal ? 1 : 0
-  content  = "${path.module}/tmpl/internal/frontend.tpl"
+  content  = file("${path.module}/tmpl/internal/frontend.tpl")
   filename = "${path.module}/../../data/helm/values/spaceone/frontend.yaml"
 }
 
