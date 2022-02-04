@@ -16,19 +16,6 @@ variable "internal" {
   default = false
 }
 
-variable "internal_minimal" {
-  default = false
-}
-variable "database_user" {
-  default = ""
-}
-variable "database_password" {
-  default = ""
-}
-variable "database_endpoint" {
-  default = ""
-}
-
 variable "notification_smpt_host" {
   default = "" 
 } 

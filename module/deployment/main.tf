@@ -158,43 +158,11 @@ resource "local_file" "generate_internal_value_yaml" {
   filename = "${path.module}/../../data/helm/values/spaceone/values.yaml"
 }
 
-resource "local_file" "generate_internal_database_yaml" {
-  depends_on = [
-    kubernetes_namespace.spaceone,
-    kubernetes_namespace.root_supervisor
-  ]
- count = var.internal ? 1 : 0
- content  =  templatefile("${path.module}/tmpl/internal/database.tpl",
-   {
-     database_user_name                  = "${var.database_user_name}"
-     database_user_password              = "${var.database_user_password}"
-     database_endpoint                   = "${var.database_endpoint}"
-   })
- filename = "${path.module}/../../data/helm/values/spaceone/database.yaml"
-}
-
-resource "local_file" "generate_internal_minimal_yaml" {
-  depends_on = [
-    kubernetes_namespace.spaceone,
-    kubernetes_namespace.root_supervisor
-  ]
- count = var.internal_minimal ? 1 : 0
- content  =  templatefile("${path.module}/tmpl/internal/minimal.tpl",
-  {
-      smpt_host                  = "${var.notification_smpt_host}" 
-      smpt_port                  = "${var.notification_smpt_port}"
-      smpt_user                  = "${var.notification_smpt_user}"
-      smpt_password              = "${var.notification_smpt_password}"
-  })
- filename = "${path.module}/../../data/helm/values/spaceone/minimal.yaml"
-}
-
 resource "helm_release" "install_spaceone_internal" {
   count      = var.internal ? 1 : 0
   depends_on = [
     local_file.generate_internal_frontend_yaml[0],
-    local_file.generate_internal_value_yaml[0],
-    local_file.generate_internal_database_yaml[0]
+    local_file.generate_internal_value_yaml[0]
   ]
   name       = "spaceone"
   chart      = "spaceone/spaceone"
@@ -203,19 +171,7 @@ resource "helm_release" "install_spaceone_internal" {
   
   values = [
     local_file.generate_internal_frontend_yaml[0].content,
-    local_file.generate_internal_value_yaml[0].content,
-    local_file.generate_internal_database_yaml[0].content
+    local_file.generate_internal_value_yaml[0].content
   ]
 }
 
-resource "helm_release" "install_spaceone_internal_minimal" {
-  count      = var.internal_minimal ? 1 : 0
-  depends_on = [local_file.generate_internal_minimal_yaml[0]]
-  name       = "spaceone"
-  chart      = "spaceone/spaceone"
-  namespace  = "spaceone"
-  
-  values = [
-    local_file.generate_internal_minimal_yaml[0].content
-  ]
-}

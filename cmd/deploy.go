@@ -23,21 +23,20 @@ var deployCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_setKubectlConfig()
 
-		isMinimal, _ := cmd.Flags().GetBool("minimal")
-		Deploy(isMinimal)
+		Deploy()
 		
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(deployCmd)
-	deployCmd.Flags().Bool("minimal", false, "install minimal mode")
+	//deployCmd.Flags().Bool("minimal", false, "install minimal mode")
 }
 
-func Deploy(isMinimal bool) {
+func Deploy() {
 	log.Println("Start SpaceONE Micro-services deployment")
 
-	components := _getDeployComponents(isMinimal)
+	components := _getDeployComponents()
 
 	for _, component := range components {
 		err := _generateTfvars(component)
@@ -48,32 +47,19 @@ func Deploy(isMinimal bool) {
 		_executeTerraform(component, "install")
 	}
 
-	if isMinimal {
-		_setDomainWhichNoIngress()
-	}
-
-	nodeIp := _getNodeIp()
-	consoleNodePort := _getNodePort("console")
+	_setDomain()
 	
-	hostSetMsg := fmt.Sprintf(`
-****************************************************************************************
-
-'SpaceONE deploy' does not provide ingress-controller and ingress resource.
-Access service endpoints directly from your browser.
-
-- Console endpoint       http://%[1]v:%[2]v
-
-****************************************************************************************`,nodeIp, consoleNodePort)
-
-	log.Println(hostSetMsg)
-
 	log.Println("SpaceONE Deployment complete")
 }
 
-func _setDomainWhichNoIngress() {
-	log.Println("_setDomainWhichNoIngress")
+func _getDeployComponents() []string {
+	os.Setenv("TF_VAR_internal", "true")
+	return []string{"deployment", "initialization"}
+}
 
+func _setDomain() {
 	nodeIp := _getNodeIp()
+	consoleNodePort := _getNodePort("console")
 	consoleApiNodePort := _getNodePort("console-api")
 
 	cmd := fmt.Sprintf("sed -i 's/console-api.example.com/%v:%v/' ./data/helm/values/spaceone/internal_minimal.yaml", nodeIp,consoleApiNodePort)
@@ -99,6 +85,18 @@ func _setDomainWhichNoIngress() {
 
 	// To mount the updated configmap to console pod
 	_restartConsolePod()
+
+	hostSetMsg := fmt.Sprintf(`
+****************************************************************************************
+
+'SpaceONE deploy' does not provide ingress-controller and ingress resource.
+Access service endpoints directly from your browser.
+
+- Console endpoint       http://%[1]v:%[2]v
+
+****************************************************************************************`,nodeIp, consoleNodePort)
+
+	log.Println(hostSetMsg)
 }
 
 func _getNodeIp() string {
@@ -126,16 +124,6 @@ func _getNodePort(ServiceName string) string {
 
 	return NodePort
 
-}
-
-func _getDeployComponents(isMinimal bool) []string {
-	if isMinimal { 
-		os.Setenv("TF_VAR_internal", "true")
-		return []string{"deployment", "initialization"}
-	} else {
-		os.Setenv("TF_VAR_internal_minimal", "true")
-		return []string{"deployment", "initialization"}
-	}
 }
 
 
