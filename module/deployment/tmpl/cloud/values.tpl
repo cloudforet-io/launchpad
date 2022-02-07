@@ -2,15 +2,11 @@ enabled: true
 
 # Service
 mongodb:
-    enabled: true
+    enabled: false
 redis:
     enabled: true
 consul:
-    enabled: true
-    server:
-        replicas: 3
-    ui:
-        enabled: false
+    enabled: false
 
 identity:
     enabled: true
@@ -293,128 +289,6 @@ notification:
                 user: ${smpt_user}
                 password: ${smpt_password}
               schema: email_smtp
-
-    pod:
-        spec: {}
-
-power-scheduler:
-    enabled: false
-    replicas: 1
-    image:
-      name: public.ecr.aws/megazone/spaceone/power-scheduler
-      version: 1.9.0
- 
-    scheduler: true
-    worker: true
-    application_scheduler:
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
-        TOKEN_INFO:
-            protocol: consul
-            config:
-                host: spaceone-consul-server
-            uri: root/api_key/TOKEN
-
-    pod:
-        spec: {}
-
-cost-analysis:
-    enabled: true
-    scheduler: false
-    worker: true
-    replicas: 1
-    replicas_worker: 2
-    image:
-      name: public.ecr.aws/megazone/spaceone/cost-analysis
-      version: 1.9.0.1
-
-    # Overwrite scheduler config
-    application_scheduler:
-        TOKEN: <root_token>
-
-    application_grpc:
-        DEFAULT_EXCHANGE_RATE:
-            KRW: 1178.7
-            JPY: 114.2
-            CNY: 6.3
-
-    application_worker:
-        DEFAULT_EXCHANGE_RATE:
-            KRW: 1178.7
-            JPY: 114.2
-            CNY: 6.3
-
-    volumeMounts:
-        application: []
-        application_worker: []
-        application_scheduler: []
-        application_rest: []
-
-    pod:
-        spec: {}
-
-spot-automation:
-    enabled: false
-    scheduler: true
-    worker: true
-    rest: true
-    replicas: 1
-    image:
-      name: public.ecr.aws/megazone/spaceone/spot-automation
-      version: 1.9.0
-
-# Overwrite application config
-    application_grpc:
-        CONNECTORS:
-            ProductConnector:
-                endpoint:
-                    v1: grpc://inventory.portal.dev.spaceone.dev:50051 
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-        INTERRUPT:
-            salt: ___CHANGE_SALT___
-            endpoint: http://spot-automation-proxy.dev.spaceone.dev
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___
-        TOKEN_INFO:
-            protocol: consul
-            config:
-                host: spaceone-consul-server
-            uri: root/api_key/TOKEN
-
-
-    # Overwrite scheduler config
-    #application_scheduler: {}
-    application_scheduler:
-        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___
-
-    # Overwrite worker config
-    #application_worker: {}
-    application_worker:
-        QUEUES:
-            spot_controller_q:
-                backend: spaceone.core.queue.redis_queue.RedisQueue
-                host: redis
-                port: 6379
-                channel: spot_controller
-        CONNECTORS:
-            ProductConnector:
-                endpoint:
-                    v1: grpc://inventory.portal.dev.spaceone.dev:50051 
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-        INTERRUPT:
-            salt: ___CHANGE_SALT___
-            endpoint: http://spot-automation-proxy.dev.spaceone.dev
-#        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___
-        TOKEN_INFO:
-            protocol: consul
-            config:
-                host: spaceone-consul-server
-            uri: root/api_key/TOKEN
-
-    ingress:
-        annotations:
-            kubernetes.io/ingress.class: alb
-            alb.ingress.kubernetes.io/scheme: internet-facing
-            alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-auto-spot
-            external-dns.alpha.kubernetes.io/hostname: spot-automation-proxy.dev.spaceone.dev
 
     pod:
         spec: {}

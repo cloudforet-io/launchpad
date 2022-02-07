@@ -20,11 +20,11 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
-	"path/filepath"
-	"strings"
 	"time"
+	"io/ioutil"
+	"path/filepath"
 
+	"gopkg.in/yaml.v2"
 	"github.com/briandowns/spinner"
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/hashicorp/terraform-exec/tfinstall"
@@ -32,6 +32,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+type Credential struct {
+    Aws map[string]string `yaml:"aws,omitempty"`
+}
 
 var cfgFile string
 
@@ -75,18 +79,25 @@ func initConfig() {
 }
 
 func _setAwsCredentais() {
-	homedir, _ := os.UserHomeDir()
-	// TODO: filepath module vs text path
-	os.Mkdir(filepath.Join(homedir, ".aws"), 0755)
-
-	src := filepath.Join("./vars", "aws_credential")
-	dst := filepath.Join(homedir, ".aws/credentials")
-	err := _fileCopy(src, dst)
+	buf, err := ioutil.ReadFile("./vars/aws_credential.yaml")
 	if err != nil {
-		panic(err)
+		panic(errors.Wrap(err, "Failed to read aws_credential.yaml"))
 	}
 
-	_setTfvarRegion(src)
+	var credential Credential
+
+	err = yaml.Unmarshal(buf, &credential)
+	if err != nil {
+		panic(errors.Wrap(err, "Failed to yaml unmarshal"))
+	}
+
+	access_key := credential.Aws["aws_access_key_id"]
+	secret_key := credential.Aws["aws_secret_access_key"]
+	regoin 	   := credential.Aws["region"]
+
+	os.Setenv("AWS_ACCESS_KEY_ID", access_key)
+	os.Setenv("AWS_SECRET_ACCESS_KEY", secret_key)
+	os.Setenv("TF_VAR_region", regoin)
 }
 
 func _setKubectlConfig() error {
@@ -124,6 +135,30 @@ func _fileCopy(src, dst string) error {
 	return err
 }
 
+func _deleteSinglefile(path string) error {
+	if _, err := os.Stat(path); err == nil {
+		if err = os.Remove(path); err != nil {
+			msg := fmt.Sprintf("Failt to delete file: %v",path)
+			return errors.Wrap(err, msg)
+		}
+	}
+
+	return nil
+}
+
+func _deleteFiles(path string) error {
+	if files, err := filepath.Glob(path); err == nil {
+		for _, f := range files {
+			if err := os.Remove(f); err != nil {
+				msg := fmt.Sprintf("Failed to delete file: %v", path)
+				return errors.Wrap(err, msg)
+			}
+		}
+	}
+
+	return nil
+}
+
 func _checkContainFile(s []string, str string) bool {
 	for _, v := range s {
 		if v == str {
@@ -132,22 +167,6 @@ func _checkContainFile(s []string, str string) bool {
 	}
 
 	return false
-}
-
-func _setTfvarRegion(file_source string) {
-	file, err := os.Open(file_source)
-	cobra.CheckErr(err)
-	defer file.Close()
-
-	//TODO : Refactoring to use the Go scanner
-	cmd := fmt.Sprintf("grep region %v | cut -d'=' -f2 | tr -d ' '", file_source)
-	output, err := exec.Command("bash", "-c", cmd).Output()
-	if err != nil {
-		panic(err)
-	}
-
-	region := strings.TrimSuffix(string(output), "\n")
-	os.Setenv("TF_VAR_region", region)
 }
 
 /**
@@ -175,7 +194,7 @@ func _executeTerraform(component string, action string) {
 	// refer:https://github.com/briandowns/spinner#available-character-sets
 	s := spinner.New(spinner.CharSets[26], 100*time.Millisecond)
 	s.Prefix = fmt.Sprintf("[%v] %v", action, component)
-	s.FinalMSG = "ok\n"
+	s.FinalMSG = "done\n"
 
 	s.Start()
 

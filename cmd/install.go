@@ -1,17 +1,6 @@
 /*
 Copyright © 2021 SpaceONE <spaceone-support@mz.co.kr>
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
 */
 package cmd
 
@@ -37,12 +26,9 @@ var installCmd = &cobra.Command{
 		_setAwsCredentais()
 		_setKubectlConfig()
 
-		isMinimal, err := cmd.Flags().GetBool("minimal")
-		if err != nil {
-			panic(errors.Wrap(err, "Failed to get command flag"))
-		}
+		isMinimal, _ := cmd.Flags().GetBool("minimal")
 
-		build(isMinimal)
+		Build(isMinimal)
 	},
 }
 
@@ -55,7 +41,7 @@ func init() {
 	installCmd.Flags().BoolP("minimal", "", false, "install minimal mode")
 }
 
-func build(isMinimal bool) {
+func Build(isMinimal bool) {
 	log.Println("Start building SpaceONE")
 
 	components := _getInstallComponents(isMinimal)
@@ -86,6 +72,16 @@ func build(isMinimal bool) {
 	log.Println("SpaceONE build complete")
 }
 
+func _getInstallComponents(isMinimal bool) []string {
+	if isMinimal {
+		os.Setenv("TF_VAR_minimal", "true")
+		return []string{"eks", "controllers", "deployment", "initialization"}
+	} else {
+		os.Setenv("TF_VAR_standard", "true")
+		return []string{"certificate", "eks", "controllers", "documentdb", "secret", "deployment", "initialization"}
+	}
+}
+
 // TODO: find a simple way
 func _setDomain() {
 	consoleDomainName := _getNlbDomainNameFromService("console")
@@ -109,32 +105,37 @@ func _setDomain() {
 	**/
 
 	// Update configmap
-	upgrade()
+	Upgrade()
 
 	// To mount the updated configmap to console pod
 	_restartConsolePod()
 
 	ip := _getIpFromDomain(consoleDomainName)
 	
-	hostSetMsg := "\n" +
-	"****************************************************************************************\n" +
-	"\n"+
-	fmt.Sprintf("To access SpaceONE console, Add \"%s spaceone.console-dev.com\" to /etc/hosts\n", ip) +
-	"\n"+
-	"****************************************************************************************"
+	hostSetMsg := fmt.Sprintf(`
+"****************************************************************************************" +
+
+SpaceONE minimal set does not have a public domain. 
+
+1. To access SpaceONE console, Add "%v spaceone.console-dev.com" to hosts file (etc. /etc/hosts)
+
+2. Open a browser(http://spaceone.console-dev.com) and log in 
+
+****************************************************************************************`,ip)
+
 	log.Println(hostSetMsg)
 }
 
 func _getNlbDomainNameFromService(serviceName string) string {
 	cmd := fmt.Sprintf("kubectl get svc %s -n spaceone --output=custom-columns=\"hostname:status.loadBalancer.ingress[*].hostname\" | tail -n1", serviceName)
-	DomainByte, err := exec.Command("bash", "-c", cmd).Output()
+	output, err := exec.Command("bash", "-c", cmd).Output()
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to get console domain name"))
 	}
 
-	DomainStr := strings.TrimSuffix(string(DomainByte), "\n")
+	domainName := strings.TrimSuffix(string(output), "\n")
 
-	return DomainStr
+	return domainName
 }
 
 func _restartConsolePod() {
@@ -154,19 +155,13 @@ func _restartConsolePod() {
 
 func _getIpFromDomain(domain string) string {
 	ips, _ := net.LookupHost(domain)
+	if len(ips) < 0 {
+		msg := fmt.Sprintf("There's nothing on the ips %v",ips)
+		panic(msg)
+	}
 	firstIp := ips[0]
 
 	return firstIp
-}
-
-func _getInstallComponents(isMinimal bool) []string {
-	if isMinimal {
-		os.Setenv("TF_VAR_minimal", "true")
-		return []string{"eks", "controllers", "deployment", "initialization"}
-	} else {
-		os.Setenv("TF_VAR_standard", "true")
-		return []string{"certificate", "eks", "controllers", "documentdb", "secret", "deployment", "initialization"}
-	}
 }
 
 //TODO: Using gpg client

@@ -26,13 +26,16 @@ resource "null_resource" "add_spaceone_repo" {
   }
 }
 
+##########################################################
+# cloud
+##########################################################
 resource "local_file" "generate_frontend_yaml" {
   depends_on = [
     kubernetes_namespace.spaceone,
     kubernetes_namespace.root_supervisor
   ]
   count = var.standard ? 1 : 0
-  content  =  templatefile("${path.module}/tmpl/frontend.tpl",
+  content  =  templatefile("${path.module}/tmpl/cloud/frontend.tpl",
     {
       console-api-domain                 = "console-api.${data.terraform_remote_state.certificate[0].outputs.domain_name}"
       console-domain                     = "*.console.${data.terraform_remote_state.certificate[0].outputs.domain_name}"
@@ -41,19 +44,17 @@ resource "local_file" "generate_frontend_yaml" {
   filename = "${path.module}/../../data/helm/values/spaceone/frontend.yaml"
 }
 
-data "aws_region" "current" {}
-
 resource "local_file" "generate_value_yaml" {
   depends_on = [
     kubernetes_namespace.spaceone,
     kubernetes_namespace.root_supervisor
   ]
   count = var.standard ? 1 : 0
-  content  =  templatefile("${path.module}/tmpl/values.tpl",
+  content  =  templatefile("${path.module}/tmpl/cloud/values.tpl",
     {
       aws_access_key_id          = "${data.terraform_remote_state.secret[0].outputs.access_key_id}"
       aws_secret_access_key      = "${module.get_aws_secret_key.stdout}"
-      region_name                = "${data.aws_region.current.name}"
+      region_name                = "${var.region}"
       monitoring_domain          = "monitoring.${data.terraform_remote_state.certificate[0].outputs.domain_name}"
       monitoring_webhook_domain  = "monitoring-webhook.${data.terraform_remote_state.certificate[0].outputs.domain_name}"
       certificate-arn            = "${data.terraform_remote_state.certificate[0].outputs.certificate_arn}"
@@ -71,11 +72,11 @@ resource "local_file" "generate_database_yaml" {
     kubernetes_namespace.root_supervisor
   ]
  count = var.standard ? 1 : 0
- content  =  templatefile("${path.module}/tmpl/database.tpl",
+ content  =  templatefile("${path.module}/tmpl/cloud/database.tpl",
    {
      database_user_name                  = "${data.terraform_remote_state.documentdb[0].outputs.database_user_name}"
      database_user_password              = "${data.terraform_remote_state.documentdb[0].outputs.database_user_password}"
-     endpoint                            = "${data.terraform_remote_state.documentdb[0].outputs.endpoint}"
+     database_endpoint                   = "${data.terraform_remote_state.documentdb[0].outputs.endpoint}"
    })
  filename = "${path.module}/../../data/helm/values/spaceone/database.yaml"
 }
@@ -86,7 +87,7 @@ resource "local_file" "generate_minimal_yaml" {
     kubernetes_namespace.root_supervisor
   ]
  count = var.minimal ? 1 : 0
- content  =  templatefile("${path.module}/tmpl/minimal.tpl",
+ content  =  templatefile("${path.module}/tmpl/cloud/minimal.tpl",
   {
       smpt_host                  = "${var.notification_smpt_host}" 
       smpt_port                  = "${var.notification_smpt_port}"
@@ -115,7 +116,7 @@ resource "helm_release" "install_spaceone" {
   ]
 }
 
-resource "helm_release" "install_spaceone_dev" {
+resource "helm_release" "install_spaceone_minimal" {
   count      = var.minimal ? 1 : 0
   depends_on = [local_file.generate_minimal_yaml[0]]
   name       = "spaceone"
@@ -126,3 +127,51 @@ resource "helm_release" "install_spaceone_dev" {
     local_file.generate_minimal_yaml[0].content
   ]
 }
+
+##########################################################
+# internal
+##########################################################
+
+resource "local_file" "generate_internal_frontend_yaml" {
+  depends_on = [
+    kubernetes_namespace.spaceone,
+    kubernetes_namespace.root_supervisor
+  ]
+  count    = var.internal ? 1 : 0
+  content  = file("${path.module}/tmpl/internal/frontend.tpl")
+  filename = "${path.module}/../../data/helm/values/spaceone/frontend.yaml"
+}
+
+resource "local_file" "generate_internal_value_yaml" {
+  depends_on = [
+    kubernetes_namespace.spaceone,
+    kubernetes_namespace.root_supervisor
+  ]
+  count = var.internal ? 1 : 0
+  content  =  templatefile("${path.module}/tmpl/internal/values.tpl",
+    {
+      smpt_host                  = "${var.notification_smpt_host}" 
+      smpt_port                  = "${var.notification_smpt_port}"
+      smpt_user                  = "${var.notification_smpt_user}"
+      smpt_password              = "${var.notification_smpt_password}"
+    })
+  filename = "${path.module}/../../data/helm/values/spaceone/values.yaml"
+}
+
+resource "helm_release" "install_spaceone_internal" {
+  count      = var.internal ? 1 : 0
+  depends_on = [
+    local_file.generate_internal_frontend_yaml[0],
+    local_file.generate_internal_value_yaml[0]
+  ]
+  name       = "spaceone"
+  chart      = "spaceone/spaceone"
+  namespace  = "spaceone"
+  wait       = false // need to modify monitoring scheduler
+  
+  values = [
+    local_file.generate_internal_frontend_yaml[0].content,
+    local_file.generate_internal_value_yaml[0].content
+  ]
+}
+

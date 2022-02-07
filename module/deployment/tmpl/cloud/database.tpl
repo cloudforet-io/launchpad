@@ -5,7 +5,7 @@ identity:
               username: ${database_user_name}
               password: ${database_user_password}
               db: identity
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -28,7 +28,7 @@ secret:
               username: ${database_user_name}
               password: ${database_user_password}
               db: secret
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -51,7 +51,7 @@ repository:
               username: ${database_user_name}
               password: ${database_user_password}
               db: repository
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -76,7 +76,7 @@ plugin:
               username: ${database_user_name}
               password: ${database_user_password}
               db: plugin
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -100,7 +100,7 @@ config:
               username: ${database_user_name}
               password: ${database_user_password}
               db: config
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -125,7 +125,7 @@ inventory:
               username: ${database_user_name}
               password: ${database_user_password}
               db: inventory
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -148,7 +148,7 @@ monitoring:
               username: ${database_user_name}
               password: ${database_user_password}
               db: monitoring
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -171,7 +171,7 @@ statistics:
               username: ${database_user_name}
               password: ${database_user_password}
               db: statistics
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -194,7 +194,7 @@ billing:
               username: ${database_user_name}
               password: ${database_user_password}
               db: billing
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -217,7 +217,7 @@ notification:
               username: ${database_user_name}
               password: ${database_user_password}
               db: notification
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -240,7 +240,7 @@ power-scheduler:
               username: ${database_user_name}
               password: ${database_user_password}
               db: power-scheduler
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -263,7 +263,7 @@ cost-saving:
               username: ${database_user_name}
               password: ${database_user_password}
               db: cost-saving
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -286,7 +286,7 @@ spot-automation:
               username: ${database_user_name}
               password: ${database_user_password}
               db: spot-automation
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
@@ -309,7 +309,7 @@ cost-analysis:
               username: ${database_user_name}
               password: ${database_user_password}
               db: cost-analysis
-              host: ${endpoint}
+              host: ${database_endpoint}
               port: 27017
               ssl: False
               read_preference: PRIMARY
