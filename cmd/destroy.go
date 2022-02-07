@@ -8,9 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -80,60 +78,44 @@ func _checkInstalledType() {
 
 func _removeHelmData() error {
 	initializerHelmValuePath := "./data/helm/values/spaceone-initializer/*"
-	if files, err := filepath.Glob(initializerHelmValuePath); err == nil {
-		for _, f := range files {
-			if err := os.Remove(f); err != nil {
-				return errors.Wrap(err, "Failed to delete spaceone-initailzer helm release values")
-			}
-		}
+	err := _deleteFiles(initializerHelmValuePath)
+	if err != nil {
+		return err
 	}
 
 	spaceoneHelmValuePath := "./data/helm/values/spaceone/*"
-	if files, err := filepath.Glob(spaceoneHelmValuePath); err == nil {
-		for _, f := range files {
-			if err := os.Remove(f); err != nil {
-				return errors.Wrap(err, "Failed to delete spaceone helm release values")
-			}
-		}
+	err = _deleteFiles(spaceoneHelmValuePath)
+	if err != nil {
+		return err
 	}
-
+	
 	helmRepositoryConfig := "./data/helm/config/*"
-	if files, err := filepath.Glob(helmRepositoryConfig); err == nil {
-		for _, f := range files {
-			if err := os.Remove(f); err != nil {
-				return errors.Wrap(err, "Failed to delete helm repository config")
-			}
-		}
+	err = _deleteFiles(helmRepositoryConfig)
+	if err != nil {
+		return err
 	}
-
+	
 	helmRepositoryCache := "./data/helm/cache/repository/*"
-	if files, err := filepath.Glob(helmRepositoryCache); err == nil {
-		for _, f := range files {
-			if err := os.Remove(f); err != nil {
-				return errors.Wrap(err, "Failed to delete helm repository cache")
-			}
-		}
+	err = _deleteFiles(helmRepositoryCache)
+	if err != nil {
+		return err
 	}
-
+	
 	return nil
 }
 
 func _removeTerraformData(components *[]string) error {
 	for _, component := range *components {
 		tfvar := fmt.Sprintf("./module/%s/%s.auto.tfvars", component, component)
-		if _, err := os.Stat(tfvar); err == nil {
-			if err = os.Remove(tfvar); err != nil {
-				return errors.Wrap(err, "Failed to delete terraform auto vars")
-			}
+		err := _deleteSinglefile(tfvar)
+		if err != nil {
+			return err
 		}
 
 		terraformState := fmt.Sprintf("./data/tfstates/%s.tfstate*", component)
-		if files, err := filepath.Glob(terraformState); err == nil {
-			for _, f := range files {
-				if err := os.Remove(f); err != nil {
-					return errors.Wrap(err, "Failed to delete terraform states")
-				}
-			}
+		err = _deleteFiles(terraformState)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -142,17 +124,15 @@ func _removeTerraformData(components *[]string) error {
 
 func _removeGpgKeyBinary() error {
 	publicKeyBinary := "./module/secret/gpg/public-key-binary.gpg"
-	if _, err := os.Stat(publicKeyBinary); err == nil {
-		if err = os.Remove(publicKeyBinary); err != nil {
-			return errors.Wrap(err, "Failed to delete gpg key binary")
-		}
+	err := _deleteSinglefile(publicKeyBinary)
+	if err != nil {
+		return err
 	}
 
 	secretKey := "./module/secret/gpg/secret-key"
-	if _, err := os.Stat(secretKey); err == nil {
-		if err = os.Remove(secretKey); err != nil {
-			return errors.Wrap(err, "Failed to delete gpg secret key")
-		}
+	err = _deleteSinglefile(secretKey)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -160,10 +140,9 @@ func _removeGpgKeyBinary() error {
 
 func _removeKubeConfig() error {
 	kubeConfig := "./data/kubeconfig/config"
-	if _, err := os.Stat(kubeConfig); err == nil {
-		if err = os.Remove(kubeConfig); err != nil {
-			return errors.Wrap(err, "Failed to delete kubeconfig")
-		}
+	err := _deleteSinglefile(kubeConfig)
+	if err != nil {
+		return err
 	}
 
 	return nil

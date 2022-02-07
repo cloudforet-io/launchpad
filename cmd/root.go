@@ -22,6 +22,7 @@ import (
 	"os"
 	"time"
 	"io/ioutil"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 	"github.com/briandowns/spinner"
@@ -132,6 +133,30 @@ func _fileCopy(src, dst string) error {
 
 	_, err = io.Copy(destination, source)
 	return err
+}
+
+func _deleteSinglefile(path string) error {
+	if _, err := os.Stat(path); err == nil {
+		if err = os.Remove(path); err != nil {
+			msg := fmt.Sprintf("Failt to delete file: %v",path)
+			return errors.Wrap(err, msg)
+		}
+	}
+
+	return nil
+}
+
+func _deleteFiles(path string) error {
+	if files, err := filepath.Glob(path); err == nil {
+		for _, f := range files {
+			if err := os.Remove(f); err != nil {
+				msg := fmt.Sprintf("Failed to delete file: %v", path)
+				return errors.Wrap(err, msg)
+			}
+		}
+	}
+
+	return nil
 }
 
 func _checkContainFile(s []string, str string) bool {

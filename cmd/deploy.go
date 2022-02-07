@@ -19,7 +19,7 @@ import (
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy SpaceONE",
-	Long: `Deploy SpaceONE micro-services excluding infrastructure resources`,
+	Long: `Deploy SpaceONE micro-services`,
 	Run: func(cmd *cobra.Command, args []string) {
 		_setKubectlConfig()
 
