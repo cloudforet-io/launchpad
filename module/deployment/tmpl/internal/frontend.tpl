@@ -19,8 +19,8 @@ console:
   production_json:
     CONSOLE_API:
         ENDPOINT: http://console-api.example.com
-      DOMAIN_NAME: spaceone
-      DOMAIN_NAME_REF: domain_reference
+    DOMAIN_NAME: spaceone
+    DOMAIN_NAME_REF: domain_reference
 #    GTAG_ID: UA-111111111-1
 #    AMCHARTS_LICENSE:
 #        ENABLED: true
