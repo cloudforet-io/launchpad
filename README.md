@@ -2,8 +2,9 @@
 The SpaceONE launchpad is a command line interface that allows you to easily install SpaceONE.
 
 ## Install standard configuration
-Basically, SpaceONE is a cloud native-based application.<br>
+SpaceONE is a cloud-native based application.<br>
 As a result, the following resources are created.
+
 - Certificate managed by ACM
 - VPC & EKS
 - DocumentDB
@@ -18,6 +19,7 @@ As a result, the following resources are created.
 ![spaceone](https://user-images.githubusercontent.com/19552819/133223528-43291a11-8f47-4a51-9527-38c9f4297fee.png)
 
 ### Prerequisite
+
 - Docker
 - Public domain managed by Route53 (standard only)
 
