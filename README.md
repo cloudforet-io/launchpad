@@ -8,7 +8,7 @@ As a result, the following resources are created.
 - Certificate managed by ACM
 - VPC & EKS
 - DocumentDB
-- IAM for Secret manager
+- Secret manager
 - Kubernetes controllers
     - [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller)
     - [External DNS](https://github.com/kubernetes-sigs/external-dns)
