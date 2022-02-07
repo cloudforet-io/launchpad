@@ -1,7 +1,7 @@
 # SpaceONE launchpad
 The SpaceONE launchpad is a command line interface that allows you to easily install SpaceONE.
 
-## Install in standard configuration
+## Install standard configuration
 Basically, SpaceONE is a cloud native-based application.<br>
 As a result, the following resources are created.
 - Certificate managed by ACM
@@ -49,7 +49,7 @@ Execute launchpad script.(It takes about 3~40 minutes to complete.)<br>
 ```
 ./launchpad.sh install
 ```
-## Install in minimal set
+## Install minimal set
 Also, SpaceONE can be installed as a minimum set.<br>
 It only provides SpaceONE applications and alb ingress, other components are deployed as pods.
 
@@ -90,7 +90,7 @@ Execute launchpad script.(It takes about 3~40 minutes to complete.)<br>
 ./launchpad.sh install --minimal
 ```
 
-## Install only SpaceONE application
+## Install SpaceONE application only (deploy)
 If the kubernetes cluster already exists, only SpaceONE applications can be deployed.
 
 ---
