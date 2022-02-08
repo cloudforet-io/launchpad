@@ -1,1 +1,1 @@
-![launchpad](https://user-images.githubusercontent.com/19552819/148907687-8f670f1e-4803-43ed-ba70-1d619cc3b14e.png)
+![launchpad](https://user-images.githubusercontent.com/19552819/152945489-bbb7a81d-83f3-45f4-9686-2524c5fe0a1e.png)
