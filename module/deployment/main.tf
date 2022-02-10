@@ -122,6 +122,7 @@ resource "helm_release" "install_spaceone_minimal" {
   name       = "spaceone"
   chart      = "spaceone/spaceone"
   namespace  = "spaceone"
+  wait       = false
   
   values = [
     local_file.generate_minimal_yaml[0].content
