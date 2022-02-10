@@ -52,7 +52,7 @@ Execute launchpad script.(It takes about 3~40 minutes to complete.)<br>
 ./launchpad.sh install
 ```
 ## Install minimal set
-Also, SpaceONE can be installed as a minimum set.<br>
+Also, SpaceONE can be installed as a minimal set.<br>
 It only provides SpaceONE applications and alb ingress, other components are deployed as pods.
 
 minimal set creates the following resources.
@@ -151,7 +151,7 @@ Open a browser(http://Node_IP:Port)log in to the root account with the informati
 ## SpaceONE Basic Setup
 For basic setup, please refer to the user guide or watch the YouTube video.
 
-- [SpaceONE User Guide](https://www.spaceone.org/docs/guides/user_guide/gettingstart/basic_setup/)
+- [SpaceONE User Guide](https://www.spaceone.org/docs/guides/getting_started/basic_setup/)
 
 - [Youtube video](https://youtu.be/zSoEg2v_JrE)
 
