@@ -10,7 +10,7 @@ main:
     - /root/spacectl/apply/statistics.yaml
 
   var:
-    domain_name: ${domain_name}
+    domain_name: spaceone
     domain_owner: ${domain_owner}
     domain_owner_password: ${domain_owner_password}
     project_admin_policy_type: MANAGED

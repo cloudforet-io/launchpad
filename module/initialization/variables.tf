@@ -10,10 +10,6 @@ variable "root_domain_owner_password" {
   default = ""
 }
 
-variable "domain_name" {
-  default = ""
-}
-
 variable "domain_owner" {
   default = ""
 }
