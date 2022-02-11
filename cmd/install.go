@@ -113,7 +113,7 @@ func _setDomain() {
 	ip := _getIpFromDomain(consoleDomainName)
 	
 	hostSetMsg := fmt.Sprintf(`
-"****************************************************************************************" +
+****************************************************************************************
 
 SpaceONE minimal set does not have a public domain. 
 
