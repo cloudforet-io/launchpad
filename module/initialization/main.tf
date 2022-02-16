@@ -10,7 +10,6 @@ resource "local_file" "generate_root_domain_yaml" {
 resource "local_file" "generate_user_main_yaml" {
   content  =  templatefile("${path.module}/tmpl/user.tpl",
     {
-     domain_name                              = "${var.domain_name}"
      domain_owner                             = "${var.domain_owner}"
      domain_owner_password                    = "${var.domain_owner_password}"
      project_admin_policy_id                  = "${var.project_admin_policy_id}"
