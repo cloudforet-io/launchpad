@@ -30,7 +30,7 @@ git clone https://github.com/spaceone-dev/launchpad.git
 
 ### 2. set aws credential file
 ```
-vim /vars/aws_credential.yaml
+vim {repo}/vars/aws_credential.yaml
 ```
 ```
 aws:
@@ -40,11 +40,11 @@ aws:
 ```
 
 ### 3. Setting up the configuration file
-- `/vars/certificate.conf`    # for certificate
-- `/vars/eks.conf`            # for eks
-- `/vars/documentdb.conf`     # for document db
-- `/vars/deployment.conf`     # for SpaceONE helm chart
-- `/vars/initialization.conf` # for initialize SpaceONE domain
+- `{repo}/vars/certificate.conf`    # for certificate
+- `{repo}/vars/eks.conf`            # for eks
+- `{repo}/vars/documentdb.conf`     # for document db
+- `{repo}/vars/deployment.conf`     # for SpaceONE helm chart
+- `{repo}/vars/initialization.conf` # for initialize SpaceONE domain
 
 ### 4. Execute script
 Execute launchpad script.(It takes about 3~40 minutes to complete.)<br>
@@ -73,7 +73,7 @@ git clone https://github.com/spaceone-dev/launchpad.git
 
 ### 2. set aws credential file
 ```
-vim /vars/aws_credential.yaml
+vim {repo}/vars/aws_credential.yaml
 ```
 ```
 aws:
@@ -83,9 +83,9 @@ aws:
 ```
 
 ### 3. Setting up the configuration file
-- `/vars/eks.conf`            # for eks
-- `/vars/deployment.conf`     # for SpaceONE helm chart
-- `/vars/initialization.conf` # for initialize SpaceONE domain
+- `{repo}/vars/eks.conf`            # for eks
+- `{repo}/vars/deployment.conf`     # for SpaceONE helm chart
+- `{repo}/vars/initialization.conf` # for initialize SpaceONE domain
 ### 4. Execute script
 Execute launchpad script.(It takes about 3~40 minutes to complete.)<br>
 ```
@@ -106,11 +106,11 @@ To expose SpaceONE, you should the ingress resource.
 ---
 ### 1. set kubectl config 
 ```
-cp /your/kubectl/config /data/kubeconfig/config
+cp /your/kubectl/config {repo}/data/kubeconfig/config
 ```
 ### 2. Setting up the configuration file
-- `/vars/deployment.conf`     # for SpaceONE helm chart
-- `/vars/initialization.conf` # for initialize SpaceONE domain
+- `{repo}/vars/deployment.conf`     # for SpaceONE helm chart
+- `{repo}/vars/initialization.conf` # for initialize SpaceONE domain
 
 ### 3. Execute script
 ```
@@ -162,11 +162,11 @@ To change SpaceONE configuration, Update helm value files and run upgrade comman
 - Update value files
 ```
 ## standard version
-vim data/helm/values/spaceone/{value|frontend|database}.yaml
+vim {repo}/data/helm/values/spaceone/{value|frontend|database}.yaml
 ```
 ```
 ## minimal version
-vim data/helm/values/spaceone/minimal.yaml
+vim {repo}/data/helm/values/spaceone/minimal.yaml
 ```
 - Upgrade helm chart
     - If there is a [new helm chart](https://github.com/spaceone-dev/charts), use the --update-repo option.
