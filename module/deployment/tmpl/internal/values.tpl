@@ -17,7 +17,7 @@ identity:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/identity
-      version: 1.9.0
+      version: 1.9.1.1
 
     pod:
         spec: {}
@@ -27,7 +27,7 @@ secret:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/secret
-      version: 1.9.0
+      version: 1.9.1
     application_grpc:
         BACKEND: ConsulConnector
         CONNECTORS:
@@ -47,14 +47,14 @@ repository:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/repository
-      version: 1.9.0
+      version: 1.9.1
 
 plugin:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/plugin
-      version: 1.9.0
+      version: 1.9.1
  
     scheduler: true
     worker: true
@@ -74,7 +74,7 @@ config:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/config
-      version: 1.9.0
+      version: 1.9.1
 
     pod:
         spec: {}
@@ -85,7 +85,7 @@ inventory:
     replicas_worker: 2
     image:
       name: public.ecr.aws/megazone/spaceone/inventory
-      version: 1.9.0
+      version: 1.9.1
     scheduler: true
     worker: true
     application_grpc:
@@ -163,7 +163,7 @@ monitoring:
     replicas_worker: 1
     image:
       name: public.ecr.aws/megazone/spaceone/monitoring
-      version: 1.9.0
+      version: 1.9.1
     application_grpc:
       WEBHOOK_DOMAIN: https://monitoring_webhook_domain
 #      TOKEN: __CHANGE_YOUR_ROOT_TOKEN___
@@ -232,7 +232,7 @@ statistics:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/statistics
-      version: 1.9.0
+      version: 1.9.1
  
     scheduler: true
     worker: true
@@ -252,7 +252,7 @@ billing:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/billing
-      version: 1.9.0
+      version: 1.9.1
 
     pod:
         spec: {}
@@ -262,7 +262,7 @@ notification:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/notification
-      version: 1.9.0
+      version: 1.9.1
     application_grpc:
         INSTALLED_PROTOCOL_PLUGINS:
           - name: Slack
@@ -299,7 +299,7 @@ supervisor:
     enabled: true
     image:
       name: public.ecr.aws/megazone/spaceone/supervisor
-      version: 1.9.0
+      version: 1.9.1
     application: {}
     application_scheduler:
         NAME: root
@@ -340,7 +340,7 @@ ingress:
 spaceone-initializer:
     enabled: false
     image:
-        version: 1.9.0
+        version: 1.9.1
 
 domain-initialzer:
     enabled: false
