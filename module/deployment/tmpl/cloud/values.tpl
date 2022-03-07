@@ -6,7 +6,7 @@ mongodb:
 redis:
     enabled: true
 consul:
-    enabled: false
+    enabled: true
 
 identity:
     enabled: true
@@ -291,6 +291,41 @@ notification:
                 user: ${smpt_user}
                 password: ${smpt_password}
               schema: email_smtp
+
+    pod:
+        spec: {}
+
+cost-analysis:
+    enabled: true
+    scheduler: false
+    worker: true
+    replicas: 1
+    replicas_worker: 2
+    image:
+      name: public.ecr.aws/megazone/spaceone/cost-analysis
+      version: 1.9.1
+
+    # Overwrite scheduler config
+    application_scheduler:
+        TOKEN: <root_token>
+
+    application_grpc:
+        DEFAULT_EXCHANGE_RATE:
+            KRW: 1178.7
+            JPY: 114.2
+            CNY: 6.3
+
+    application_worker:
+        DEFAULT_EXCHANGE_RATE:
+            KRW: 1178.7
+            JPY: 114.2
+            CNY: 6.3
+
+    volumeMounts:
+        application: []
+        application_worker: []
+        application_scheduler: []
+        application_rest: []
 
     pod:
         spec: {}

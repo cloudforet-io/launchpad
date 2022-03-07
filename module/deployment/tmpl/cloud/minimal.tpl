@@ -325,22 +325,6 @@ notification:
                 password: ${smpt_password}
               schema: email_smtp
 
-power-scheduler:
-    enabled: false
-    replicas: 1
-    image:
-      name: spaceone/power-scheduler
-      version: 1.9.1
- 
-    scheduler: true
-    worker: true
-    application_scheduler:
-        TOKEN_INFO:
-            protocol: consul
-            config:
-                host: spaceone-consul-server
-            uri: root/api_key/TOKEN
-
 cost-analysis:
     enabled: true
     scheduler: false
@@ -375,61 +359,6 @@ cost-analysis:
 
     pod:
         spec: {}
-
-spot-automation:
-    enabled: false
-    scheduler: true
-    worker: true
-    rest: true
-    replicas: 1
-    image:
-      name: spaceone/spot-automation
-      version: 1.9.1
-
-# Overwrite application config
-    application_grpc:
-        CONNECTORS:
-            ProductConnector:
-                endpoint:
-                    v1: grpc://inventory.portal.dev.spaceone.dev:50051 
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-        INTERRUPT:
-            salt: ___CHANGE_SALT___
-            endpoint: http://spot-automation-proxy.dev.spaceone.dev
-        TOKEN_INFO:
-            protocol: consul
-            config:
-                host: spaceone-consul-server
-            uri: root/api_key/TOKEN
-
-
-    # Overwrite scheduler config
-    #application_scheduler: {}
-    application_scheduler:
-        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___
-
-    # Overwrite worker config
-    #application_worker: {}
-    application_worker:
-        QUEUES:
-            spot_controller_q:
-                backend: spaceone.core.queue.redis_queue.RedisQueue
-                host: redis
-                port: 6379
-                channel: spot_controller
-        CONNECTORS:
-            ProductConnector:
-                endpoint:
-                    v1: grpc://inventory.portal.dev.spaceone.dev:50051 
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-        INTERRUPT:
-            salt: ___CHANGE_SALT___
-            endpoint: http://spot-automation-proxy.dev.spaceone.dev
-        TOKEN_INFO:
-            protocol: consul
-            config:
-                host: spaceone-consul-server
-            uri: root/api_key/TOKEN
 
 marketplace-assets:
     enabled: false
