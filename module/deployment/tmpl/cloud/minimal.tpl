@@ -17,7 +17,7 @@ console:
   replicas: 1
   image:
       name: spaceone/console
-      version: 1.9.0
+      version: 1.9.1
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -38,7 +38,7 @@ console-api:
   replicas: 1
   image:
       name: spaceone/console-api
-      version: 1.9.0
+      version: 1.9.1
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -73,7 +73,7 @@ identity:
     replicas: 1
     image:
       name: spaceone/identity
-      version: 1.9.0
+      version: 1.9.1
     imagePullPolicy: Always
 
     application_grpc:
@@ -124,7 +124,7 @@ secret:
     replicas: 1
     image:
       name: spaceone/secret
-      version: 1.9.0
+      version: 1.9.1
     application_grpc:
         BACKEND: ConsulConnector
         CONNECTORS:
@@ -141,7 +141,7 @@ repository:
     replicas: 1
     image:
       name: spaceone/repository
-      version: 1.9.0
+      version: 1.9.1
     application_grpc:
         ROOT_TOKEN_INFO:
             protocol: consul
@@ -154,7 +154,7 @@ plugin:
     replicas: 1
     image:
       name: spaceone/plugin
-      version: 1.9.0
+      version: 1.9.1
  
     scheduler: false
     worker: false
@@ -170,7 +170,7 @@ config:
     replicas: 1
     image:
       name: spaceone/config
-      version: 1.9.0
+      version: 1.9.1
 
 inventory:
     enabled: true
@@ -178,7 +178,7 @@ inventory:
     replicas_worker: 1
     image:
       name: spaceone/inventory
-      version: 1.9.0
+      version: 1.9.1
     scheduler: true
     worker: true
     application_grpc:
@@ -222,7 +222,7 @@ monitoring:
     replicas_worker: 1
     image:
       name: spaceone/monitoring
-      version: 1.9.0
+      version: 1.9.1
     application_grpc:
       WEBHOOK_DOMAIN: https://monitoring-webhook.example.com
       TOKEN_INFO:
@@ -278,7 +278,7 @@ statistics:
     replicas: 1
     image:
       name: spaceone/statistics
-      version: 1.9.0
+      version: 1.9.1
  
     scheduler: false
     worker: false
@@ -294,14 +294,14 @@ billing:
     replicas: 1
     image:
       name: spaceone/billing
-      version: 1.9.0
+      version: 1.9.1
 
 notification:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/notification
-      version: 1.9.0 
+      version: 1.9.1 
     application_grpc:
         INSTALLED_PROTOCOL_PLUGINS:
           - name: Slack
@@ -325,22 +325,6 @@ notification:
                 password: ${smpt_password}
               schema: email_smtp
 
-power-scheduler:
-    enabled: false
-    replicas: 1
-    image:
-      name: spaceone/power-scheduler
-      version: 1.9.0
- 
-    scheduler: true
-    worker: true
-    application_scheduler:
-        TOKEN_INFO:
-            protocol: consul
-            config:
-                host: spaceone-consul-server
-            uri: root/api_key/TOKEN
-
 cost-analysis:
     enabled: true
     scheduler: false
@@ -349,7 +333,7 @@ cost-analysis:
     replicas_worker: 2
     image:
       name: public.ecr.aws/megazone/spaceone/cost-analysis
-      version: 1.9.0.1
+      version: 1.9.1
 
     # Overwrite scheduler config
     application_scheduler:
@@ -376,61 +360,6 @@ cost-analysis:
     pod:
         spec: {}
 
-spot-automation:
-    enabled: false
-    scheduler: true
-    worker: true
-    rest: true
-    replicas: 1
-    image:
-      name: spaceone/spot-automation
-      version: 1.9.0
-
-# Overwrite application config
-    application_grpc:
-        CONNECTORS:
-            ProductConnector:
-                endpoint:
-                    v1: grpc://inventory.portal.dev.spaceone.dev:50051 
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-        INTERRUPT:
-            salt: ___CHANGE_SALT___
-            endpoint: http://spot-automation-proxy.dev.spaceone.dev
-        TOKEN_INFO:
-            protocol: consul
-            config:
-                host: spaceone-consul-server
-            uri: root/api_key/TOKEN
-
-
-    # Overwrite scheduler config
-    #application_scheduler: {}
-    application_scheduler:
-        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___
-
-    # Overwrite worker config
-    #application_worker: {}
-    application_worker:
-        QUEUES:
-            spot_controller_q:
-                backend: spaceone.core.queue.redis_queue.RedisQueue
-                host: redis
-                port: 6379
-                channel: spot_controller
-        CONNECTORS:
-            ProductConnector:
-                endpoint:
-                    v1: grpc://inventory.portal.dev.spaceone.dev:50051 
-                token: ___CHANGE_INVENTORY_MARKETPLACE_TOKEN___
-        INTERRUPT:
-            salt: ___CHANGE_SALT___
-            endpoint: http://spot-automation-proxy.dev.spaceone.dev
-        TOKEN_INFO:
-            protocol: consul
-            config:
-                host: spaceone-consul-server
-            uri: root/api_key/TOKEN
-
 marketplace-assets:
     enabled: false
 
@@ -438,7 +367,7 @@ supervisor:
     enabled: true
     image:
       name: spaceone/supervisor
-      version: 1.9.0
+      version: 1.9.1
     application: {}
     application_scheduler:
         NAME: root
