@@ -93,7 +93,7 @@ Execute launchpad script.(It takes about 3~40 minutes to complete.)<br>
 ```
 
 ## Install SpaceONE application only (deploy)
-If the kubernetes cluster already exists, only SpaceONE applications can be deployed.
+If you already have a kubernetes cluster, only SpaceONE applications can be deployed.
 
 ---
 **NOTE**
