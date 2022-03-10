@@ -104,6 +104,10 @@ To expose SpaceONE, you should the ingress resource.
 - Update SpaceONE values(refer to Management section of this document)<br>
 
 ---
+
+### Prerequisite
+- Docker
+
 ### 1. set kubectl config 
 ```
 cp /your/kubectl/config {repo}/data/kubeconfig/config
