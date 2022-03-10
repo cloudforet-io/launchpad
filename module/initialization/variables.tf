@@ -17,11 +17,3 @@ variable "domain_owner" {
 variable "domain_owner_password" {
   default = ""
 }
-
-variable "project_admin_policy_id" {
-  default = ""
-}
-
-variable "domain_admin_policy_id" {
-  default = ""
-}
