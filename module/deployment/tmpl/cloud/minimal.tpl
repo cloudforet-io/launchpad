@@ -17,7 +17,7 @@ console:
   replicas: 1
   image:
       name: spaceone/console
-      version: 1.9.1
+      version: 1.9.4
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -38,7 +38,7 @@ console-api:
   replicas: 1
   image:
       name: spaceone/console-api
-      version: 1.9.1
+      version: 1.9.4
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -73,7 +73,7 @@ identity:
     replicas: 1
     image:
       name: spaceone/identity
-      version: 1.9.1
+      version: 1.9.4
     imagePullPolicy: Always
 
     application_grpc:
@@ -124,7 +124,7 @@ secret:
     replicas: 1
     image:
       name: spaceone/secret
-      version: 1.9.1
+      version: 1.9.4
     application_grpc:
         BACKEND: ConsulConnector
         CONNECTORS:
@@ -141,7 +141,7 @@ repository:
     replicas: 1
     image:
       name: spaceone/repository
-      version: 1.9.1
+      version: 1.9.4
     application_grpc:
         ROOT_TOKEN_INFO:
             protocol: consul
@@ -154,7 +154,7 @@ plugin:
     replicas: 1
     image:
       name: spaceone/plugin
-      version: 1.9.1
+      version: 1.9.4
  
     scheduler: false
     worker: false
@@ -170,7 +170,7 @@ config:
     replicas: 1
     image:
       name: spaceone/config
-      version: 1.9.1
+      version: 1.9.4
 
 inventory:
     enabled: true
@@ -178,7 +178,7 @@ inventory:
     replicas_worker: 1
     image:
       name: spaceone/inventory
-      version: 1.9.1
+      version: 1.9.4
     scheduler: true
     worker: true
     application_grpc:
@@ -222,7 +222,7 @@ monitoring:
     replicas_worker: 1
     image:
       name: spaceone/monitoring
-      version: 1.9.1
+      version: 1.9.4
     application_grpc:
       WEBHOOK_DOMAIN: https://monitoring-webhook.example.com
       TOKEN_INFO:
@@ -278,7 +278,7 @@ statistics:
     replicas: 1
     image:
       name: spaceone/statistics
-      version: 1.9.1
+      version: 1.9.4
  
     scheduler: false
     worker: false
@@ -294,14 +294,14 @@ billing:
     replicas: 1
     image:
       name: spaceone/billing
-      version: 1.9.1
+      version: 1.9.4
 
 notification:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/notification
-      version: 1.9.1 
+      version: 1.9.4 
     application_grpc:
         INSTALLED_PROTOCOL_PLUGINS:
           - name: Slack
@@ -333,7 +333,7 @@ cost-analysis:
     replicas_worker: 2
     image:
       name: public.ecr.aws/megazone/spaceone/cost-analysis
-      version: 1.9.1
+      version: 1.9.4.2
 
     # Overwrite scheduler config
     application_scheduler:
@@ -367,7 +367,7 @@ supervisor:
     enabled: true
     image:
       name: spaceone/supervisor
-      version: 1.9.1
+      version: 1.9.4
     application: {}
     application_scheduler:
         NAME: root
