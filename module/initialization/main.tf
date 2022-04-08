@@ -28,6 +28,7 @@ resource "null_resource" "delete_domain_initializer" {
           status=$(kubectl get pod -n spaceone | grep "initialize-spaceone" | awk '{print $3}')
           if [[ $status =~ Completed ]]; then
               helm uninstall -n spaceone domain
+              break
           else
               echo "Waiting...."
           fi
