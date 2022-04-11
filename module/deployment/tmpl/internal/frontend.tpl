@@ -5,7 +5,7 @@ console:
   replicas: 2
   image:
       name: public.ecr.aws/megazone/spaceone/console
-      version: 1.9.1.1
+      version: 1.9.4.4
   imagePullPolicy: IfNotPresent
 
   # For production.json (nodejs)
@@ -39,7 +39,6 @@ console:
 #    enabled: true
 #    host: '${console-domain}'   # host for ingress (ex. *.console.spaceone.dev)
 #    annotations:
-#      kubernetes.io/ingress.class: alb
 #      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
 #      alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
 #      alb.ingress.kubernetes.io/inbound-cidrs: 0.0.0.0/0 # replace or leave out
@@ -60,7 +59,7 @@ console-api:
   replicas: 2
   image:
       name: public.ecr.aws/megazone/spaceone/console-api
-      version: 1.9.1
+      version: 1.9.4.2
   imagePullPolicy: IfNotPresent
 
 ###############################################
@@ -100,7 +99,6 @@ console-api:
 #    enabled: true
 #    host: '${console-api-domain}'   # host for ingress (ex. console-api.spaceone.dev)
 #    annotations:
-#        kubernetes.io/ingress.class: alb
 #        alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
 #        alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
 #        alb.ingress.kubernetes.io/inbound-cidrs: 0.0.0.0/0 # replace or leave out
