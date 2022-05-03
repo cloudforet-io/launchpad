@@ -5,7 +5,7 @@ console:
   replicas: 2
   image:
       name: public.ecr.aws/megazone/spaceone/console
-      version: 1.9.4.4
+      version: 1.9.6
   imagePullPolicy: IfNotPresent
 
   # For production.json (nodejs)
@@ -59,7 +59,7 @@ console-api:
   replicas: 2
   image:
       name: public.ecr.aws/megazone/spaceone/console-api
-      version: 1.9.4.2
+      version: 1.9.6
   imagePullPolicy: IfNotPresent
 
 ###############################################
