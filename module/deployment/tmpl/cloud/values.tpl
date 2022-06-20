@@ -13,7 +13,7 @@ identity:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/identity
-      version: 1.9.6
+      version: 1.9.7
 
     pod:
         spec: {}
@@ -23,7 +23,7 @@ secret:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/secret
-      version: 1.9.6
+      version: 1.9.7
     application_grpc:
 #        BACKEND: ConsulConnector
 #        CONNECTORS:
@@ -49,14 +49,14 @@ repository:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/repository
-      version: 1.9.6
+      version: 1.9.7
 
 plugin:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/plugin
-      version: 1.9.6
+      version: 1.9.7
  
     scheduler: true
     worker: true
@@ -76,7 +76,7 @@ config:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/config
-      version: 1.9.6
+      version: 1.9.7
 
     pod:
         spec: {}
@@ -87,7 +87,7 @@ inventory:
     replicas_worker: 2
     image:
       name: public.ecr.aws/megazone/spaceone/inventory
-      version: 1.9.6
+      version: 1.9.7
     scheduler: true
     worker: true
     application_grpc:
@@ -165,7 +165,7 @@ monitoring:
     replicas_worker: 1
     image:
       name: public.ecr.aws/megazone/spaceone/monitoring
-      version: 1.9.6
+      version: 1.9.7
     application_grpc:
       WEBHOOK_DOMAIN: https://${monitoring_webhook_domain}
 #      TOKEN: __CHANGE_YOUR_ROOT_TOKEN___
@@ -237,7 +237,7 @@ statistics:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/statistics
-      version: 1.9.6
+      version: 1.9.7
  
     scheduler: true
     worker: true
@@ -252,22 +252,12 @@ statistics:
     pod:
         spec: {}
 
-billing:
-    enabled: true
-    replicas: 1
-    image:
-      name: public.ecr.aws/megazone/spaceone/billing
-      version: 1.9.6
-
-    pod:
-        spec: {}
-
 notification:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/notification
-      version: 1.9.6
+      version: 1.9.7
     application_grpc:
         INSTALLED_PROTOCOL_PLUGINS:
           - name: Slack
@@ -302,7 +292,7 @@ cost-analysis:
     replicas_worker: 2
     image:
       name: public.ecr.aws/megazone/spaceone/cost-analysis
-      version: 1.9.6
+      version: 1.9.7
 
     # Overwrite scheduler config
     application_scheduler:
@@ -339,7 +329,7 @@ supervisor:
     enabled: true
     image:
       name: public.ecr.aws/megazone/spaceone/supervisor
-      version: 1.9.6
+      version: 1.9.7
     application: {}
     application_scheduler:
         NAME: root
@@ -380,7 +370,7 @@ ingress:
 spaceone-initializer:
     enabled: false
     image:
-        version: 1.9.6
+        version: 1.9.7
 
 domain-initialzer:
     enabled: false
@@ -432,18 +422,12 @@ global:
             StatisticsConnector:
                 endpoint:
                     v1: grpc://statistics:50051
-            BillingConnector:
-                endpoint:
-                    v1: grpc://billing:50051
             NotificationConnector:
                 endpoint:
                     v1: grpc://notification:50051
-            PowerSchedulerConnector:
+            CostAnalysisConnector:
                 endpoint:
-                    v1: grpc://power-scheduler:50051
-            SpotAutomationConnector:
-                endpoint:
-                    v1: grpc://spot-automation:50051
+                    v1: grpc://cost-analysis:50051/v1
         CACHES:
             default:
                 backend: spaceone.core.cache.redis_cache.RedisCache

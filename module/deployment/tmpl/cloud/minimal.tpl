@@ -17,7 +17,7 @@ console:
   replicas: 1
   image:
       name: spaceone/console
-      version: 1.9.6
+      version: 1.9.7
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -38,7 +38,7 @@ console-api:
   replicas: 1
   image:
       name: spaceone/console-api
-      version: 1.9.6
+      version: 1.9.7
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -73,7 +73,7 @@ identity:
     replicas: 1
     image:
       name: spaceone/identity
-      version: 1.9.6
+      version: 1.9.7
     imagePullPolicy: Always
 
     application_grpc:
@@ -109,22 +109,20 @@ identity:
       - service: config
         name: Config Service
         endpoint: grpc://config:50051/v1
-      - service: power_scheduler
-        name: Power Scheduler Service
-        endpoint: grpc://power-scheduler:50051/v1
       - service: statistics
         name: Statistics Service
         endpoint: grpc://statistics:50051/v1
-      - service: billing
-        name: Billing Service
-        endpoint: grpc://billing:50051/v1
+      - service: cost-analysis
+        name: Cost Analysis Service
+        endpoint: grpc://cost-analysis:50051/v1
+
 
 secret:
     enabled: true
     replicas: 1
     image:
       name: spaceone/secret
-      version: 1.9.6
+      version: 1.9.7
     application_grpc:
         BACKEND: ConsulConnector
         CONNECTORS:
@@ -141,7 +139,7 @@ repository:
     replicas: 1
     image:
       name: spaceone/repository
-      version: 1.9.6
+      version: 1.9.7
     application_grpc:
         ROOT_TOKEN_INFO:
             protocol: consul
@@ -154,7 +152,7 @@ plugin:
     replicas: 1
     image:
       name: spaceone/plugin
-      version: 1.9.6
+      version: 1.9.7
  
     scheduler: false
     worker: false
@@ -170,7 +168,7 @@ config:
     replicas: 1
     image:
       name: spaceone/config
-      version: 1.9.6
+      version: 1.9.7
 
 inventory:
     enabled: true
@@ -178,7 +176,7 @@ inventory:
     replicas_worker: 1
     image:
       name: spaceone/inventory
-      version: 1.9.6
+      version: 1.9.7
     scheduler: true
     worker: true
     application_grpc:
@@ -222,7 +220,7 @@ monitoring:
     replicas_worker: 1
     image:
       name: spaceone/monitoring
-      version: 1.9.6
+      version: 1.9.7
     application_grpc:
       WEBHOOK_DOMAIN: https://monitoring-webhook.example.com
       TOKEN_INFO:
@@ -278,7 +276,7 @@ statistics:
     replicas: 1
     image:
       name: spaceone/statistics
-      version: 1.9.6
+      version: 1.9.7
  
     scheduler: false
     worker: false
@@ -289,19 +287,12 @@ statistics:
                 host: spaceone-consul-server
             uri: root/api_key/TOKEN
 
-billing:
-    enabled: true
-    replicas: 1
-    image:
-      name: spaceone/billing
-      version: 1.9.6
-
 notification:
     enabled: true
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/notification
-      version: 1.9.6 
+      version: 1.9.7 
     application_grpc:
         INSTALLED_PROTOCOL_PLUGINS:
           - name: Slack
@@ -333,7 +324,7 @@ cost-analysis:
     replicas_worker: 2
     image:
       name: public.ecr.aws/megazone/spaceone/cost-analysis
-      version: 1.9.6
+      version: 1.9.7
 
     # Overwrite scheduler config
     application_scheduler:
@@ -367,7 +358,7 @@ supervisor:
     enabled: true
     image:
       name: spaceone/supervisor
-      version: 1.9.6
+      version: 1.9.7
     application: {}
     application_scheduler:
         NAME: root
@@ -449,15 +440,12 @@ global:
             StatisticsConnector:
                 endpoint:
                     v1: grpc://statistics:50051
-            BillingConnector:
-                endpoint:
-                    v1: grpc://billing:50051
             NotificationConnector:
                 endpoint:
                     v1: grpc://notification:50051
-            PowerSchedulerConnector:
+            CostAnalysisConnector:
                 endpoint:
-                    v1: grpc://power-scheduler:50051
+                    v1: grpc://cost-analysis:50051/v1
         CACHES:
             default:
                 backend: spaceone.core.cache.redis_cache.RedisCache
