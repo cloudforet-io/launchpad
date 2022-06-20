@@ -17,7 +17,7 @@ console:
   replicas: 1
   image:
       name: spaceone/console
-      version: 1.9.7
+      version: 1.9.7.10
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -38,7 +38,7 @@ console-api:
   replicas: 1
   image:
       name: spaceone/console-api
-      version: 1.9.7
+      version: 1.9.7.1
   imagePullPolicy: IfNotPresent
 
   production_json:
@@ -73,7 +73,7 @@ identity:
     replicas: 1
     image:
       name: spaceone/identity
-      version: 1.9.7
+      version: 1.9.7.3
     imagePullPolicy: Always
 
     application_grpc:
@@ -122,7 +122,7 @@ secret:
     replicas: 1
     image:
       name: spaceone/secret
-      version: 1.9.7
+      version: 1.9.7.1
     application_grpc:
         BACKEND: ConsulConnector
         CONNECTORS:
@@ -139,7 +139,7 @@ repository:
     replicas: 1
     image:
       name: spaceone/repository
-      version: 1.9.7
+      version: 1.9.7.1
     application_grpc:
         ROOT_TOKEN_INFO:
             protocol: consul
@@ -152,7 +152,7 @@ plugin:
     replicas: 1
     image:
       name: spaceone/plugin
-      version: 1.9.7
+      version: 1.9.7.2
  
     scheduler: false
     worker: false
@@ -168,7 +168,7 @@ config:
     replicas: 1
     image:
       name: spaceone/config
-      version: 1.9.7
+      version: 1.9.7.1
 
 inventory:
     enabled: true
@@ -176,7 +176,7 @@ inventory:
     replicas_worker: 1
     image:
       name: spaceone/inventory
-      version: 1.9.7
+      version: 1.9.7.2
     scheduler: true
     worker: true
     application_grpc:
@@ -220,7 +220,7 @@ monitoring:
     replicas_worker: 1
     image:
       name: spaceone/monitoring
-      version: 1.9.7
+      version: 1.9.7.1
     application_grpc:
       WEBHOOK_DOMAIN: https://monitoring-webhook.example.com
       TOKEN_INFO:
@@ -276,7 +276,7 @@ statistics:
     replicas: 1
     image:
       name: spaceone/statistics
-      version: 1.9.7
+      version: 1.9.7.1
  
     scheduler: false
     worker: false
@@ -292,7 +292,7 @@ notification:
     replicas: 1
     image:
       name: public.ecr.aws/megazone/spaceone/notification
-      version: 1.9.7 
+      version: 1.9.7.1
     application_grpc:
         INSTALLED_PROTOCOL_PLUGINS:
           - name: Slack
@@ -324,7 +324,7 @@ cost-analysis:
     replicas_worker: 2
     image:
       name: public.ecr.aws/megazone/spaceone/cost-analysis
-      version: 1.9.7
+      version: 1.9.7.1
 
     # Overwrite scheduler config
     application_scheduler:
@@ -332,15 +332,13 @@ cost-analysis:
 
     application_grpc:
         DEFAULT_EXCHANGE_RATE:
-            KRW: 1178.7
-            JPY: 114.2
-            CNY: 6.3
+            KRW: 1242.7
+            JPY: 129.8
 
     application_worker:
         DEFAULT_EXCHANGE_RATE:
-            KRW: 1178.7
-            JPY: 114.2
-            CNY: 6.3
+            KRW: 1242.7
+            JPY: 129.8
 
     volumeMounts:
         application: []
