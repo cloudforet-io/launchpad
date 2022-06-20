@@ -2,14 +2,22 @@ enabled: true
 
 mongodb:
     enabled: true
+    pvc:
+        storageClassName: null # You must specify a storage class name. Otherwise, the mongodb pod will not use pvc.
+        accessModes: 
+            - "ReadWriteOnce"
+        requests:
+            storage: 8Gi
 redis:
     enabled: true
 consul:
     enabled: true
     server:
         replicas: 1
+        #storageClass: null
     ui:
         enabled: false
+
 console:
   enabled: true
   developer: false
