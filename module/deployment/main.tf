@@ -21,6 +21,7 @@ resource "null_resource" "add_spaceone_repo" {
     command = <<EOT
       helm repo add spaceone https://spaceone-dev.github.io/charts --repository-config ${path.module}/../../data/helm/config/repositories.yaml --repository-cache ${path.module}/../../data/helm/cache/repository
       helm repo update --repository-config ${path.module}/../../data/helm/config/repositories.yaml --repository-cache ${path.module}/../../data/helm/cache/repository
+      helm repo update
       sleep 5
     EOT
   }
