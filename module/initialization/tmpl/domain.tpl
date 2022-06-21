@@ -22,13 +22,9 @@ main:
       id: root_api_key
     consul_server: spaceone-consul-server
     marketplace_endpoint: grpc://repository.portal.spaceone.dev:50051
-    project_manager_policy_type: MANAGED
     project_manager_policy_id: policy-managed-project-manager
-    project_viewer_policy_type: MANAGED
     project_viewer_policy_id: policy-managed-project-viewer
-    domain_admin_policy_type: MANAGED
     domain_admin_policy_id: policy-managed-domain-admin
-    domain_viewer_policy_type: MANAGED
     domain_viewer_policy_id: policy-managed-domain-viewer
 
   tasks: []
