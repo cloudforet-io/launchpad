@@ -6,8 +6,8 @@ main:
   import:
     - /root/spacectl/apply/root_domain.yaml 
     - /root/spacectl/apply/marketplace.yaml
-    - /root/spacectl/apply/role.yaml
     - /root/spacectl/apply/user_domain.yaml
+    - /root/spacectl/apply/role.yaml
     - /root/spacectl/apply/statistics.yaml
   var:
     domain:
