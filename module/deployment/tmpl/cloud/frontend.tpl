@@ -47,7 +47,9 @@ console:
       external-dns.alpha.kubernetes.io/hostname: "${console-domain}"
 
   pod:
-    spec: {}
+    spec:
+      nodeSelector:
+        Category: core
 
 ###############################
 # Console-API
@@ -109,4 +111,6 @@ console-api:
         external-dns.alpha.kubernetes.io/hostname: ${console-api-domain}
 
   pod:
-    spec: {}
+    spec:
+      nodeSelector:
+        Category: core

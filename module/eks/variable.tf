@@ -3,6 +3,12 @@ variable "region" {
   description = "AWS Region for EKS"
 }
 
+variable "vpc_name" {
+  type        = string
+  description = "vpc cluster name"
+  default     = ""
+}
+
 variable "cluster_name" {
   type        = string
   description = "EKS cluster name"
@@ -71,47 +77,7 @@ variable "cluster_endpoint_public_access" {
 
 variable "node_groups_defaults" {}
 
-variable "node_groups_desired_capacity" {
-  type        = number
-  description = "desired capacity of Node Groups"
-  default     = 2
-}
-
-variable "node_groups_max_capacity" {
-  type        = number
-  description = "max capacity of Node Groups"
-  default     = 2
-}
-
-variable "node_groups_min_capacity" {
-  type        = number
-  description = "min capacity of Node Groups"
-  default     = 2
-}
-
-variable "node_groups_instance_types" {
-  type        = list
-  description = "instance type of node group"
-  default     = ["t3.small"]
-}
-
-variable "node_groups_capacity_type" {
-  type        = string
-  description = "instance capacity type of node group"
-  default     = "SPOT"
-}
-
-variable "node_groups_k8s_labels" {
-  type        = map
-  description = "EKS cluster labes"
-  default     = {}
-}
-
-variable "node_groups_additional_tags" {
-  type        = map
-  description = "additional tag of node group"
-  default     = {}
-}
+variable "node_groups" {}
 
 variable "map_accounts" {
   description = "Additional AWS account numbers to add to the aws-auth configmap."

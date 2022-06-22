@@ -13,7 +13,7 @@ module "vpc" {
   version = "2.77.0"  # Source Verion
 
 	# VPC
-	name = "vpc-${var.cluster_name}"
+	name = var.vpc_name
 	cidr = var.vpc_cidr
 
 	# AZ
@@ -47,42 +47,74 @@ module "vpc" {
 # EKS cluster
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
-  version         = "17.11.0"
+  version         = "18.21.0"
+
 	cluster_name    = var.cluster_name
   cluster_version = var.eks_cluster_version
   vpc_id          = module.vpc.vpc_id
-  subnets         = module.vpc.private_subnets
+  subnet_ids      = module.vpc.private_subnets
   tags            = var.tags
+
+
+
+  # Extend cluster security group rules
+  cluster_security_group_additional_rules = {
+    egress_nodes_ephemeral_ports_tcp = {
+      description                = "To node 1025-65535"
+      protocol                   = "tcp"
+      from_port                  = 1025
+      to_port                    = 65535
+      type                       = "egress"
+      source_node_security_group = true
+    }
+  }
+
+  # Extend node-to-node security group rules
+  node_security_group_additional_rules = {
+    ingress_allow_access_from_control_plane = {
+      type                          = "ingress"
+      protocol                      = "tcp"
+      from_port                     = 9443
+      to_port                       = 9443
+      source_cluster_security_group = true
+      description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+    }
+    ingress_self_all = {
+      description = "Node to node all ports/protocols"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      self        = true
+    }
+    egress_all = {
+      description      = "Node all egress"
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "egress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+  }
 
 	cluster_endpoint_private_access = var.cluster_endpoint_private_access
 	cluster_endpoint_public_access  = var.cluster_endpoint_public_access
 
 	# Managed Node Group
-  node_groups_defaults = var.node_groups_defaults
+  eks_managed_node_group_defaults  = var.node_groups_defaults
+  eks_managed_node_groups          = var.node_groups
 
-	node_groups = {
-    core = {
-      desired_capacity  = var.node_groups_desired_capacity
-      max_capacity      = var.node_groups_max_capacity
-      min_capacity      = var.node_groups_min_capacity
-
-      instance_types    = var.node_groups_instance_types
-      capacity_type     = var.node_groups_capacity_type
-      k8s_labels        = var.node_groups_k8s_labels
-      additional_tags   = var.node_groups_additional_tags
-    }
-  }
-
-	map_roles    = var.map_roles
-  map_users    = var.map_users
-  map_accounts = var.map_accounts
+	aws_auth_roles       = var.map_roles
+  aws_auth_users       = var.map_users
+  aws_auth_accounts    = var.map_accounts
 }
 
 resource "null_resource" "replace_kube_config" {
   depends_on = [module.eks]
   provisioner "local-exec" {
     command = <<EOT
-        cp ./kubeconfig_${var.cluster_name} ../../data/kubeconfig/config
+        aws eks update-kubeconfig --region ${var.region} --name ${var.cluster_name} --kubeconfig ../../data/kubeconfig/config
     EOT
   }
 }

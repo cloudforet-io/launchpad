@@ -38,6 +38,10 @@ console:
           service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
           service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
           service.beta.kubernetes.io/aws-load-balancer-name: "spaceone-console-nlb"
+  pod:
+    spec:
+      nodeSelector:
+        Category: core
 
 console-api:
   enabled: true
@@ -75,6 +79,18 @@ console-api:
           service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
           service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
           service.beta.kubernetes.io/aws-load-balancer-name: "spaceone-console-api-nlb"
+  pod:
+    spec:
+      nodeSelector:
+        Category: core
+
+billing:
+    enabled: false
+    image:
+        name: spaceone/billing
+        version: 1.9.7
+
+    application_grpc: {}
 
 identity:
     enabled: true
@@ -124,6 +140,11 @@ identity:
         name: Cost Analysis Service
         endpoint: grpc://cost-analysis:50051/v1
 
+    pod:
+      spec:
+        nodeSelector:
+          Category: core
+
 
 secret:
     enabled: true
@@ -141,6 +162,10 @@ secret:
         application_grpc: []
         application_scheduler: []
         application_worker: []
+    pod:
+      spec:
+        nodeSelector:
+          Category: core
 
 repository:
     enabled: true
@@ -154,6 +179,10 @@ repository:
             config:
                 host: spaceone-consul-server
             uri: root/api_key/TOKEN
+    pod:
+      spec:
+        nodeSelector:
+          Category: core
 
 plugin:
     enabled: true
@@ -171,12 +200,22 @@ plugin:
                 host: spaceone-consul-server
             uri: root/api_key/TOKEN
 
+    pod:
+      spec:
+        nodeSelector:
+          Category: core
+
 config:
     enabled: true
     replicas: 1
     image:
       name: spaceone/config
       version: 1.9.7.1
+
+    pod:
+      spec:
+        nodeSelector:
+          Category: core
 
 inventory:
     enabled: true
@@ -216,6 +255,11 @@ inventory:
         application_grpc: []
         application_scheduler: []
         application_worker: []
+
+    pod:
+      spec:
+        nodeSelector:
+          Category: core
 
 monitoring:
     enabled: true
@@ -279,6 +323,11 @@ monitoring:
             service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
             service.beta.kubernetes.io/aws-load-balancer-name: "spaceone-monitoring-nlb"
 
+    pod:
+      spec:
+        nodeSelector:
+          Category: core
+
 statistics:
     enabled: true
     replicas: 1
@@ -294,6 +343,11 @@ statistics:
             config:
                 host: spaceone-consul-server
             uri: root/api_key/TOKEN
+
+    pod:
+      spec:
+        nodeSelector:
+          Category: core
 
 notification:
     enabled: true
@@ -323,6 +377,11 @@ notification:
                 user: ${smpt_user}
                 password: ${smpt_password}
               schema: email_smtp
+
+    pod:
+      spec:
+        nodeSelector:
+          Category: core
 
 cost-analysis:
     enabled: true
@@ -355,7 +414,9 @@ cost-analysis:
         application_rest: []
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: core
 
 marketplace-assets:
     enabled: false
@@ -388,12 +449,19 @@ supervisor:
                     inventory.Collector?aws-cloud-services: 1
                     inventory.Collector?aws-power-state: 1
                     monitoring.DataSource: 1
+                nodeSelector:
+                    Category: supervisor
 
         TOKEN_INFO:
             protocol: consul
             config:
                 host: spaceone-consul-server.spaceone.svc.cluster.local
             uri: root/api_key/TOKEN
+
+    pod:
+      spec:
+        nodeSelector:
+          Category: supervisor
 
 ingress:
     enabled: false

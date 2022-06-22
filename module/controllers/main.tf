@@ -1,18 +1,4 @@
 #######################################################
-# OIDC
-#######################################################
-
-data "tls_certificate" "thumbprint" {
-  url             = data.terraform_remote_state.eks.outputs.cluster_oidc_issuer_url
-}
-
-resource "aws_iam_openid_connect_provider" "associate_iam_oidc_provide" {
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.tls_certificate.thumbprint.certificates[0].sha1_fingerprint]
-  url             = data.terraform_remote_state.eks.outputs.cluster_oidc_issuer_url
-}
-
-#######################################################
 # IAM roles for AWSLoadBalancerController
 #######################################################
 
@@ -22,15 +8,11 @@ resource "random_string" "random" {
 }
 
 resource "aws_iam_policy" "AWSLoadBalancerControllerIAMPolicy" {
-  depends_on  = [aws_iam_openid_connect_provider.associate_iam_oidc_provide]
-
   name        = "AWSLoadBalancerControllerIAMPolicy-${random_string.random.result}"
   policy      = "${file("json/iam-policy.json")}"
 }
 
 resource "aws_iam_role" "AWSLoadBalancerController" {
-  depends_on  = [aws_iam_openid_connect_provider.associate_iam_oidc_provide]
-  
   name        =  "AWSLoadBalancerController_iam_role-${random_string.random.result}"
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
@@ -38,13 +20,13 @@ resource "aws_iam_role" "AWSLoadBalancerController" {
       {
         "Effect": "Allow",
         "Principal": {
-          "Federated": "${aws_iam_openid_connect_provider.associate_iam_oidc_provide.arn}"
+          "Federated": "${data.terraform_remote_state.eks.outputs.oidc_provider_arn}"
         },
         "Action": "sts:AssumeRoleWithWebIdentity",
         "Condition": {
           "StringEquals": {
-            "${aws_iam_openid_connect_provider.associate_iam_oidc_provide.url}:sub": "system:serviceaccount:kube-system:aws-load-balancer-controller",
-            "${aws_iam_openid_connect_provider.associate_iam_oidc_provide.url}:aud": "sts.amazonaws.com"
+            "${data.terraform_remote_state.eks.outputs.oidc_provider}:sub": "system:serviceaccount:kube-system:aws-load-balancer-controller",
+            "${data.terraform_remote_state.eks.outputs.oidc_provider}:aud": "sts.amazonaws.com"
           }
         }
       }
@@ -63,7 +45,6 @@ resource "aws_iam_role_policy_attachment" "AWSLoadBalancerController" {
 
 resource "aws_iam_policy" "external-dns" {
   count = var.minimal ? 0 : 1
-  depends_on  = [aws_iam_openid_connect_provider.associate_iam_oidc_provide]
 
   name        = "external-dns-${random_string.random.result}"
   policy      = "${file("json/external-dns.json")}"
@@ -71,7 +52,6 @@ resource "aws_iam_policy" "external-dns" {
 
 resource "aws_iam_role" "external-dns" {
   count = var.minimal ? 0 : 1
-  depends_on  = [aws_iam_openid_connect_provider.associate_iam_oidc_provide]
 
   name        =  "external-dns_iam_role-${random_string.random.result}"
   assume_role_policy = jsonencode({
@@ -80,13 +60,13 @@ resource "aws_iam_role" "external-dns" {
       {
         "Effect": "Allow",
         "Principal": {
-          "Federated": "${aws_iam_openid_connect_provider.associate_iam_oidc_provide.arn}"
+          "Federated": "${data.terraform_remote_state.eks.outputs.oidc_provider_arn}"
         },
         "Action": "sts:AssumeRoleWithWebIdentity",
         "Condition": {
           "StringEquals": {
-            "${aws_iam_openid_connect_provider.associate_iam_oidc_provide.url}:aud": "sts.amazonaws.com",
-            "${aws_iam_openid_connect_provider.associate_iam_oidc_provide.url}:sub": "system:serviceaccount:kube-system:external-dns"
+            "${data.terraform_remote_state.eks.outputs.oidc_provider}:aud": "sts.amazonaws.com",
+            "${data.terraform_remote_state.eks.outputs.oidc_provider}:sub": "system:serviceaccount:kube-system:external-dns"
           }
         }  
       }

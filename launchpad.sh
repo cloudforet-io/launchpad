@@ -3,7 +3,7 @@ IMG_GO="golang:1.17-stretch"
 IMG_LAUNCHPAD="spaceone:launchpad"
 
 if [ ! -f ./launchpad ]; then
-    docker run -it -w /spaceone --rm -v `pwd`:/spaceone $IMG_GO /bin/bash -c "env GOOS=linux GOARCH=amd64 go build"
+    docker run -it -w /spaceone --rm -v `pwd`:/spaceone $IMG_GO /bin/bash -c "env GOOS=linux GOARCH=amd64 go build -o gobin"
 fi
 
 if [ ! $(docker images -q $IMG_LAUNCHPAD) ]; then

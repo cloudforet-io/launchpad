@@ -1,6 +1,6 @@
 module "documentdb_cluster" {
-  source  = "cloudposse/documentdb-cluster/aws"
-  version = "0.13.0"
+  source                          = "cloudposse/documentdb-cluster/aws"
+  version                         = "0.13.0"
   cluster_size                    = var.cluster_size
   master_username                 = var.master_username
   master_password                 = var.master_password
@@ -10,8 +10,8 @@ module "documentdb_cluster" {
   subnet_ids                      = data.terraform_remote_state.eks.outputs.database_subnets
   apply_immediately               = var.apply_immediately
   auto_minor_version_upgrade      = var.auto_minor_version_upgrade
-  allowed_security_groups         = [data.terraform_remote_state.eks.outputs.cluster_primary_security_group_id]
-  allowed_cidr_blocks             = var.allowed_cidr_blocks
+  allowed_security_groups         = [data.terraform_remote_state.eks.outputs.cluster_security_group_id]
+  allowed_cidr_blocks             = [data.terraform_remote_state.eks.outputs.vpc_cidr_block]
   snapshot_identifier             = var.snapshot_identifier
   retention_period                = var.retention_period
   preferred_backup_window         = var.preferred_backup_window

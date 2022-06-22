@@ -11,13 +11,20 @@ mongodb:
             storage: 8Gi
 redis:
     enabled: true
-consul:
+consul: # refer to https://github.com/hashicorp/consul-helm
     enabled: true
     server:
         replicas: 3
-        #storageClass: null
     ui:
         enabled: false
+
+billing:
+    enabled: false
+    image:
+        name: spaceone/billing
+        version: 1.9.7
+
+    application_grpc: {}
 
 identity:
     enabled: true

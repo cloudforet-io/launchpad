@@ -11,13 +11,20 @@ mongodb:
             storage: 8Gi
 redis:
     enabled: true
-consul:
+consul: # refer to https://github.com/hashicorp/consul-helm
     enabled: true
     server:
         replicas: 3
-        #storageClass: null
     ui:
         enabled: false
+
+billing:
+    enabled: false
+    image:
+        name: spaceone/billing
+        version: 1.9.7
+
+    application_grpc: {}
 
 identity:
     enabled: true
@@ -27,7 +34,9 @@ identity:
       version: 1.9.7.3
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: core
 
 secret:
     enabled: true
@@ -53,7 +62,9 @@ secret:
         application_worker: []
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: core
 
 repository:
     enabled: true
@@ -61,6 +72,11 @@ repository:
     image:
       name: public.ecr.aws/megazone/spaceone/repository
       version: 1.9.7.1
+
+    pod:
+      spec:
+        nodeSelector:
+          Category: core
 
 plugin:
     enabled: true
@@ -80,7 +96,9 @@ plugin:
             uri: root/api_key/TOKEN
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: core
 
 config:
     enabled: true
@@ -90,7 +108,9 @@ config:
       version: 1.9.7.1
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: core
 
 inventory:
     enabled: true
@@ -136,7 +156,9 @@ inventory:
         application_worker: []
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: core
 
 ######################################
 # if you want NLB for spacectl
@@ -241,7 +263,9 @@ monitoring:
         path: /
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: core
 
 statistics:
     enabled: true
@@ -261,7 +285,9 @@ statistics:
             uri: root/api_key/TOKEN
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: core
 
 notification:
     enabled: true
@@ -293,7 +319,9 @@ notification:
               schema: email_smtp
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: core
 
 cost-analysis:
     enabled: true
@@ -326,7 +354,9 @@ cost-analysis:
         application_rest: []
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: core
 
 marketplace-assets:
     enabled: false
@@ -362,6 +392,8 @@ supervisor:
                     inventory.Collector?aws-cloud-services: 4
                     inventory.Collector?aws-power-state: 4
                     monitoring.DataSource: 2
+                nodeSelector:
+                    Category: supervisor
 
 #        TOKEN: ___CHANGE_YOUR_ROOT_TOKEN___ 
         TOKEN_INFO:
@@ -371,7 +403,9 @@ supervisor:
             uri: root/api_key/TOKEN
 
     pod:
-        spec: {}
+      spec:
+        nodeSelector:
+          Category: supervisor
 
 ingress:
     enabled: false

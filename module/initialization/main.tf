@@ -25,7 +25,7 @@ resource "null_resource" "delete_domain_initializer" {
     command = <<EOT
       while true
       do
-          status=$(kubectl get pod -n spaceone | grep "initialize-spaceone" | awk '{print $3}')
+          status=$(kubectl get pod -n spaceone -l app.kubernetes.io/name=spaceone-initializer | tail -1 | awk '{print $3}')
           if [[ $status =~ Completed ]]; then
               helm uninstall -n spaceone domain
               break

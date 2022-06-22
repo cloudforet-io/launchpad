@@ -8,4 +8,4 @@ config
 secret-key
 data/helm/cache
 data/helm/config
-launchpad
+gobin
