@@ -55,8 +55,6 @@ module "eks" {
   subnet_ids      = module.vpc.private_subnets
   tags            = var.tags
 
-
-
   # Extend cluster security group rules
   cluster_security_group_additional_rules = {
     egress_nodes_ephemeral_ports_tcp = {
