@@ -12,17 +12,17 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "2.77.0"  # Source Verion
 
-	# VPC
-	name = var.vpc_name
-	cidr = var.vpc_cidr
+  # VPC
+  name = var.vpc_name
+  cidr = var.vpc_cidr
 
-	# AZ
-  azs		            = ["${var.region}a", "${var.region}b", "${var.region}c"]
-  private_subnets		= var.private_subnets
-  database_subnets	= var.database_subnets
+  # AZ
+  azs               = ["${var.region}a", "${var.region}b", "${var.region}c"]
+  private_subnets   = var.private_subnets
+  database_subnets  = var.database_subnets
   
   # NAT(for Internet)
-  public_subnets		 = var.public_subnets
+  public_subnets     = var.public_subnets
   enable_nat_gateway = true
 
   # Disable VPN
@@ -34,10 +34,10 @@ module "vpc" {
 
   tags     = var.tags
   vpc_tags = var.vpc_tags
-	public_subnet_tags = {
+  public_subnet_tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/elb"                    = "1"
-  }		
+  }   
   private_subnet_tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"           = "1"
@@ -49,7 +49,7 @@ module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "18.21.0"
 
-	cluster_name    = var.cluster_name
+  cluster_name    = var.cluster_name
   cluster_version = var.eks_cluster_version
   vpc_id          = module.vpc.vpc_id
   subnet_ids      = module.vpc.private_subnets
@@ -98,14 +98,14 @@ module "eks" {
     }
   }
 
-	cluster_endpoint_private_access = var.cluster_endpoint_private_access
-	cluster_endpoint_public_access  = var.cluster_endpoint_public_access
+  cluster_endpoint_private_access = var.cluster_endpoint_private_access
+  cluster_endpoint_public_access  = var.cluster_endpoint_public_access
 
-	# Managed Node Group
+  # Managed Node Group
   eks_managed_node_group_defaults  = var.node_groups_defaults
   eks_managed_node_groups          = var.node_groups
 
-	aws_auth_roles       = var.map_roles
+  aws_auth_roles       = var.map_roles
   aws_auth_users       = var.map_users
   aws_auth_accounts    = var.map_accounts
 }
