@@ -2,18 +2,13 @@
 # IAM roles for AWSLoadBalancerController
 #######################################################
 
-resource "random_string" "random" {
-  length  = 5
-  special = false
-}
-
 resource "aws_iam_policy" "AWSLoadBalancerControllerIAMPolicy" {
-  name        = "AWSLoadBalancerControllerIAMPolicy-${random_string.random.result}"
+  name        = "${data.terraform_remote_state.eks.outputs.cluster_id}-AWSLoadBalancerControllerIAMPolicy"
   policy      = "${file("json/iam-policy.json")}"
 }
 
 resource "aws_iam_role" "AWSLoadBalancerController" {
-  name        =  "AWSLoadBalancerController_iam_role-${random_string.random.result}"
+  name        =  "${data.terraform_remote_state.eks.outputs.cluster_id}-AWSLoadBalancerController_iam_role"
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
@@ -46,14 +41,14 @@ resource "aws_iam_role_policy_attachment" "AWSLoadBalancerController" {
 resource "aws_iam_policy" "external-dns" {
   count = var.minimal ? 0 : 1
 
-  name        = "external-dns-${random_string.random.result}"
+  name        = "${data.terraform_remote_state.eks.outputs.cluster_id}-external-dns"
   policy      = "${file("json/external-dns.json")}"
 }
 
 resource "aws_iam_role" "external-dns" {
   count = var.minimal ? 0 : 1
 
-  name        =  "external-dns_iam_role-${random_string.random.result}"
+  name        =  "${data.terraform_remote_state.eks.outputs.cluster_id}-external-dns_iam_role"
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
