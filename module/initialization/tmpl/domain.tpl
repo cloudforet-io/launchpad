@@ -1,7 +1,7 @@
 enabled: true
 image:
     name: spaceone/spacectl
-    version: 1.9.7.3
+    version: 1.10.0
 main:
   import:
     - /root/spacectl/apply/root_domain.yaml 
