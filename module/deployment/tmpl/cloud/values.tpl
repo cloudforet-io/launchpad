@@ -258,7 +258,7 @@ monitoring:
             alb.ingress.kubernetes.io/healthcheck-path: "/check"
             alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=600
             alb.ingress.kubernetes.io/load-balancer-name: spaceone-prd-core-monitoring
-            external-dns.alpha.kubernetes.io/hostname: ${monitoring_domain} # monitoring-webhook.domain.com
+            external-dns.alpha.kubernetes.io/hostname: ${monitoring_webhook_domain} # monitoring-webhook.domain.com
         servicePort: 80
         path: /
 

@@ -56,7 +56,6 @@ resource "local_file" "generate_value_yaml" {
       aws_access_key_id          = "${data.terraform_remote_state.secret[0].outputs.access_key_id}"
       aws_secret_access_key      = "${module.get_aws_secret_key.stdout}"
       region_name                = "${var.region}"
-      monitoring_domain          = "monitoring.${data.terraform_remote_state.certificate[0].outputs.domain_name}"
       monitoring_webhook_domain  = "monitoring-webhook.${data.terraform_remote_state.certificate[0].outputs.domain_name}"
       certificate-arn            = "${data.terraform_remote_state.certificate[0].outputs.certificate_arn}"
       smpt_host                  = "${var.notification_smpt_host}" 
