@@ -185,8 +185,8 @@ vim {repo}/data/helm/values/spaceone/minimal.yaml
 
 <hr>
 
-Cloudforet discuss channel<br>
+### Cloudforet discuss channel<br>
 https://github.com/cloudforet-io/community/discussions
 
-Cloudforet release example<br>
+### Cloudforet release example<br>
 https://github.com/cloudforet-io/charts
